@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Presentation about <%= it.topic %> – FreestAIle</title>
+
+    <link rel="stylesheet" href="styles/presentation.css">
+
+    <!-- Styles für RevealJS -->
+    <link rel="stylesheet" href="revealjsstyles/reveal.min.css">
+    <link rel="stylesheet" href="revealjsstyles/white.min.css" id="theme-light">
+    <link rel="stylesheet" href="revealjsstyles/black.min.css" id="theme-dark" disabled>
+</head>
+
+<body class="theme-light">
+<!-- Header with Title and Hamburger Menu -->
+<header>
+    <h1 class="site-title">RevealJS Präsentation</h1>
+    <div class="hamburger-menu">
+        <div class="hamburger-icon" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-dropdown" id="menu-dropdown">
+            <div class="menu-item" onclick="toggleTheme()">
+                <i>🌓</i>
+                <span id="theme-text">Darkmode aktivieren</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content Container -->
+<div class="container">
+    <div class="presentation-container" id="presentation-container">
+        <!-- RevealJS Presentation -->
+        <div class="reveal">
+            <div class="slides">
+                <!-- Titelfolie -->
+                <section>
+                    <h1><span class="highlight"><%= it.topic %></span></h1>
+                    <h3>Ein sehr interessantes Thema!</h3>
+                </section>
+
+                <!-- Über RevealJS -->
+                <section>
+                    <h2>Was ist RevealJS?</h2>
+                    <p>Ein Framework für HTML-Präsentationen mit vielen Funktionen:</p>
+                    <div class="feature-grid">
+                        <div class="card">
+                            <h3>Responsive</h3>
+                            <p>Passt sich an jedes Gerät an</p>
+                        </div>
+                        <div class="card">
+                            <h3>Markdown</h3>
+                            <p>Unterstützt Markdown-Syntax</p>
+                        </div>
+                        <div class="card">
+                            <h3>Themes</h3>
+                            <p>Viele vorgefertigte Designs</p>
+                        </div>
+                        <div class="card">
+                            <h3>Plugins</h3>
+                            <p>Erweiterbar durch Plugins</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Code Beispiel -->
+                <section>
+                    <h2>Einfache Integration</h2>
+                    <p>RevealJS ist einfach einzubinden:</p>
+                    <pre><code data-trim>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;link rel="stylesheet" href="reveal.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class="reveal"&gt;
+      &lt;div class="slides"&gt;
+        &lt;section&gt;Slide 1&lt;/section&gt;
+        &lt;section&gt;Slide 2&lt;/section&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;script src="reveal.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+      Reveal.initialize();
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+            </code></pre>
+                </section>
+
+                <!-- Navigation -->
+                <section>
+                    <h2>Navigation</h2>
+                    <p>Benutze die Pfeiltasten ← → um durch die Präsentation zu navigieren</p>
+                    <p>Drücke <code>ESC</code> für eine Übersicht aller Folien</p>
+                    <p>
+                        <button class="custom-btn" onclick="Reveal.prev()">Zurück</button>
+                        <button class="custom-btn" onclick="Reveal.next()">Weiter</button>
+                    </p>
+                </section>
+
+                <!-- Verschachtelte Folien (vertikal) -->
+                <section>
+                    <section>
+                        <h2>Vertikale Folien</h2>
+                        <p>RevealJS unterstützt auch vertikale Folien</p>
+                        <p>Drücke ↓ um weiterzugehen</p>
+                    </section>
+                    <section>
+                        <h3>Vertikale Folie 1</h3>
+                        <p>Dies ist eine verschachtelte Folie</p>
+                    </section>
+                    <section>
+                        <h3>Vertikale Folie 2</h3>
+                        <p>Mit ↑ gelangst du zurück</p>
+                    </section>
+                </section>
+
+                <!-- Kontakt -->
+                <section>
+                    <h2>Vielen Dank!</h2>
+                    <p>Diese Präsentation demonstriert Light- und Darkmode in RevealJS</p>
+                    <p>Weitere Informationen unter:</p>
+                    <p><a href="https://revealjs.com">revealjs.com</a></p>
+                </section>
+            </div>
+        </div>
+
+        <!-- Fullscreen Button -->
+        <button class="fullscreen-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
+            <svg class="fullscreen-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+            <svg class="minimize-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- RevealJS Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+
+<script>
+    // RevealJS initialisieren
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        center: true,
+        hash: true,
+        transition: 'slide',
+        width: "100%",
+        height: "100%",
+        margin: 0.05
+    });
+
+    // Hamburger-Menü umschalten
+    function toggleMenu() {
+        const dropdown = document.getElementById('menu-dropdown');
+        const hamburgerIcon = document.querySelector('.hamburger-icon');
+
+        dropdown.classList.toggle('active');
+        hamburgerIcon.classList.toggle('active');
+    }
+
+    // Klick außerhalb des Menüs schließt das Menü
+    document.addEventListener('click', function(event) {
+        const menu = document.querySelector('.hamburger-menu');
+        const dropdown = document.getElementById('menu-dropdown');
+        const hamburgerIcon = document.querySelector('.hamburger-icon');
+
+        if (!menu.contains(event.target) && dropdown.classList.contains('active')) {
+            dropdown.classList.remove('active');
+            hamburgerIcon.classList.remove('active');
+        }
+    });
+
+    // Light/Darkmode Toggle Funktion
+    function toggleTheme() {
+        const body = document.body;
+        const themeLight = document.getElementById('theme-light');
+        const themeDark = document.getElementById('theme-dark');
+        const themeText = document.getElementById('theme-text');
+        const dropdown = document.getElementById('menu-dropdown');
+        const hamburgerIcon = document.querySelector('.hamburger-icon');
+
+        if (body.classList.contains('theme-light')) {
+            body.classList.remove('theme-light');
+            body.classList.add('theme-dark');
+            themeLight.disabled = true;
+            themeDark.disabled = false;
+            themeText.textContent = 'Lightmode aktivieren';
+        } else {
+            body.classList.remove('theme-dark');
+            body.classList.add('theme-light');
+            themeLight.disabled = false;
+            themeDark.disabled = true;
+            themeText.textContent = 'Darkmode aktivieren';
+        }
+
+        // Menü nach Themenwechsel schließen
+        dropdown.classList.remove('active');
+        hamburgerIcon.classList.remove('active');
+    }
+
+    // Vollbildmodus umschalten
+    function toggleFullscreen() {
+        const presentationContainer = document.getElementById('presentation-container');
+
+        if (presentationContainer.classList.contains('fullscreen-mode')) {
+            // Vollbildmodus verlassen
+            presentationContainer.classList.remove('fullscreen-mode');
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        } else {
+            // Vollbildmodus aktivieren
+            presentationContainer.classList.add('fullscreen-mode');
+            if (presentationContainer.requestFullscreen) {
+                presentationContainer.requestFullscreen();
+            } else if (presentationContainer.webkitRequestFullscreen) {
+                presentationContainer.webkitRequestFullscreen();
+            } else if (presentationContainer.mozRequestFullScreen) {
+                presentationContainer.mozRequestFullScreen();
+            } else if (presentationContainer.msRequestFullscreen) {
+                presentationContainer.msRequestFullscreen();
+            }
+        }
+
+        // RevealJS Layout aktualisieren
+        setTimeout(() => {
+            Reveal.layout();
+        }, 300);
+    }
+
+    // Event-Listener für den Vollbildmodus-Wechsel
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+    document.addEventListener('mozfullscreenchange', updateFullscreenUI);
+    document.addEventListener('MSFullscreenChange', updateFullscreenUI);
+
+    function updateFullscreenUI() {
+        const presentationContainer = document.getElementById('presentation-container');
+        const isFullscreen = document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement;
+
+        if (!isFullscreen && presentationContainer.classList.contains('fullscreen-mode')) {
+            presentationContainer.classList.remove('fullscreen-mode');
+        }
+
+        // RevealJS Layout aktualisieren
+        setTimeout(() => {
+            Reveal.layout();
+        }, 300);
+    }
+</script>
+</body>
+
+</html>

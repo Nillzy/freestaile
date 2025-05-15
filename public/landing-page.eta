@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>FreestAIle</title>
+        <!-- TODO: Add CSS -->
+    </head>
+
+    <body>
+        <h1>Freest<b>AI</b>le</h1>
+        <br>
+        <form action="/present" method="get">
+            <label for="topic">What should the presentation be about?</label>
+            <br>
+            <input type="text" name="topic" id="topic" placeholder="Socioeconomic Benefits and Drawbacks of Coco-Cola Zero" size="50">
+            <!-- Idee: Mehrere Vorschläge, die "getippt" werden -->
+            <br>
+            <input type="submit">
+        </form>
+    </body>
+
+</html>
