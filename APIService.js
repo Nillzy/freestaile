@@ -1,3 +1,6 @@
+const { validateRevealSlides } = require("./revealValidator");
+const { exampleUsage, testInvalidSlides } = require("./revealValidatorExample");
+
 export async function fetchSlides(topic) {
     const prompt = "### ROLE ###\\n" +
         "You are an expert RevealJS slide content generator. Your specialty is creating hilarious and unexpected presentations suitable for PowerPoint Karaoke.\\n" +
@@ -60,54 +63,6 @@ export async function fetchSlides(topic) {
         "Begin generation for topic: \\\"" + topic + "\\\"" +
         "Again, do NOT use ```html ... ```, but just give me the code.";
 
-
-    /*const url = 'https://openrouter.ai/api/v1/chat/completions';
-    const options = {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer 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`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            model: "meta-llama/llama-4-maverick:free",
-            messages: [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "text",
-                            text: prompt
-                        }
-                    ]
-                }
-            ]
-        })
-    };
-
-    console.log(`${process.env.OPENROUTER_API_KEY}`);
-
-    try {
-        const response = await fetch(url, options);
-
-        if (!response.ok) {
-            throw new Error(`API returned status: ${response.status}`);
-        }
-
-        console.log(response);
-
-        const json = await response.json();
-        const content = json.choices?.[0]?.message?.content;
-
-        if (!content || content.trim() === 'NO_SLIDE') {
-            throw new Error("No slide content generated.");
-        }
-
-        return content;
-
-    } catch (error) {
-        console.error(error);
-        throw error; // Fehler weiterleiten, damit er behandelt werden kann
-    }*/
     const url = 'https://openrouter.ai/api/v1/chat/completions';
     const options = {
         method: 'POST',
@@ -118,13 +73,55 @@ export async function fetchSlides(topic) {
         body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
     };
 
-    try {
+    /*try {
+        const response = await fetch(url, options);
+        if (response.ok) {
+            const json = await response.json();
+            const content = json.choices?.[0]?.message?.content;
+            console.log(json);
+            return content;
+        } else {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                const json = await response.json();
+                const content = json.choices?.[0]?.message?.content;
+                console.log(json);
+                return content;
+            }
+        }
+    } catch (error) {
+        console.error(error);
+    }*/
+
+    /*try {
         const response = await fetch(url, options);
         const json = await response.json();
         const content = json.choices?.[0]?.message?.content;
-        console.log(json);
-        return content;
+
+        try {
+            validateRevealSlides(content);
+            // exampleUsage();
+            // testInvalidSlides();
+            return content;
+        } catch (validationError) {
+            console.error(
+                `Validierungsfehler (Versuch ${retryCount + 1}/${MAX_RETRIES}):`,
+                validationError.message
+            );
+
+            if (retryCount < MAX_RETRIES) {
+                console.log(
+                    `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
+                );
+                return fetchSlides(topic, retryCount + 1);
+            } else {
+                throw new Error(
+                    `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
+                );
+            }
+        }
     } catch (error) {
         console.error(error);
-    }
+        throw error;
+    }*/
 }
