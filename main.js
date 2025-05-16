@@ -1,40 +1,42 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const path = require('node:path');
-const Eta = require('eta').Eta;
-const eta = new Eta({views: path.join(__dirname, 'public')});
-require('dotenv').config(); // Für Umgebungsvariablen
+const path = require("node:path");
+const Eta = require("eta").Eta;
+const eta = new Eta({ views: path.join(__dirname, "public") });
+require("dotenv").config(); // Für Umgebungsvariablen
 
 app.use(express.static("public"));
 
-app.get('/', (req, res) => {
-    res.send(eta.render("landing-page", {}));
+app.get("/", (req, res) => {
+  res.send(eta.render("landing-page", {}));
 });
 
-app.get('/present', (req, res) => {
-    if (req.query.topic !== undefined) {
-        fetchSlides(req.query.topic)
-            .then(content => {
-                res.send(eta.render("presentation-page", {content: content}));
-            })
-            .catch(error => {
-                console.error('Error fetching slides:', error);
-                res.status(500).send(eta.render("error-page", {
-                    message: "Fehler beim Abrufen der Präsentation"
-                }));
-            });
-    } else {
-        res.redirect('/');
-    }
+app.get("/present", (req, res) => {
+  if (req.query.topic !== undefined) {
+    fetchSlides(req.query.topic)
+      .then((content) => {
+        res.send(eta.render("presentation-page", { content: content }));
+      })
+      .catch((error) => {
+        console.error("Error fetching slides:", error);
+        res.status(500).send(
+          eta.render("error-page", {
+            message: "Fehler beim Abrufen der Präsentation",
+          })
+        );
+      });
+  } else {
+    res.redirect("/");
+  }
 });
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}/`);
+  console.log(`Server running at http://localhost:${PORT}/`);
 });
 
 async function fetchSlides(topic) {
-    /*const prompt = `Erstelle eine Präsentation zum Thema: ${topic}. Die Präsentation soll aus ca. 10 Folien mit prägnantem Inhalt bestehen. Generiere die Präsentation für RevealJS. Gib mir nicht den ganzen HTML-Code, sondern nur den Inhalt des Bodys. Der äußere div soll die class "container" haben und der innere div soll die class und id "presentation-container" haben. Antworte mit nichts anderem. Wenn du das Thema nicht verstehst oder du zu dem angegebenen Thema keine Präsentation erstellen möchtest, antworte einfach mit NO_SLIDE. Hier ist ein Beispiel: <div class="container">
+  /*const prompt = `Erstelle eine Präsentation zum Thema: ${topic}. Die Präsentation soll aus ca. 10 Folien mit prägnantem Inhalt bestehen. Generiere die Präsentation für RevealJS. Gib mir nicht den ganzen HTML-Code, sondern nur den Inhalt des Bodys. Der äußere div soll die class "container" haben und der innere div soll die class und id "presentation-container" haben. Antworte mit nichts anderem. Wenn du das Thema nicht verstehst oder du zu dem angegebenen Thema keine Präsentation erstellen möchtest, antworte einfach mit NO_SLIDE. Hier ist ein Beispiel: <div class="container">
       <div class="presentation-container" id="presentation-container">
         <section>
           <h2>Katzen vs. Hunde</h2>
@@ -195,23 +197,23 @@ async function fetchSlides(topic) {
         console.error(error);
         throw error; // Fehler weiterleiten, damit er behandelt werden kann
     }*/
-    const url = 'https://openrouter.ai/api/v1/chat/completions';
-    const options = {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-        },
-        body: `{"model":"meta-llama/llama-4-maverick:free","messages":[{"role":"user","content":[{"type":"text","text":"Erstelle eine Präsentation zum Thema: ${topic}. Die Präsentation soll aus ca. 10 Folien mit prägnantem Inhalt bestehen. Generiere die Präsentation für RevealJS. Gib mir nicht den ganzen HTML-Code, sondern nur den Inhalt des Bodys. Der äußerste div soll die class "container" haben, der nächste div soll die class und id "presentation-container" haben, der nächste div die class "reveal" und der innerste div die class "slides" . Antworte mit nichts anderem."}]}]}`
-    };
+  const url = "https://openrouter.ai/api/v1/chat/completions";
+  const options = {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: `{"model":"meta-llama/llama-4-maverick:free","messages":[{"role":"user","content":[{"type":"text","text":"Erstelle eine Präsentation zum Thema: ${topic}. Die Präsentation soll aus ca. 10 Folien mit prägnantem Inhalt bestehen. Generiere die Präsentation für RevealJS. Gib mir nicht den ganzen HTML-Code, sondern nur den Inhalt des Bodys. Der äußerste div soll die class "container" haben, der nächste div soll die class und id "presentation-container" haben, der nächste div die class "reveal" und der innerste div die class "slides" . Antworte mit nichts anderem."}]}]}`,
+  };
 
-    try {
-        const response = await fetch(url, options);
-        const json = await response.json();
-        const content = json.choices?.[0]?.message?.content;
-        console.log(content);
-        return content;
-    } catch (error) {
-        console.error(error);
-    }
+  try {
+    const response = await fetch(url, options);
+    const json = await response.json();
+    const content = json.choices?.[0]?.message?.content;
+    // console.log(content);
+    return content;
+  } catch (error) {
+    console.error(error);
+  }
 }
