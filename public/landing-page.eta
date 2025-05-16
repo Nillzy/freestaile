@@ -1,23 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreestAIle - AI-Powered Presentations</title>
+    <style>
+        :root {
+            --primary-color: #2a76dd;
+            --secondary-color: #6c6c6c;
+            --background-light: #ffffff;
+            --text-light: #333333;
+            --background-dark: #121212;
+            --text-dark: #f1f1f1;
+            --highlight-color: #ff9800;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --transition-speed: 0.3s;
+        }
 
-    <head>
-        <meta charset="UTF-8">
-        <title>FreestAIle</title>
-        <!-- TODO: Add CSS -->
-    </head>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    <body>
-        <h1>Freest<b>AI</b>le</h1>
-        <br>
-        <form action="/present" method="get">
-            <label for="topic">What should the presentation be about?</label>
-            <br>
-            <input type="text" name="topic" id="topic" placeholder="Socioeconomic Benefits and Drawbacks of Coco-Cola Zero" size="50">
-            <!-- Idee: Mehrere Vorschläge, die "getippt" werden -->
-            <br>
-            <input type="submit">
-        </form>
-    </body>
+        body {
+            background-color: var(--background-light);
+            color: var(--text-light);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
+        body.theme-dark {
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        header {
+            background-color: white;
+            color: var(--primary-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+        
+        body.theme-dark header {
+            background-color: var(--background-dark);
+            color: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .site-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--card-shadow);
+            transition: transform var(--transition-speed);
+        }
+
+        body.theme-dark .card {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        h1 .highlight {
+            color: var(--primary-color);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        label {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        body.theme-dark input[type="text"] {
+            background-color: #2a2a2a;
+            border-color: #444;
+            color: white;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(42, 118, 221, 0.25);
+        }
+
+        .typing-container {
+            height: 1.5rem;
+            overflow: hidden;
+            color: var(--secondary-color);
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        .submit-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color var(--transition-speed), transform var(--transition-speed);
+            align-self: center;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background-color: #1a65cc;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Hamburger menu */
+        .hamburger-menu {
+            position: relative;
+            z-index: 100;
+        }
+
+        .hamburger-icon {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+        }
+
+        .hamburger-icon span {
+            height: 3px;
+            width: 100%;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-icon.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .hamburger-icon.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-icon.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            min-width: 200px;
+            display: none;
+            overflow: hidden;
+        }
+
+        body.theme-dark .menu-dropdown {
+            background-color: #1e1e1e;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+
+        .menu-dropdown.active {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: var(--text-light);
+        }
+
+        body.theme-dark .menu-item {
+            color: var(--text-dark);
+        }
+
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        body.theme-dark .menu-item:hover {
+            background-color: #2a2a2a;
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #f5f5f5;
+            color: var(--secondary-color);
+            transition: background-color var(--transition-speed);
+        }
+
+        body.theme-dark footer {
+            background-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body class="theme-light">
+    <!-- Header with Title and Hamburger Menu -->
+    <header>
+        <h1 class="site-title">FreestAIle</h1>
+        <div class="hamburger-menu">
+            <div class="hamburger-icon" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="menu-dropdown" id="menu-dropdown">
+                <div class="menu-item" onclick="toggleTheme()">
+                    <i>🌓</i>
+                    <span id="theme-text">Darkmode aktivieren</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <div class="card">
+            <h1>AI-Powered <span class="highlight">Presentations</span></h1>
+            <form action="/present" method="get">
+                <div>
+                    <label for="topic">What should the presentation be about?</label>
+                    <input type="text" name="topic" id="topic" placeholder="Enter your presentation topic..." autocomplete="off">
+                    <div class="typing-container" id="typing-container"></div>
+                </div>
+                <button type="submit" class="submit-btn">Generate Presentation</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 FreestAIle - Create stunning presentations with AI</p>
+    </footer>
+
+    <script>
+        // Hamburger-Menü umschalten
+        function toggleMenu() {
+            const dropdown = document.getElementById('menu-dropdown');
+            const hamburgerIcon = document.querySelector('.hamburger-icon');
+
+            dropdown.classList.toggle('active');
+            hamburgerIcon.classList.toggle('active');
+        }
+
+        // Klick außerhalb des Menüs schließt das Menü
+        document.addEventListener('click', function(event) {
+            const menu = document.querySelector('.hamburger-menu');
+            const dropdown = document.getElementById('menu-dropdown');
+            const hamburgerIcon = document.querySelector('.hamburger-icon');
+
+            if (!menu.contains(event.target) && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+                hamburgerIcon.classList.remove('active');
+            }
+        });
+
+        // Light/Darkmode Toggle Funktion
+        function toggleTheme() {
+            const body = document.body;
+            const themeText = document.getElementById('theme-text');
+            const dropdown = document.getElementById('menu-dropdown');
+            const hamburgerIcon = document.querySelector('.hamburger-icon');
+
+            if (body.classList.contains('theme-light')) {
+                body.classList.remove('theme-light');
+                body.classList.add('theme-dark');
+                themeText.textContent = 'Lightmode aktivieren';
+            } else {
+                body.classList.remove('theme-dark');
+                body.classList.add('theme-light');
+                themeText.textContent = 'Darkmode aktivieren';
+            }
+
+            // Menü nach Themenwechsel schließen
+            dropdown.classList.remove('active');
+            hamburgerIcon.classList.remove('active');
+        }
+
+        // Typing effect für Vorschläge
+        const suggestions = [
+            "Socioeconomic Benefits and Drawbacks of Coca-Cola Zero",
+            "The Future of Artificial Intelligence in Education",
+            "Sustainable Energy Solutions for the 21st Century",
+            "Blockchain Technology and Its Real-World Applications",
+            "The Psychology of Decision Making in Business"
+        ];
+
+        let currentSuggestionIndex = 0;
+        let currentCharIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 80;
+        let deletingSpeed = 40;
+        let pauseBeforeDelete = 2000;
+        let pauseBeforeType = 500;
+
+        function typeWriter() {
+            const typingContainer = document.getElementById('typing-container');
+            const currentSuggestion = suggestions[currentSuggestionIndex];
+            
+            if (isDeleting) {
+                // Löschen
+                typingContainer.textContent = "Try: " + currentSuggestion.substring(0, currentCharIndex - 1);
+                currentCharIndex--;
+                
+                if (currentCharIndex === 0) {
+                    isDeleting = false;
+                    currentSuggestionIndex = (currentSuggestionIndex + 1) % suggestions.length;
+                    setTimeout(typeWriter, pauseBeforeType);
+                } else {
+                    setTimeout(typeWriter, deletingSpeed);
+                }
+            } else {
+                // Tippen
+                typingContainer.textContent = "Try: " + currentSuggestion.substring(0, currentCharIndex + 1);
+                currentCharIndex++;
+                
+                if (currentCharIndex === currentSuggestion.length) {
+                    isDeleting = true;
+                    setTimeout(typeWriter, pauseBeforeDelete);
+                } else {
+                    setTimeout(typeWriter, typingSpeed);
+                }
+            }
+        }
+
+        // Starte den Typing-Effekt
+        setTimeout(typeWriter, pauseBeforeType);
+    </script>
+</body>
 </html>
