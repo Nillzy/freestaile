@@ -1,16 +1,18 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const path = require('node:path');
-const Eta = require('eta').Eta;
-const eta = new Eta({views: path.join(__dirname, 'public')});
-require('dotenv').config(); // Für Umgebungsvariablen
+const path = require("node:path");
+const Eta = require("eta").Eta;
+const eta = new Eta({ views: path.join(__dirname, "public") });
+require("dotenv").config(); // Für Umgebungsvariablen
+const { validateRevealSlides } = require("./revealValidator");
+const { exampleUsage, testInvalidSlides } = require("./revealValidatorExample");
 
 const { fetchSlides } = require('./APIService.js');
 
 app.use(express.static("public"));
 
-app.get('/', (req, res) => {
-    res.send(eta.render("landing-page", {}));
+app.get("/", (req, res) => {
+  res.send(eta.render("landing-page", {}));
 });
 
 app.get('/present', (req, res) => {
