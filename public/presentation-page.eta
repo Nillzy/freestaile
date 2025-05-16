@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Presentation about something – FreestAIle</title>
+    <title>Presentation about <%= it.topic %> – FreestAIle</title>
 
     <link rel="stylesheet" href="styles/presentation.css">
 
@@ -16,7 +16,7 @@
 <body class="theme-light">
 <!-- Header with Title and Hamburger Menu -->
 <header>
-    <h1 class="site-title">RevealJS Präsentation</h1>
+    <h1 class="site-title"><%= it.topic %></h1>
     <div class="hamburger-menu">
         <div class="hamburger-icon" onclick="toggleMenu()">
             <span></span>
