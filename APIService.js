@@ -1,8 +1,98 @@
-const { validateRevealSlides } = require("./revealValidator");
-const { exampleUsage, testInvalidSlides } = require("./revealValidatorExample");
+import { validateRevealSlides } from "./revealValidator.js";
+// import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 
-export async function fetchSlides(topic) {
-    const prompt = "### ROLE ###\\n" +
+const MAX_RETRIES = 3;
+
+export async function fetchSlides(topic, retryCount = 0) {
+
+    const prompt = buildPrompt(topic);
+
+    /*const url = 'https://openrouter.ai/api/v1/chat/completions';
+    const options = {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+        },
+        body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
+    };*/
+
+    /*try {
+        const response = await fetch(url, options);
+        if (response.ok) {
+            const json = await response.json();
+            const content = json.choices?.[0]?.message?.content;
+            console.log(json);
+            return content;
+        } else {
+            console.log(response.
+            return '';
+        }
+    } catch (error) {
+        console.error(error);
+    }*/
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            contents: [{
+                parts: [{ text: prompt }]
+            }]
+        })
+    };
+
+    try {
+        const response = await fetch(url, options);
+        if (response.ok) {
+            const json = await response.json();
+            let content = json.candidates[0].content.parts[0].text;
+            console.log(content);
+
+            if (content === undefined || content === null) {
+                console.error(response);
+                return;
+            }
+
+            content = content.replace("```html", "")
+            content = content.replace("```", "")
+
+            try {
+                validateRevealSlides(content);
+                return content;
+            } catch (validationError) {
+                console.error(
+                    `Validierungsfehler (Versuch ${retryCount + 1}/${MAX_RETRIES}):`,
+                    validationError.message
+                );
+
+                if (retryCount < MAX_RETRIES) {
+                    console.log(
+                        `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
+                    );
+                    return fetchSlides(topic, retryCount + 1);
+                } else {
+                    console.log(
+                        `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
+                    );
+                }
+            }
+
+        } else {
+            console.log(response.statusCode);
+            return 'Not 200';
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function buildPrompt(topic) {
+    return "### ROLE ###\\n" +
         "You are an expert RevealJS slide content generator. Your specialty is creating hilarious and unexpected presentations suitable for PowerPoint Karaoke.\\n" +
         "\\n" +
         "### TASK ###\\n" +
@@ -62,66 +152,4 @@ export async function fetchSlides(topic) {
         "\\n" +
         "Begin generation for topic: \\\"" + topic + "\\\"" +
         "Again, do NOT use ```html ... ```, but just give me the code.";
-
-    const url = 'https://openrouter.ai/api/v1/chat/completions';
-    const options = {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-        },
-        body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
-    };
-
-    /*try {
-        const response = await fetch(url, options);
-        if (response.ok) {
-            const json = await response.json();
-            const content = json.choices?.[0]?.message?.content;
-            console.log(json);
-            return content;
-        } else {
-            const response = await fetch(url, options);
-            if (response.ok) {
-                const json = await response.json();
-                const content = json.choices?.[0]?.message?.content;
-                console.log(json);
-                return content;
-            }
-        }
-    } catch (error) {
-        console.error(error);
-    }*/
-
-    /*try {
-        const response = await fetch(url, options);
-        const json = await response.json();
-        const content = json.choices?.[0]?.message?.content;
-
-        try {
-            validateRevealSlides(content);
-            // exampleUsage();
-            // testInvalidSlides();
-            return content;
-        } catch (validationError) {
-            console.error(
-                `Validierungsfehler (Versuch ${retryCount + 1}/${MAX_RETRIES}):`,
-                validationError.message
-            );
-
-            if (retryCount < MAX_RETRIES) {
-                console.log(
-                    `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
-                );
-                return fetchSlides(topic, retryCount + 1);
-            } else {
-                throw new Error(
-                    `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
-                );
-            }
-        }
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }*/
 }
