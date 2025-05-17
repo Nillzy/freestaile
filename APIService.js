@@ -50,15 +50,19 @@ export async function fetchSlides(topic, retryCount = 0) {
         if (response.ok) {
             const json = await response.json();
             let content = json.candidates[0].content.parts[0].text;
-            console.log(content);
 
             if (content === undefined || content === null) {
                 console.error(response);
                 return;
             }
 
-            content = content.replace("```html", "")
-            content = content.replace("```", "")
+            if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
+                console.error("Could not generate slide.");
+                return "<h2 style='text-align: center'>No presentation could be generated about the given topic '" + topic + "'. Please try again with another one.</h2>";
+            }
+
+            content = content.replace("```html", "");
+            content = content.replace("```", "");
 
             try {
                 validateRevealSlides(content);
