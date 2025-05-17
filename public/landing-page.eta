@@ -298,102 +298,100 @@
     </div>
 
     <footer>
-        <p>© 2025 FreestAIle - Create stunning presentations with AI</p>
-    </footer>
+<footer>
+    <p>© 2025 FreestAIle - Create stunning presentations with AI</p>
+</footer>
 
-    <script>
-        // Hamburger-Menü umschalten
-        function toggleMenu() {
-            const dropdown = document.getElementById('menu-dropdown');
-            const hamburgerIcon = document.querySelector('.hamburger-icon');
+<script>
+    // Hamburger-Menü umschalten
+    function toggleMenu() {
+        const dropdown = document.getElementById('menu-dropdown');
+        const hamburgerIcon = document.querySelector('.hamburger-icon');
 
-            dropdown.classList.toggle('active');
-            hamburgerIcon.classList.toggle('active');
-        }
+        dropdown.classList.toggle('active');
+        hamburgerIcon.classList.toggle('active');
+    }
 
-        // Klick außerhalb des Menüs schließt das Menü
-        document.addEventListener('click', function(event) {
-            const menu = document.querySelector('.hamburger-menu');
-            const dropdown = document.getElementById('menu-dropdown');
-            const hamburgerIcon = document.querySelector('.hamburger-icon');
+    // Klick außerhalb des Menüs schließt das Menü
+    document.addEventListener('click', function(event) {
+        const menu = document.querySelector('.hamburger-menu');
+        const dropdown = document.getElementById('menu-dropdown');
+        const hamburgerIcon = document.querySelector('.hamburger-icon');
 
-            if (!menu.contains(event.target) && dropdown.classList.contains('active')) {
-                dropdown.classList.remove('active');
-                hamburgerIcon.classList.remove('active');
-            }
-        });
-
-        // Light/Darkmode Toggle Funktion
-        function toggleTheme() {
-            const body = document.body;
-            const themeText = document.getElementById('theme-text');
-            const dropdown = document.getElementById('menu-dropdown');
-            const hamburgerIcon = document.querySelector('.hamburger-icon');
-
-            if (body.classList.contains('theme-light')) {
-                body.classList.remove('theme-light');
-                body.classList.add('theme-dark');
-                themeText.textContent = 'Lightmode aktivieren';
-            } else {
-                body.classList.remove('theme-dark');
-                body.classList.add('theme-light');
-                themeText.textContent = 'Darkmode aktivieren';
-            }
-
-            // Menü nach Themenwechsel schließen
+        if (!menu.contains(event.target) && dropdown.classList.contains('active')) {
             dropdown.classList.remove('active');
             hamburgerIcon.classList.remove('active');
         }
+    });
 
-        // Typing effect für Vorschläge
-        const suggestions = [
-            "Socioeconomic Benefits and Drawbacks of Coca-Cola Zero",
-            "The Future of Artificial Intelligence in Education",
-            "Sustainable Energy Solutions for the 21st Century",
-            "Blockchain Technology and Its Real-World Applications",
-            "The Psychology of Decision Making in Business"
-        ];
+    // Light/Darkmode Toggle Funktion
+    function toggleTheme() {
+        const body = document.body;
+        const themeText = document.getElementById('theme-text');
+        const dropdown = document.getElementById('menu-dropdown');
+        const hamburgerIcon = document.querySelector('.hamburger-icon');
 
-        let currentSuggestionIndex = 0;
-        let currentCharIndex = 0;
-        let isDeleting = false;
-        let typingSpeed = 80;
-        let deletingSpeed = 40;
-        let pauseBeforeDelete = 2000;
-        let pauseBeforeType = 500;
-
-        function typeWriter() {
-            const typingContainer = document.getElementById('typing-container');
-            const currentSuggestion = suggestions[currentSuggestionIndex];
-            
-            if (isDeleting) {
-                // Löschen
-                typingContainer.textContent = "Try: " + currentSuggestion.substring(0, currentCharIndex - 1);
-                currentCharIndex--;
-                
-                if (currentCharIndex === 0) {
-                    isDeleting = false;
-                    currentSuggestionIndex = (currentSuggestionIndex + 1) % suggestions.length;
-                    setTimeout(typeWriter, pauseBeforeType);
-                } else {
-                    setTimeout(typeWriter, deletingSpeed);
-                }
-            } else {
-                // Tippen
-                typingContainer.textContent = "Try: " + currentSuggestion.substring(0, currentCharIndex + 1);
-                currentCharIndex++;
-                
-                if (currentCharIndex === currentSuggestion.length) {
-                    isDeleting = true;
-                    setTimeout(typeWriter, pauseBeforeDelete);
-                } else {
-                    setTimeout(typeWriter, typingSpeed);
-                }
-            }
+        if (body.classList.contains('theme-light')) {
+            body.classList.remove('theme-light');
+            body.classList.add('theme-dark');
+            themeText.textContent = 'Lightmode aktivieren';
+        } else {
+            body.classList.remove('theme-dark');
+            body.classList.add('theme-light');
+            themeText.textContent = 'Darkmode aktivieren';
         }
 
-        // Starte den Typing-Effekt
-        setTimeout(typeWriter, pauseBeforeType);
-    </script>
-</body>
-</html>
+        // Menü nach Themenwechsel schließen
+        dropdown.classList.remove('active');
+        hamburgerIcon.classList.remove('active');
+    }
+
+    // Typing effect für Vorschläge
+    const suggestions = [
+        "Socioeconomic Benefits and Drawbacks of Coca-Cola Zero",
+        "The Future of Artificial Intelligence in Education",
+        "Sustainable Energy Solutions for the 21st Century",
+        "Blockchain Technology and Its Real-World Applications",
+        "The Psychology of Decision Making in Business"
+    ];
+
+    let currentSuggestionIndex = 0;
+    let currentCharIndex = 0;
+    let isDeleting = false;
+    let typingSpeed = 80;
+    let deletingSpeed = 40;
+    let pauseBeforeDelete = 2000;
+    let pauseBeforeType = 500;
+
+    function typeWriter() {
+        const typingContainer = document.getElementById('typing-container');
+        const currentSuggestion = suggestions[currentSuggestionIndex];
+        
+        if (isDeleting) {
+            typingContainer.textContent = "Try: " + currentSuggestion.substring(0, currentCharIndex - 1);
+            currentCharIndex--;
+            
+            if (currentCharIndex === 0) {
+                isDeleting = false;
+                currentSuggestionIndex = (currentSuggestionIndex + 1) % suggestions.length;
+                setTimeout(typeWriter, pauseBeforeType);
+            } else {
+                setTimeout(typeWriter, deletingSpeed);
+            }
+        } else {
+            typingContainer.textContent = "Try: " + currentSuggestion.substring(0, currentCharIndex + 1);
+            currentCharIndex++;
+            
+            if (currentCharIndex === currentSuggestion.length) {
+                isDeleting = true;
+                setTimeout(typeWriter, pauseBeforeDelete);
+            } else {
+                setTimeout(typeWriter, typingSpeed);
+            }
+        }
+    }
+
+    // Starte den Typing-Effekt
+    setTimeout(typeWriter, pauseBeforeType);
+</script>
+
