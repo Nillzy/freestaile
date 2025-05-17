@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presentation about Brownies vs. Muffins – FreestAIle</title>
 
-    <link rel="stylesheet" href="styles/presentation.css">
+    <link rel="stylesheet" href="styles/pages/presentation.css">
 
     <!-- Styles für RevealJS -->
-    <link rel="stylesheet" href="revealjsstyles/reveal.min.css">
-    <link rel="stylesheet" href="revealjsstyles/white.min.css" id="theme-light">
-    <link rel="stylesheet" href="revealjsstyles/black.min.css" id="theme-dark" disabled>
+    <link rel="stylesheet" href="styles/revealjsstyles/reveal.min.css">
+    <link rel="stylesheet" href="styles/revealjsstyles/white.min.css" id="theme-light">
+    <link rel="stylesheet" href="styles/revealjsstyles/black.min.css" id="theme-dark" disabled>
 
     <style>
         /* Zusätzliche Styles für Responsive Design */

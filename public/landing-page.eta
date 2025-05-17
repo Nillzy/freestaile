@@ -1,23 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreestAIle - AI-Powered Presentation Karaoke</title>
+    <link rel="stylesheet" href="styles/pages/landing-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 
-    <head>
-        <meta charset="UTF-8">
-        <title>FreestAIle</title>
-        <!-- TODO: Add CSS -->
-    </head>
+<body>
+<div class="container">
+    <div class="decoration d1"></div>
+    <div class="decoration d2"></div>
 
-    <body>
-        <h1>Freest<b>AI</b>le</h1>
-        <br>
-        <form action="/present" method="get">
-            <label for="topic">What should the presentation be about?</label>
-            <br>
-            <input type="text" name="topic" id="topic" placeholder="Socioeconomic Benefits and Drawbacks of Coco-Cola Zero" size="50">
-            <!-- Idee: Mehrere Vorschläge, die "getippt" werden -->
-            <br>
-            <input type="submit">
-        </form>
-    </body>
+    <div class="header">
+        <h1 class="logo">Freest<b>AI</b>le</h1>
+        <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
+    </div>
 
+    <form class="main-form" action="/present" method="get">
+        <div class="input-group">
+            <label for="topic">What should your presentation be about?</label>
+            <div class="input-wrapper">
+                <input type="text" name="topic" id="topic" autocomplete="off">
+                <div class="typing-placeholder"></div>
+            </div>
+            <button type="submit">
+                <i class="fas fa-magic"></i>
+                Generate Presentation
+            </button>
+        </div>
+    </form>
+
+    <div class="features">
+        <div class="feature">
+            <i class="fas fa-bolt"></i>
+            <h3>Instant Creation</h3>
+            <p>Get a full presentation in seconds, no preparation needed</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-random"></i>
+            <h3>Unpredictable Fun</h3>
+            <p>Challenge yourself with surprising slides and content</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-users"></i>
+            <h3>Perfect for Groups</h3>
+            <p>Ideal for team building and improv exercises</p>
+        </div>
+    </div>
+
+    <footer>
+        © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
+    </footer>
+</div>
+
+<script>
+    // Dynamic typing placeholder effect
+    const topicInput = document.getElementById('topic');
+    const placeholderElement = document.querySelector('.typing-placeholder');
+
+    // List of placeholder suggestions
+    const suggestions = [
+        "The Socioeconomic Impact of Coco-Cola Zero",
+        "Why Giraffes Don't Exist: A Conspiracy Theory",
+        "Quantum Physics for Toddlers",
+        "The Secret Life of Office Plants",
+        "Time Travel and Its Effect on Retirement Planning"
+    ];
+
+    let currentText = "";
+    let charIndex = 0;
+    let suggestionIndex = 0;
+    let typingInterval;
+    let typing = true;
+
+    function typePlaceholder() {
+        if (charIndex < suggestions[suggestionIndex].length) {
+            currentText += suggestions[suggestionIndex][charIndex];
+            placeholderElement.innerHTML = currentText + '<span class="cursor"></span>';
+            charIndex++;
+        } else {
+            typing = false;
+            setTimeout(() => {
+                typingInterval = setInterval(erasePlaceholder, 50);
+            }, 1000);
+            clearInterval(typingInterval);
+        }
+    }
+
+    function erasePlaceholder() {
+        if (charIndex > 0) {
+            currentText = currentText.slice(0, -1);
+            placeholderElement.innerHTML = currentText + '<span class="cursor"></span>';
+            charIndex--;
+        } else {
+            suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+            typing = true;
+            clearInterval(typingInterval);
+            typingInterval = setInterval(typePlaceholder, 100);
+        }
+    }
+
+    function startTypingCycle() {
+        // Always reset the state completely when starting a new cycle
+        clearInterval(typingInterval);
+        currentText = "";
+        charIndex = 0;
+        typing = true;
+        // Move to the next suggestion when restarting after user input
+        suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        // Reset the placeholder element immediately to avoid showing the previous state
+        placeholderElement.innerHTML = '<span class="cursor"></span>';
+        typingInterval = setInterval(typePlaceholder, 100);
+    }
+
+    // Start the initial typing effect with the first suggestion
+    suggestionIndex = 0;
+    startTypingCycle();
+
+    // Handle when user types or clears the input
+    topicInput.addEventListener("input", () => {
+        if (topicInput.value.length > 0) {
+            clearInterval(typingInterval);
+            typingInterval = null;
+            placeholderElement.style.display = 'none';
+        } else {
+            placeholderElement.style.display = 'block';
+            // Completely restart the cycle when the field becomes empty
+            startTypingCycle();
+        }
+    });
+
+    // Hide placeholder when input is focused with content
+    topicInput.addEventListener('focus', () => {
+        if (topicInput.value.length > 0) {
+            placeholderElement.style.display = 'none';
+        }
+    });
+</script>
+</body>
 </html>
