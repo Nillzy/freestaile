@@ -190,7 +190,7 @@ async function fetchImage(motif) {
         if (response.ok) {
 
             const json = await response.json();
-            let link = json.hits[0].webformatURL;
+            let link = json.hits?.[0]?.webformatURL;
             console.log(link);
 
             if (link === undefined || link === null) {
