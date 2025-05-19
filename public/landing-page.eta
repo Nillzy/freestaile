@@ -26,6 +26,19 @@
                 <input type="text" name="topic" id="topic" autocomplete="off">
                 <div class="typing-placeholder"></div>
             </div>
+            <label for="presentationLanguage">Select presentation language</label>
+            <div class="input-wrapper">
+                <select name="presentationLanguage" id="presentationLanguage">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="pt">🇵🇹 Português</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="zh">🇨🇳 中文</option>
+                </select>
+            </div>
             <button type="submit">
                 <i class="fas fa-magic"></i>
                 Generate Presentation
