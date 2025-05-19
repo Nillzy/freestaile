@@ -112,18 +112,22 @@ function buildPrompt(topic, presentationLanguage) {
     "1.  **Topic:** " + topic + "\\n" +
     "2.  **Language:** The ENTIRE presentation MUST be in " + presentationLanguage + " language. This is a strict requirement.\\n" +
     "3.  **Number of Slides:** Generate approximately 10 slides in total. Each slide is a \`<section>\` element, placed inside the \`<div class=\\\"slides\\\">\` container.\\n" +
-    "4.  **First Slide (Title Slide):**\\n" +
+    "4.  **Content Length & Formatting:**\\n" +
+    "    *   Keep content concise but allow for some flexibility.\\n" +
+    "    *   Slide titles should be brief but impactful (max 7 words).\\n" +
+    "    *   Bullet points and table cells should be concise (max 9-11 words) while maintaining humor.\\n" +
+    "    *   Adjust image sizes using inline styles (e.g., \`style='max-width: 660px; max-height: 440px;'\`) if needed to prevent content overflow.\\n" +
+    "5.  **First Slide (Title Slide):**\\n" +
     "    *   Must be the first \`<section>\`.\\n" +
-    "    *   It should ONLY contain the main topic (e.g., in an \`<h1>\`), a very funny, short, and catchy subtitle/tagline (e.g., in an \`<h2>\`) and one or two images depicting what content is about to come.\\n" +
-    "    *   Example for first slide content (inside its \`<section>\`): \`<h1>Cats vs. Dogs<\\\\/h1><h2>War of the Paws - An Unbiased Investigation<\\\\/h2><img data-motif='cat+and+dog'>\` Don't give a 'src' for the \`<img>\`, just name the object to be seen (so it can be retrieved from Pixabay) in the 'data-motif' attribute\\n" +
-    "5.  **Content Slides (Slides 2 to ~10):**\\n" +
-    "    *   Each of these slides should have a funny/intriguing title (e.g., in an \`<h2>\` or \`<h3>\`).\\n" +
-    "    *   Each content slide should present its humorous content using **EITHER** 4 to 7 bullet points (\`<ul><li>...<\\\\/li><\\\\/ul>\`) **OR** a **table** (\`<table><thead><tr><th>Aspect 1<\\\\/th><th>Aspect 2<\\\\/th><\\\\/tr><\\\\/thead><tbody><tr><td>Hilarious Point A<\\\\/td><td>Surprising Counterpoint A<\\\\/td><\\\\/tr><tr><td>Absurdity B<\\\\/td><td>Witty Take B<\\\\/td><\\\\/tr><!-- more rows as needed --><\\\\/tbody><\\\\/table>\`) for contrasting or comparing funny ideas. \\n" +
-    "    *   **Strongly consider using tables** whenever they can effectively enhance the comedic effect through comparison or contrast (aim for tables with 2-4 rows and 2-3 columns if used). Strive to include tables on several slides to ensure variety and specifically address the interest in table-based content, but prioritize what makes the slide funnier.\\n" +
-    "    *   Table cells and bullet points should be concise, humorous, and unexpected, fitting the PowerPoint Karaoke style.\\n" +
-    "    *   Additionally, every slide should have 1 to 3 images. Don't give a 'src', just use keywords to describe the motif of the image (so it can be retrieved from Pixabay) in a 'data-motif' attribute of the \`<img>\`, separated by '+'. For example: \`<img data-motif='cats+dogs+cute'>\`\\n" +
-    "    *   Please format the slides correctly so that the images don't push the text out of the screen\\n" +
-    "6.  **Presentation Language:** " + presentationLanguage + "(definition of the language in the language itself)" + "\\n" + 
+    "    *   It should contain the main topic (max 7 words) in an \`<h1>\`, a catchy subtitle (max 7 words) in an \`<h2>\`, and one or two appropriately sized images.\\n" +
+    "    *   Example for first slide content (inside its \`<section>\`): \`<h1>The Epic Cats vs Dogs Battle<\\\\/h1><h2>The Ultimate Furry Showdown Begins<\\\\/h2><img data-motif='cat+dog' style='max-width: 660px; max-height: 440px;'>\`\\n" +
+    "6.  **Content Slides (Slides 2 to ~10):**\\n" +
+    "    *   Each slide should have a witty title (max 7 words) in an \`<h2>\` or \`<h3>\`.\\n" +
+    "    *   Use either 4-7 bullet points or a table (2-3 columns, 2-4 rows) with engaging content.\\n" +
+    "    *   Keep text content concise but expressive - each bullet point or table cell should be maximum 9-11 words.\\n" +
+    "    *   Include 1-2 appropriately sized images per slide using the \`data-motif\` attribute and inline styles for size control.\\n" +
+    "    *   Example image: \`<img data-motif='cats+dogs+cute' style='max-width: 550px; max-height: 330px;'>\`\\n" +
+    "7.  **Presentation Language:** " + presentationLanguage + "(definition of the language in the language itself)" + "\\n" + 
     "\\n" +
     "### OUTPUT FORMAT & STRICT INSTRUCTIONS ###\\n" +
     "- **OUTPUT ONLY VALID HTML:** You must only output the complete HTML structure as specified below.\\n" +
@@ -137,31 +141,31 @@ function buildPrompt(topic, presentationLanguage) {
     "      <div class=\\\"reveal\\\">\\n" +
     "        <div class=\\\"slides\\\">\\n" +
     "          <section>\\n" +
-    "            <h1>" + topic + "<\\\\/h1>\\n" +
-    "            <h2>[Funny and short description here, e.g., 'The Furry Showdown']<\\\\/h2>\\n" +
-    "            <img data-motif='relevant+image+for+topic'>\\n" +
+    "            <h1>Engaging and Fun Topic Title<\\\\/h1>\\n" +
+    "            <h2>Funny and Memorable Tagline Here<\\\\/h2>\\n" +
+    "            <img data-motif='relevant+image' style='max-width: 660px; max-height: 440px;'>\\n" +
     "          <\\\\/section>\\n" +
     "          <section>\\n" +
-    "            <h2>[Witty Slide Title 2 - Table Example if it fits well]<\\\\/h2>\\n" +
-    "            <table>\\n" +
+    "            <h2>Witty and Engaging Slide Title<\\\\/h2>\\n" +
+    "            <table style='font-size: 1em;'>\\n" +
     "              <thead>\\n" +
-    "                <tr><th>Category of Nonsense<\\\\/th><th>Even More Nonsense<\\\\/th><\\\\/tr>\\n" +
+    "                <tr><th>Engaging and Funny Header 1<\\\\/th><th>Witty Header Number Two<\\\\/th><\\\\/tr>\\n" +
     "              <\\\\/thead>\\n" +
     "              <tbody>\\n" +
-    "                <tr><td>Why chickens cross roads<\\\\/td><td>To file a complaint about the potholes<\\\\/td><\\\\/tr>\\n" +
-    "                <tr><td>Existential angst of a toaster<\\\\/td><td>It's always crummy in the morning<\\\\/td><\\\\/tr>\\n" +
+    "                <tr><td>Funny and engaging point with humor<\\\\/td><td>Witty counterpoint that makes you laugh<\\\\/td><\\\\/tr>\\n" +
+    "                <tr><td>Humorous observation about the topic<\\\\/td><td>Clever response that surprises everyone<\\\\/td><\\\\/tr>\\n" +
     "              <\\\\/tbody>\\n" +
     "            <\\\\/table>\\n" +
-    "            <img data-motif='confused+person+looking+at+chart'>\\n" +
+    "            <img data-motif='confused+person' style='max-width: 550px; max-height: 330px;'>\\n" +
     "          <\\\\/section>\\n" +
     "          <section>\\n" +
-    "            <h2>[Witty Slide Title 3 - Bullet Point Example if it fits well]<\\\\/h2>\\n" +
-    "            <ul>\\n" +
-    "              <li>Unexpectedly hilarious bullet point 1<\\\\/li>\\n" +
-    "              <li>An absurd but topic-related fact 2<\\\\/li>\\n" +
-    "              <li>A bafflingly funny observation 3<\\\\/li>\\n" +
+    "            <h2>Funny and Engaging Slide Title<\\\\/h2>\\n" +
+    "            <ul style='font-size: 1.1em;'>\\n" +
+    "              <li>Engaging and humorous point with a twist<\\\\/li>\\n" +
+    "              <li>Funny and relevant fact that surprises you<\\\\/li>\\n" +
+    "              <li>Witty observation that makes everyone laugh<\\\\/li>\\n" +
     "            <\\\\/ul>\\n" +
-    "            <img data-motif='rubber+duck+in+space'>\\n" +
+    "            <img data-motif='rubber+duck' style='max-width: 440px; max-height: 330px;'>\\n" +
     "          <\\\\/section>\\n" +
     "          <!-- ... and so on for approx. 7 more sections, using tables or bullet points as best fits the humor ... -->\\n" +
     "        <\\\\/div>\\n" +
