@@ -15,7 +15,7 @@
 <div class="container">
 
     <div class="header">
-        <h1 class="logo">Freest<b>AI</b>le</h1>
+        <h1 class="logo"><b>QUICK</b>mode</h1>
         <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
     </div>
 
@@ -67,6 +67,18 @@
     <footer>
         © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
     </footer>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1 class="logo"><b>MULTI</b>player-Mode</h1>
+        <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+        <form class="main-form" action="/multi" method="get">
+            <div class="input-group">
+                <button type="submit">Play together!</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
