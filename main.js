@@ -19,10 +19,10 @@ app.get("/", (req, res) => {
 
 app.get('/present', (req, res) => {
     if (req.query.topic !== undefined) {
-        fetchSlides(req.query.topic)
+        fetchSlides(req.query.topic, req.query.presentationLanguage)
             .then(content => insertImages(content))
             .then(contentWithImages => {
-                res.send(eta.render("presentation-page", {topic: req.query.topic, content: contentWithImages}));
+                res.send(eta.render("presentation-page", {topic: req.query.topic, presentationLanguage: req.query.presentationLanguage, content: contentWithImages}));
             })
             .catch(error => {
                 console.error('Error fetching slides:', error);

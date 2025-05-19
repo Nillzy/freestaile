@@ -3,9 +3,9 @@ import { validateRevealSlides } from "./revealValidator.js";
 
 const MAX_RETRIES = 3;
 
-export async function fetchSlides(topic, retryCount = 0) {
+export async function fetchSlides(topic, presentationLanguage, retryCount = 0) {
 
-    const prompt = buildPrompt(topic);
+    const prompt = buildPrompt(topic, presentationLanguage);
 
     /*const url = 'https://openrouter.ai/api/v1/chat/completions';
     const options = {
@@ -77,7 +77,7 @@ export async function fetchSlides(topic, retryCount = 0) {
                     console.log(
                         `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
                     );
-                    return fetchSlides(topic, retryCount + 1);
+                    return fetchSlides(topic, presentationLanguage, retryCount + 1);
                 } else {
                     console.log(
                         `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
@@ -95,12 +95,13 @@ export async function fetchSlides(topic, retryCount = 0) {
     }
 }
 
-function buildPrompt(topic) {
+function buildPrompt(topic, presentationLanguage) {
     return "### ROLE ###\\n" +
     "You are an expert RevealJS slide content generator. Your specialty is creating hilarious and unexpected presentations suitable for PowerPoint Karaoke.\\n" +
     "\\n" +
     "### TASK ###\\n" +
-    "Generate the full HTML structure for a RevealJS presentation about the topic: \\\"" + topic + "\\\".\\n" +
+    "Generate the full HTML structure for a RevealJS presentation about the topic \\\"" + topic + "\\\".\\n" +
+    "IMPORTANT: The ENTIRE presentation MUST be in " + presentationLanguage + " language. This includes ALL text content: titles, subtitles, bullet points, and table content.\\n" +
     "The presentation is for a PowerPoint Karaoke game. This means the content on each slide (titles, bullet points, table content) MUST be:\\n" +
     "- Funny and witty\\n" +
     "- Contain unexpected twists or surprising facts\\n" +
@@ -109,18 +110,20 @@ function buildPrompt(topic) {
     "\\n" +
     "### REQUIREMENTS ###\\n" +
     "1.  **Topic:** " + topic + "\\n" +
-    "2.  **Number of Slides:** Generate approximately 10 slides in total. Each slide is a \`<section>\` element, placed inside the \`<div class=\\\"slides\\\">\` container.\\n" +
-    "3.  **First Slide (Title Slide):**\\n" +
+    "2.  **Language:** The ENTIRE presentation MUST be in " + presentationLanguage + " language. This is a strict requirement.\\n" +
+    "3.  **Number of Slides:** Generate approximately 10 slides in total. Each slide is a \`<section>\` element, placed inside the \`<div class=\\\"slides\\\">\` container.\\n" +
+    "4.  **First Slide (Title Slide):**\\n" +
     "    *   Must be the first \`<section>\`.\\n" +
     "    *   It should ONLY contain the main topic (e.g., in an \`<h1>\`), a very funny, short, and catchy subtitle/tagline (e.g., in an \`<h2>\`) and one or two images depicting what content is about to come.\\n" +
     "    *   Example for first slide content (inside its \`<section>\`): \`<h1>Cats vs. Dogs<\\\\/h1><h2>War of the Paws - An Unbiased Investigation<\\\\/h2><img data-motif='cat+and+dog'>\` Don't give a 'src' for the \`<img>\`, just name the object to be seen (so it can be retrieved from Pixabay) in the 'data-motif' attribute\\n" +
-    "4.  **Content Slides (Slides 2 to ~10):**\\n" +
+    "5.  **Content Slides (Slides 2 to ~10):**\\n" +
     "    *   Each of these slides should have a funny/intriguing title (e.g., in an \`<h2>\` or \`<h3>\`).\\n" +
     "    *   Each content slide should present its humorous content using **EITHER** 4 to 7 bullet points (\`<ul><li>...<\\\\/li><\\\\/ul>\`) **OR** a **table** (\`<table><thead><tr><th>Aspect 1<\\\\/th><th>Aspect 2<\\\\/th><\\\\/tr><\\\\/thead><tbody><tr><td>Hilarious Point A<\\\\/td><td>Surprising Counterpoint A<\\\\/td><\\\\/tr><tr><td>Absurdity B<\\\\/td><td>Witty Take B<\\\\/td><\\\\/tr><!-- more rows as needed --><\\\\/tbody><\\\\/table>\`) for contrasting or comparing funny ideas. \\n" +
     "    *   **Strongly consider using tables** whenever they can effectively enhance the comedic effect through comparison or contrast (aim for tables with 2-4 rows and 2-3 columns if used). Strive to include tables on several slides to ensure variety and specifically address the interest in table-based content, but prioritize what makes the slide funnier.\\n" +
     "    *   Table cells and bullet points should be concise, humorous, and unexpected, fitting the PowerPoint Karaoke style.\\n" +
     "    *   Additionally, every slide should have 1 to 3 images. Don't give a 'src', just use keywords to describe the motif of the image (so it can be retrieved from Pixabay) in a 'data-motif' attribute of the \`<img>\`, separated by '+'. For example: \`<img data-motif='cats+dogs+cute'>\`\\n" +
     "    *   Please format the slides correctly so that the images don't push the text out of the screen\\n" +
+    "6.  **Presentation Language:** " + presentationLanguage + "(definition of the language in the language itself)" + "\\n" + 
     "\\n" +
     "### OUTPUT FORMAT & STRICT INSTRUCTIONS ###\\n" +
     "- **OUTPUT ONLY VALID HTML:** You must only output the complete HTML structure as specified below.\\n" +
@@ -167,7 +170,8 @@ function buildPrompt(topic) {
     "  <\\\\/div>\\n" +
     "\\n" +
     "### ERROR HANDLING ###\\n" +
-    "- If you cannot understand the topic, or if you are unwilling or unable to create a presentation on the given topic in the requested humorous style and according to all requirements, reply ONLY with the exact string \\\"NO_SLIDE\\\" and nothing else.\\n" +
+    "- If you cannot understand the topic, or if you are unwilling or unable to create a presentation on the given topic in the requested humorous style and according to all requirements, reply ONLY with the exact string \\\"NO_SLIDE\\\" and nothing else." + "\\n" +
+    "- If you couldnt get the language information, write 'NO LANGUAGE' on the first slide." + "\\n" +
     "\\n" +
     "Begin generation for topic: \\\"" + topic + "\\\""
 }
