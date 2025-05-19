@@ -132,7 +132,6 @@ function buildPrompt(topic, presentationLanguage) {
     "- **NO MARKDOWN:** Do NOT use Markdown syntax. Output the HTML code directly. Do not even use '```html ... ```' \\n" +
     "- **NO EXTRA TEXT:** Do NOT include any explanations, apologies, introductory or concluding remarks, or any text outside the main HTML structure. Just the HTML.\\n" +
     "- **HTML STRUCTURE EXAMPLE (Complete output expected):**\\n" +
-    "  \\\`\\\`\\\`html\\n" +
     "  <div class=\\\"container\\\">\\n" +
     "    <div class=\\\"presentation-container\\\" id=\\\"presentation-container\\\">\\n" +
     "      <div class=\\\"reveal\\\">\\n" +
@@ -169,14 +168,12 @@ function buildPrompt(topic, presentationLanguage) {
     "      <\\\\/div>\\n" +
     "    <\\\\/div>\\n" +
     "  <\\\\/div>\\n" +
-    "  \\\`\\\`\\\`\\n" +
     "\\n" +
     "### ERROR HANDLING ###\\n" +
     "- If you cannot understand the topic, or if you are unwilling or unable to create a presentation on the given topic in the requested humorous style and according to all requirements, reply ONLY with the exact string \\\"NO_SLIDE\\\" and nothing else." + "\\n" +
     "- If you couldnt get the language information, write 'NO LANGUAGE' on the first slide." + "\\n" +
     "\\n" +
-    "Begin generation for topic: \\\"" + topic + "\\\"" +
-    "Again, do NOT use ```html ... ```, but just give me the code."
+    "Begin generation for topic: \\\"" + topic + "\\\""
 }
 
 export async function fetchImages(motifs) {
