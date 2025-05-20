@@ -1,7 +1,10 @@
 import { validateRevealSlides } from "./revealValidator.js";
 // import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
+import { GoogleGenAI } from "@google/genai";
 
 const MAX_RETRIES = 3;
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function fetchSlides(topic, presentationLanguage, retryCount = 0) {
 
@@ -32,66 +35,53 @@ export async function fetchSlides(topic, presentationLanguage, retryCount = 0) {
         console.error(error);
     }*/
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
             contents: [{
                 parts: [{ text: prompt }]
             }]
-        })
-    };
+        });
+        
+        let content = response.text.toString();
 
-    try {
-        const response = await fetch(url, options);
-        if (response.ok) {
-            const json = await response.json();
-            let content = json.candidates[0].content.parts[0].text;
-
-            if (content === undefined || content === null) {
-                console.error(response);
-                return;
-            }
-
-            if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
-                console.error("Could not generate slide.");
-                return "<h2 style='text-align: center'>No presentation could be generated about the given topic '" + topic + "'. Please try again with another one.</h2>";
-            }
-
-            content = content.replace("```html", "");
-            content = content.replace("```", "");
-
-            try {
-                validateRevealSlides(content);
-                return content;
-            } catch (validationError) {
-                console.error(
-                    `Validierungsfehler (Versuch ${retryCount + 1}/${MAX_RETRIES}):`,
-                    validationError.message
-                );
-
-                if (retryCount < MAX_RETRIES) {
-                    console.log(
-                        `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
-                    );
-                    return fetchSlides(topic, presentationLanguage, retryCount + 1);
-                } else {
-                    console.log(
-                        `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
-                    );
-                }
-            }
-
-        } else {
-            console.log(response.statusCode);
-            return 'Not 200';
+        if (content === undefined || content === null) {
+            console.error(response);
+            return;
         }
 
+        if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
+            console.error("Could not generate slide.");
+            return "<h2 style='text-align: center'>No presentation could be generated about the given topic '" + topic + "'. Please try again with another one.</h2>";
+        }
+
+        content = content.replace("```html", "");
+        content = content.replace("```", "");
+
+
+        try {
+            validateRevealSlides(content);
+            return content;
+        } catch (validationError) {
+            console.error(
+                `Validierungsfehler (Versuch ${retryCount + 1}/${MAX_RETRIES}):`,
+                validationError.message
+            );
+
+            if (retryCount < MAX_RETRIES) {
+                console.log(
+                    `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
+                );
+                return fetchSlides(topic, presentationLanguage, retryCount + 1);
+            } else {
+                console.log(
+                    `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
+                );
+            }
+        }
     } catch (error) {
         console.error(error);
+        throw error;
     }
 }
 
@@ -132,7 +122,8 @@ function buildPrompt(topic, presentationLanguage) {
     "### OUTPUT FORMAT & STRICT INSTRUCTIONS ###\\n" +
     "- **OUTPUT ONLY VALID HTML:** You must only output the complete HTML structure as specified below.\\n" +
     "- **INCLUDE WRAPPERS:** Your output MUST include the following four outer div wrappers: \`<div class=\\\"container\\\">\`, \`<div class=\\\"presentation-container\\\" id=\\\"presentation-container\\\">\`, \`<div class=\\\"reveal\\\">\`, and \`<div class=\\\"slides\\\">\`. The \`<section>\` elements for the slides go inside \`<div class=\\\"slides\\\">\`.\\n" +
-    "- **NO OTHER HTML ELEMENTS:** Do NOT include \`<html>\`, \`<head>\`, or \`<body>\` tags.\\n" +
+    "- **STRICTLY FORBIDDEN HTML TAGS:** The following tags are STRICTLY FORBIDDEN and must NEVER appear in your output: \`<html>\`, \`<head>\`, \`<body>\`, \`</html>\`, \`</head>\`, \`</body>\`. Your output must start directly with \`<div class=\\\"container\\\">\` and end with \`</div>\`.\\n" +
+    "- **NO OTHER HTML ELEMENTS:** Do NOT include any other HTML elements outside the specified structure.\\n" +
     "- **NO MARKDOWN:** Do NOT use Markdown syntax. Output the HTML code directly. Do not even use '```html ... ```' \\n" +
     "- **NO EXTRA TEXT:** Do NOT include any explanations, apologies, introductory or concluding remarks, or any text outside the main HTML structure. Just the HTML.\\n" +
     "- **HTML STRUCTURE EXAMPLE (Complete output expected):**\\n" +

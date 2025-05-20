@@ -69,6 +69,5 @@ async function insertImages(content) {
     }
   });
 
-  // Gib das aktualisierte HTML als String zurück
-  return dom.serialize(); // alternativ: document.body.innerHTML
+  return document.body.innerHTML;
 }
