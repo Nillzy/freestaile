@@ -16,7 +16,7 @@ const { fetchPresentation } = require("./SupabaseService.js");
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.send(eta.render("Home-Page", {}));
+  res.send(eta.render("landing-page", {}));
 });
 
 app.get("/present", (req, res) => {
