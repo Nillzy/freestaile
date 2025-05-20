@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/pages/landing-page.css">
+    <link rel="stylesheet" href="styles/pages/Home-Page.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -35,10 +35,12 @@
     </div>
 </div>
 <div class="container">
-    <i class="fa-solid fa-rocket"></i>
-    <div class="input-group" style="text-align:center;">
-        <button type="button">Jetzt ohne Anmeldung starten!</button>
-    </div>
+    <form class="main-form" action="/main" method="get">
+        <i class="fa-solid fa-rocket"></i>
+        <div class="input-group" style="text-align:center;">
+            <button type="submit">Jetzt ohne Anmeldung starten!</button>
+        </div>
+    </form>
 </div>
 <div type="container">
     <div class="features">

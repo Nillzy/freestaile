@@ -17,6 +17,10 @@ app.get("/", (req, res) => {
   res.send(eta.render("Home-Page", {}));
 });
 
+app.get("/main", (req, res) => {
+  res.send(eta.render("landing-page", {}))
+})
+
 app.get("/present", (req, res) => {
   if (req.query.topic !== undefined) {
     fetchSlides(req.query.topic, req.query.presentationLanguage)
