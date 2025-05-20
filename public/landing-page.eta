@@ -15,7 +15,7 @@
 <div class="container">
 
     <div class="header">
-        <h1 class="logo">Freest<b>AI</b>le</h1>
+        <h1 class="logo"><b>QUICK</b>mode</h1>
         <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
     </div>
 
@@ -25,6 +25,19 @@
             <div class="input-wrapper">
                 <input type="text" name="topic" id="topic" autocomplete="off">
                 <div class="typing-placeholder"></div>
+            </div>
+            <label for="presentationLanguage">Select presentation language</label>
+            <div class="input-wrapper">
+                <select name="presentationLanguage" id="presentationLanguage">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="pt">🇵🇹 Português</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="zh">🇨🇳 中文</option>
+                </select>
             </div>
             <button type="submit">
                 <i class="fas fa-magic"></i>
@@ -40,7 +53,7 @@
             <p>Get a full presentation in seconds, no preparation needed</p>
         </div>
         <div class="feature">
-            <i class="fas fa-random"></i>
+            <i class="fa-solid fa-face-laugh-squint"></i>
             <h3>Unpredictable Fun</h3>
             <p>Challenge yourself with surprising slides and content</p>
         </div>
@@ -54,6 +67,18 @@
     <footer>
         © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
     </footer>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1 class="logo"><b>MULTI</b>player-Mode</h1>
+        <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+        <form class="main-form" action="/multi" method="get">
+            <div class="input-group">
+                <button type="submit">Play together!</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
