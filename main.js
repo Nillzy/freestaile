@@ -5,11 +5,13 @@ const Eta = require("eta").Eta;
 const eta = new Eta({ views: path.join(__dirname, "public") });
 const { JSDOM } = require("jsdom");
 require("dotenv").config(); // Für Umgebungsvariablen
+const validator = require('validator');
 const { validateRevealSlides } = require("./revealValidator");
 const { exampleUsage, testInvalidSlides } = require("./revealValidatorExample");
 
 const { fetchSlides } = require("./APIService.js");
 const { fetchImages } = require("./APIService.js");
+const { fetchPresentation } = require("./SupabaseService.js");
 
 app.use(express.static("public"));
 
@@ -71,3 +73,15 @@ async function insertImages(content) {
 
   return document.body.innerHTML;
 }
+
+app.get("/present2", async (req, res) => {
+  let presentationID = req.query.presentationID
+  if (presentationID === undefined || presentationID === "" || !validator.isUUID(presentationID)) {
+    res.redirect("/")
+  }
+
+  const content = await fetchPresentation("92503818-60d2-4b72-98a2-94c5ab56cb01");
+
+  res.send(content);
+
+})
