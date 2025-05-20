@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreeStaile - PowerPoint Karaoke</title>
+    <title>FreestAIle - PowerPoint Karaoke</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,23 +11,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<header>
-
-</header>
+<!-- <header>
+    <div class="hamburger-menu">
+        <div class="hamburger-icon" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-dropdown" id="menu-dropdown">
+            <div class="menu-item" onclick="toggleTheme()">
+                <i>🌓</i>
+                <span id="theme-text">Darkmode aktivieren</span>
+            </div>
+        </div>
+    </div>
+</header> -->
 
 <body>
 <div class="container">
     <div class="header">
-        <h1 class="logo"><b>Free</b>Staile</h1>
+        <h1 class="logo">Freest<b>AI</b>le</h1>
         <p class="tagline">PowerPoint Karaoke neu definiert – übe spontan, beeindrucke dein Publikum!</p>
     </div>
 </div>
 <div class="container">
-    <div class="main-form">
-        <i class="fa-solid fa-rocket"></i>
-        <div class="input-group" style="text-align:center;">
-            <button type="button">Jetzt ohne Anmeldung starten!</button>
-        </div>
+    <i class="fa-solid fa-rocket"></i>
+    <div class="input-group" style="text-align:center;">
+        <button type="button">Jetzt ohne Anmeldung starten!</button>
     </div>
 </div>
 <div type="container">
@@ -37,35 +47,36 @@
             <h3>Zufällige Slides</h3>
             <p>Erlebe die Spannung mit unvorhersehbaren Präsentationen</p>
         </div>
-        <div class="feature">
+        <!-- <div class="feature">
             <i class="fas fa-clock"></i>
             <h3>Live-Timer</h3>
             <p>Perfektes Timing für deine Präsentation</p>
-        </div>
-        <div class="feature">
+        </div> -->
+        <!-- <div class="feature">
             <i class="fas fa-microphone"></i>
             <h3>Spracherkennung</h3>
             <p>Verbessere deine Rhetorik in Echtzeit</p>
-        </div>
+        </div> -->
         <div class="feature">
             <i class="fas fa-question-circle"></i>
             <h3>Was ist PowerPoint Karaoke?</h3>
-            <p>Hier kannst du eine kurze Beschreibung einfügen.</p>
+            <p>PowerPoint-Karaoke (auch bekannt als Battledecks) ist ein Improvisationsspiel, bei dem Teilnehmende eine zufällige PowerPoint-Präsentation vorführen müssen, ohne den Inhalt vorher zu kennen. Die Aufgabe besteht darin, die Folien spontan und möglichst überzeugend zu präsentieren, als hätten sie sie selbst vorbereitet.</p>
         </div>
         <div class="feature">
             <i class="fas fa-users"></i>
-            <h3>Für wen ist FreeStaile?</h3>
+            <h3>Für wen ist FreestAIle?</h3>
             <p>Hier kannst du eine Zielgruppenbeschreibung einfügen.</p>
         </div>
-    </div>
-    <div class="custom-section">
-        <h2>So funktioniert FreeStaile</h2>
-        <p>Hier deine Beschreibung...</p>
+        <div class="feature">
+            <i class="fa-solid fa-gears"></i>
+            <h2>So funktioniert FreestAIle</h2>
+            <p>Hier deine Beschreibung...</p>
+        </div>
     </div>
 </div>
 <div class="container">
     <footer style="margin-top:2rem;">
-        © 2024 FreeStaile. Alle Rechte vorbehalten.
+        © 2025 FreestAIle. Alle Rechte vorbehalten.
     </footer>
 </div>
 </body>
