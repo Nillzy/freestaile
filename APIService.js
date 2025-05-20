@@ -1,5 +1,4 @@
 import { validateRevealSlides } from "./revealValidator.js";
-// import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import { GoogleGenAI } from "@google/genai";
 
 const MAX_RETRIES = 3;
@@ -91,7 +90,7 @@ function buildPrompt(topic, presentationLanguage) {
     "\\n" +
     "### TASK ###\\n" +
     "Generate the full HTML structure for a RevealJS presentation about the topic \\\"" + topic + "\\\".\\n" +
-    "IMPORTANT: The ENTIRE presentation MUST be in " + presentationLanguage + " language. This includes ALL text content: titles, subtitles, bullet points, and table content.\\n" +
+    "IMPORTANT: The ENTIRE presentation MUST be in " + presentationLanguage + " language. This includes ALL text content: titles, subtitles, bullet points, and table content. If no language is specified, use English as the default language.\\n" +
     "The presentation is for a PowerPoint Karaoke game. This means the content on each slide (titles, bullet points, table content) MUST be:\\n" +
     "- Funny and witty\\n" +
     "- Contain unexpected twists or surprising facts\\n" +
@@ -100,7 +99,7 @@ function buildPrompt(topic, presentationLanguage) {
     "\\n" +
     "### REQUIREMENTS ###\\n" +
     "1.  **Topic:** " + topic + "\\n" +
-    "2.  **Language:** The ENTIRE presentation MUST be in " + presentationLanguage + " language. This is a strict requirement.\\n" +
+    "2.  **Language:** The ENTIRE presentation MUST be in " + presentationLanguage + " language. If no language is specified, use English as the default language. This is a strict requirement.\\n" +
     "3.  **Number of Slides:** Generate approximately 10 slides in total. Each slide is a \`<section>\` element, placed inside the \`<div class=\\\"slides\\\">\` container.\\n" +
     "4.  **Content Length & Formatting:**\\n" +
     "    *   Keep content concise but allow for some flexibility.\\n" +
@@ -166,7 +165,7 @@ function buildPrompt(topic, presentationLanguage) {
     "\\n" +
     "### ERROR HANDLING ###\\n" +
     "- If you cannot understand the topic, or if you are unwilling or unable to create a presentation on the given topic in the requested humorous style and according to all requirements, reply ONLY with the exact string \\\"NO_SLIDE\\\" and nothing else." + "\\n" +
-    "- If you couldnt get the language information, write 'NO LANGUAGE' on the first slide." + "\\n" +
+    "- If no language is specified, use English as the default language. Do NOT write 'NO LANGUAGE' on the first slide in this case." + "\\n" +
     "\\n" +
     "Begin generation for topic: \\\"" + topic + "\\\""
 }
