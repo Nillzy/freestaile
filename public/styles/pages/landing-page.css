@@ -30,7 +30,48 @@ body {
     align-items: center;
     justify-content: center;
     padding: 2rem;
+    padding-top: 10rem;
     font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+body.darkmode {
+    background: linear-gradient(135deg, #181a20 0%, #23263a 100%);
+    color: #f8fafc;
+}
+
+body.darkmode .container {
+    background-color: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+body.darkmode .logo {
+    background: linear-gradient(90deg, #10b981 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+body.darkmode .feature {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: #10b981;
+    color: #f8fafc;
+}
+
+body.darkmode .feature h3 {
+    color: #f8fafc;
+}
+
+body.darkmode .feature p {
+    color: #cbd5e1;
+}
+
+body.darkmode footer {
+    color: #cbd5e1;
+}
+
+body.darkmode button {
+    background: linear-gradient(90deg, #10b981 0%, #6366f1 100%);
+    color: #fff;
 }
 
 @keyframes fadeInUp {
@@ -447,6 +488,9 @@ button:hover {
         font-size: 0.85rem;
         padding: 0.4rem 0.8rem;
     }
+    .input-hint i{
+        margin-top: 1.15rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -508,4 +552,186 @@ button:hover {
 
 .input-hint:hover {
     background: rgba(79, 70, 229, 0.1);
+}
+
+.main-header {
+    width: 100vw;
+    background: rgba(255,255,255,0.95);
+    border-bottom: 1.5px solid #e5e7eb;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.04);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    padding: 0;
+}
+
+body.darkmode .main-header {
+    background: rgba(30,41,59,0.98);
+    border-bottom: 1.5px solid #334155;
+    box-shadow: 0 2px 12px rgba(16,185,129,0.04);
+}
+
+.header-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2rem;
+}
+
+.header-logo {
+    font-size: 2.1rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
+}
+
+.header-logo b {
+    color: var(--secondary);
+}
+
+/* Dark-/Lightmode Switch */
+/* The switch - the box around the slider */
+.switch {
+    font-size: 17px;
+    position: relative;
+    display: inline-block;
+    width: 4em;
+    height: 2.2em;
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin: 2rem;
+
+}
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #2a2a2a;
+    transition: 0.4s;
+    border-radius: 30px;
+    overflow: hidden;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 1.2em;
+    width: 1.2em;
+    border-radius: 20px;
+    left: 0.5em;
+    bottom: 0.5em;
+    transition: 0.4s;
+    transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+    box-shadow: inset 8px -4px 0px 0px #fff;
+  }
+  
+  .switch input:checked + .slider {
+    background-color: #00a6ff;
+  }
+  
+  .switch input:checked + .slider:before {
+    transform: translateX(1.8em);
+    box-shadow: inset 15px -4px 0px 15px #ffcf48;
+  }
+  
+  .star {
+    background-color: #fff;
+    border-radius: 50%;
+    position: absolute;
+    width: 5px;
+    transition: all 0.4s;
+    height: 5px;
+  }
+  
+  .star_1 {
+    left: 2.5em;
+    top: 0.5em;
+  }
+  
+  .star_2 {
+    left: 2.2em;
+    top: 1.2em;
+  }
+  
+  .star_3 {
+    left: 3em;
+    top: 0.9em;
+  }
+  
+  .switch input:checked ~ .slider .star {
+    opacity: 0;
+  }
+  
+  .cloud {
+    width: 3.5em;
+    position: absolute;
+    bottom: -1.4em;
+    left: -1.1em;
+    opacity: 0;
+    transition: all 0.4s;
+  }
+  
+  .switch input:checked ~ .slider .cloud {
+    opacity: 1;
+  }
+
+body.darkmode input,
+body.darkmode select {
+    background: #23263a;
+    color: #f8fafc;
+    border-color: #334155;
+}
+
+body.darkmode input:focus,
+body.darkmode select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    background: #23263a;
+    color: #f8fafc;
+}
+
+body.darkmode .input-wrapper {
+    background: transparent;
+}
+
+body.darkmode .typing-placeholder {
+    color: #94a3b8;
+}
+
+body.darkmode .input-group {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid #334155;
+    box-shadow: 0 4px 6px -1px rgba(16,185,129,0.08);
+}
+
+body.darkmode label {
+    color: #f8fafc;
+}
+
+body.darkmode .input-hint {
+    background: rgba(16, 185, 129, 0.08);
+    color: #cbd5e1;
+}
+
+body.darkmode .input-hint i {
+    color: #10b981;
 }

@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 
 app.get("/main", (req, res) => {
   res.send(eta.render("landing-page", {}))
+})
 
 app.get("/error-page", (req, res) => {
     res.send(eta.render("error-page", {message: req.query.message}));
