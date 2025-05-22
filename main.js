@@ -18,8 +18,11 @@ const {saveSlides} = require("./SupabaseService");
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.send(eta.render("landing-page", {}));
+  res.send(eta.render("Home-Page", {}));
 });
+
+app.get("/main", (req, res) => {
+  res.send(eta.render("landing-page", {}))
 
 app.get("/error-page", (req, res) => {
     res.send(eta.render("error-page", {message: req.query.message}));
