@@ -12,40 +12,63 @@
 </head>
 
 <body>
-<div class="container">
+<div class="container-wrapper">
+    <div class="container">
+        <div class="header">
+            <h1 class="logo"><b>QUICK</b>mode</h1>
+            <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
+        </div>
 
-    <div class="header">
-        <h1 class="logo"><b>QUICK</b>mode</h1>
-        <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
+        <form class="main-form" action="/present" method="get">
+            <div class="input-group">
+                <label for="topic">What should your presentation be about?</label>
+                <div class="input-wrapper">
+                    <input type="text" name="topic" id="topic" autocomplete="off">
+                    <div class="typing-placeholder"></div>
+                </div>
+                <div class="input-hint">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Tab to use recommendation</span>
+                </div>
+                <label for="presentationLanguage">Select presentation language</label>
+                <div class="input-wrapper">
+                    <select name="presentationLanguage" id="presentationLanguage">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="zh">🇨🇳 中文</option>
+                    </select>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-magic"></i>
+                    Generate Presentation
+                </button>
+            </div>
+        </form>
     </div>
 
-    <form class="main-form" action="/present" method="get">
-        <div class="input-group">
-            <label for="topic">What should your presentation be about?</label>
-            <div class="input-wrapper">
-                <input type="text" name="topic" id="topic" autocomplete="off">
-                <div class="typing-placeholder"></div>
-            </div>
-            <label for="presentationLanguage">Select presentation language</label>
-            <div class="input-wrapper">
-                <select name="presentationLanguage" id="presentationLanguage">
-                    <option value="en">🇬🇧 English</option>
-                    <option value="de">🇩🇪 Deutsch</option>
-                    <option value="fr">🇫🇷 Français</option>
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                    <option value="pt">🇵🇹 Português</option>
-                    <option value="ru">🇷🇺 Русский</option>
-                    <option value="zh">🇨🇳 中文</option>
-                </select>
-            </div>
-            <button type="submit">
-                <i class="fas fa-magic"></i>
-                Generate Presentation
-            </button>
+    <div class="container">
+        <div class="header">
+            <h1 class="logo"><b>MULTI</b>player-Mode</h1>
+            <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+            <form class="main-form" action="/multi" method="get">
+                <div class="input-group">
+                    <button type="submit">Play together!</button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
+</div>
 
+<div class="container features-container">
+    <div class="header">
+        <h1 class="logo">Features</h1>
+        <p class="tagline">Discover what makes FreestAIle special</p>
+    </div>
     <div class="features">
         <div class="feature">
             <i class="fas fa-bolt"></i>
@@ -63,22 +86,9 @@
             <p>Ideal for team building and improv exercises</p>
         </div>
     </div>
-
     <footer>
         © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
     </footer>
-</div>
-
-<div class="container">
-    <div class="header">
-        <h1 class="logo"><b>MULTI</b>player-Mode</h1>
-        <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
-        <form class="main-form" action="/multi" method="get">
-            <div class="input-group">
-                <button type="submit">Play together!</button>
-            </div>
-        </form>
-    </div>
 </div>
 
 <script>
@@ -100,8 +110,11 @@
     let suggestionIndex = 0;
     let typingInterval;
     let typing = true;
+    let isPlaceholderActive = true;
 
     function typePlaceholder() {
+        if (!isPlaceholderActive) return;
+        
         if (charIndex < suggestions[suggestionIndex].length) {
             currentText += suggestions[suggestionIndex][charIndex];
             placeholderElement.innerHTML = currentText + '<span class="cursor"></span>';
@@ -109,13 +122,17 @@
         } else {
             typing = false;
             setTimeout(() => {
-                typingInterval = setInterval(erasePlaceholder, 50);
+                if (isPlaceholderActive) {
+                    typingInterval = setInterval(erasePlaceholder, 50);
+                }
             }, 1000);
             clearInterval(typingInterval);
         }
     }
 
     function erasePlaceholder() {
+        if (!isPlaceholderActive) return;
+        
         if (charIndex > 0) {
             currentText = currentText.slice(0, -1);
             placeholderElement.innerHTML = currentText + '<span class="cursor"></span>';
@@ -124,46 +141,72 @@
             suggestionIndex = (suggestionIndex + 1) % suggestions.length;
             typing = true;
             clearInterval(typingInterval);
-            typingInterval = setInterval(typePlaceholder, 100);
+            if (isPlaceholderActive) {
+                typingInterval = setInterval(typePlaceholder, 100);
+            }
         }
     }
 
     function startTypingCycle() {
-        // Always reset the state completely when starting a new cycle
+        if (!isPlaceholderActive) return;
+        
         clearInterval(typingInterval);
         currentText = "";
         charIndex = 0;
         typing = true;
-        // Move to the next suggestion when restarting after user input
         suggestionIndex = (suggestionIndex + 1) % suggestions.length;
-        // Reset the placeholder element immediately to avoid showing the previous state
         placeholderElement.innerHTML = '<span class="cursor"></span>';
         typingInterval = setInterval(typePlaceholder, 100);
     }
 
-    // Start the initial typing effect with the first suggestion
-    suggestionIndex = 0;
-    startTypingCycle();
+    function resetAndStartPlaceholder() {
+        isPlaceholderActive = true;
+        placeholderElement.style.display = 'block';
+        clearInterval(typingInterval);
+        currentText = "";
+        charIndex = 0;
+        typing = true;
+        suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        placeholderElement.innerHTML = '<span class="cursor"></span>';
+        typingInterval = setInterval(typePlaceholder, 100);
+    }
+
+    // Handle Tab key press
+    topicInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            topicInput.value = suggestions[suggestionIndex];
+            isPlaceholderActive = false;
+            placeholderElement.style.display = 'none';
+            clearInterval(typingInterval);
+            typingInterval = null;
+            suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        }
+    });
 
     // Handle when user types or clears the input
     topicInput.addEventListener("input", () => {
         if (topicInput.value.length > 0) {
+            isPlaceholderActive = false;
             clearInterval(typingInterval);
             typingInterval = null;
             placeholderElement.style.display = 'none';
         } else {
-            placeholderElement.style.display = 'block';
-            // Completely restart the cycle when the field becomes empty
-            startTypingCycle();
+            resetAndStartPlaceholder();
         }
     });
 
     // Hide placeholder when input is focused with content
     topicInput.addEventListener('focus', () => {
         if (topicInput.value.length > 0) {
+            isPlaceholderActive = false;
             placeholderElement.style.display = 'none';
         }
     });
+
+    // Start the initial typing effect
+    suggestionIndex = 0;
+    resetAndStartPlaceholder();
 </script>
 </body>
 </html>
