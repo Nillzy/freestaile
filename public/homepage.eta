@@ -442,7 +442,7 @@
 
 <header class="main-header">
   <div class="header-content">
-    <a href="/public" style="text-decoration: none;">
+    <a href="/" style="text-decoration: none;">
       <span class="header-logo">Freest<b>AI</b>le</span>
     </a>
     <div class="flex items-center space-x-4">
