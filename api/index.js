@@ -31,7 +31,10 @@ const supabase = createClient(
 app.use(express.json());
 app.use(cookieParser());
 app.use(authMiddleware); // Auth-Middleware für alle Routes
-app.use(express.static("public"));
+
+// Statische Dateien - Reihenfolge ist wichtig!
+app.use('/api', express.static(path.join(__dirname, 'public'))); // Für /api/public Dateien
+app.use(express.static(path.join(__dirname, '../public'))); // Für /public Dateien
 
 // Logout-Route
 app.post("/api/auth/logout", async (req, res) => {
