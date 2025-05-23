@@ -92,6 +92,62 @@ app.post("/api/auth/login", async (req, res) => {
     }
 });
 
+// Register-Route
+app.post("/api/auth/register", async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({
+            message: "E-Mail und Passwort sind erforderlich"
+        });
+    }
+
+    // E-Mail Validierung
+    if (!validator.isEmail(email)) {
+        return res.status(400).json({
+            message: "Ungültige E-Mail-Adresse"
+        });
+    }
+
+    // Passwort Validierung
+    if (password.length < 8) {
+        return res.status(400).json({
+            message: "Passwort muss mindestens 8 Zeichen lang sein"
+        });
+    }
+
+    try {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${req.protocol}://${req.get('host')}/`
+            }
+        });
+
+        if (error) {
+            if (error.message.includes('already registered')) {
+                return res.status(400).json({
+                    message: "Diese E-Mail-Adresse ist bereits registriert"
+                });
+            }
+            return res.status(400).json({
+                message: error.message
+            });
+        }
+
+        res.json({
+            message: "Registrierung erfolgreich. Bitte bestätigen Sie Ihre E-Mail-Adresse.",
+            user: data.user
+        });
+    } catch (error) {
+        console.error("Registrierungs-Fehler:", error);
+        res.status(500).json({
+            message: "Ein Fehler ist aufgetreten"
+        });
+    }
+});
+
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
     res.send(eta.render("homepage", { user: req.user }));
@@ -279,12 +335,11 @@ setInterval(() => {
     }
 }, 30 * 60 * 1000);
 
-/* ----- FOR LOKALES TESTEN -----
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
 });
- */
 
 
 // Exportiere den Express-Handler für Vercel
