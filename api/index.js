@@ -4,7 +4,7 @@ const path = require("node:path");
 const Eta = require("eta").Eta;
 const eta = new Eta({ views: path.join(__dirname, "public") });
 const { JSDOM } = require("jsdom");
-require("dotenv").config(); // Für Umgebungsvariablen
+require("dotenv").config();
 const validator = require('validator');
 const cookieParser = require('cookie-parser');
 const { validateRevealSlides } = require("./revealValidator");
@@ -16,7 +16,7 @@ const { authMiddleware, requireAuth } = require('./middleware/auth');
 const { fetchSlides } = require("./APIService.js");
 const { fetchImages } = require("./APIService.js");
 const { fetchPresentation } = require("./SupabaseService.js");
-const {saveSlides} = require("./SupabaseService");
+const { saveSlides } = require("./SupabaseService");
 
 // Supabase Client für Backend-Authentifizierung
 const supabase = createClient(
@@ -84,33 +84,6 @@ app.post("/api/auth/login", async (req, res) => {
             message: "Ein Fehler ist aufgetreten"
         });
     }
-});
-
-// Login-Seite Route (aktualisiert)
-app.get("/login", (req, res) => {
-    // Nur wenn bereits eingeloggt, zur Startseite weiterleiten
-    if (req.user) {
-        return res.redirect('/');
-    }
-
-    const registered = req.query.registered === 'true';
-    const error = req.query.error === 'unauthorized' ? 'Bitte melden Sie sich an, um fortzufahren.' : null;
-
-    res.send(eta.render("login", {
-        user: null, // Explizit null setzen, da wir wissen, dass der User nicht eingeloggt ist
-        registered,
-        message: registered ? "Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich dann an." : null,
-        error
-    }));
-});
-
-// Registrierungs-Seite Route (aktualisiert)
-app.get("/register", (req, res) => {
-    // Nur wenn bereits eingeloggt, zur Startseite weiterleiten
-    if (req.user) {
-        return res.redirect('/');
-    }
-    res.send(eta.render("register", { user: null })); // Explizit null setzen
 });
 
 // Startseite Route (aktualisiert)
