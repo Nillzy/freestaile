@@ -691,6 +691,8 @@
         body: JSON.stringify({ email, password })
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         // Nach erfolgreicher Registrierung zum Login-Tab wechseln
         switchTab('login');
@@ -698,8 +700,7 @@
         errorDiv.style.display = 'none';
         document.getElementById('modalRegisterError').style.display = 'none';
       } else {
-        const error = await response.json();
-        errorDiv.textContent = error.message || 'Registrierung fehlgeschlagen';
+        errorDiv.textContent = data.message || 'Registrierung fehlgeschlagen';
         errorDiv.style.display = 'block';
       }
     } catch (error) {
