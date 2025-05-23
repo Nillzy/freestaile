@@ -9,7 +9,7 @@
  * @returns {boolean} - true wenn die Validierung erfolgreich ist
  * @throws {Error} - Wenn die Validierung fehlschlägt mit einer Fehlermeldung
  */
-function validateRevealSlides(html) {
+export function validateRevealSlides(html) {
   if (!html || typeof html !== "string") {
     throw new Error("HTML muss ein nicht-leerer String sein");
   }
