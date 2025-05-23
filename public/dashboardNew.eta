@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreestAIle - AI-Powered Presentation Karaoke</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/pages/landing-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Basis-Styles für alle Buttons */
+        .auth-button {
+            position: relative;
+            margin: auto;
+            padding: 12px 18px;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .auth-button:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            border-radius: 50px;
+            width: 45px;
+            height: 45px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-button span {
+            position: relative;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #234567;
+        }
+
+        .auth-button svg {
+            position: relative;
+            top: 0;
+            margin-left: 10px;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #234567;
+            stroke-width: 2;
+            transform: translateX(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .auth-button:hover:before {
+            width: 100%;
+        }
+
+        .auth-button:hover svg {
+            transform: translateX(0);
+        }
+
+        .auth-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Spezifische Styles für Login (blau) */
+        .auth-button-login:before {
+            background: #b1dae7;
+        }
+        .auth-button-login:hover:before {
+            background: #b1dae7;
+        }
+
+        /* Spezifische Styles für Register (grün) */
+        .auth-button-register:before {
+            background: #b1e7c8;
+        }
+        .auth-button-register:hover:before {
+            background: #b1e7c8;
+        }
+
+        /* Spezifische Styles für Logout (rot) */
+        .auth-button-logout {
+            position: relative;
+            margin: auto;
+            padding: 12px 18px;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .auth-button-logout:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            border-radius: 50px;
+            background: #e7b1b1;
+            width: 45px;
+            height: 45px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-button-logout span {
+            position: relative;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #234567;
+        }
+
+        .auth-button-logout svg {
+            position: relative;
+            top: 0;
+            margin-left: 10px;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #234567;
+            stroke-width: 2;
+            transform: translateX(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .auth-button-logout:hover:before {
+            width: 100%;
+            background: #e7b1b1;
+        }
+
+        .auth-button-logout:hover svg {
+            transform: translateX(0);
+        }
+
+        .auth-button-logout:active {
+            transform: scale(0.95);
+        }
+
+        .cta {
+            position: relative;
+            margin: auto;
+            padding: 12px 18px;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            min-width: 140px; /* Feste Mindestbreite für alle Buttons */
+            justify-content: center; /* Zentriert den Inhalt */
+        }
+
+        .cta:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            border-radius: 50px;
+            width: 45px;
+            height: 45px;
+            transition: all 0.3s ease;
+            background: transparent; /* Entfernt mögliche Vererbung */
+        }
+
+        /* Login Button (Standard blau) */
+        .cta-login:before {
+            background: #b1dae7;
+        }
+        .cta-login:hover:before {
+            background: #b1dae7;
+        }
+        .cta-login span {
+            color: #234567;
+        }
+        .cta-login svg {
+            stroke: #234567;
+        }
+
+        /* Register Button (Grün) */
+        .cta-register:before {
+            background: #b1e7c8;
+        }
+        .cta-register:hover:before {
+            background: #b1e7c8;
+        }
+        .cta-register span {
+            color: #234567;
+        }
+        .cta-register svg {
+            stroke: #234567;
+        }
+
+        /* Logout Button (Rot) */
+        .cta-logout:before {
+            background: #e7b1b1;
+        }
+        .cta-logout:hover:before {
+            background: #e7b1b1;
+        }
+        .cta-logout span {
+            color: #234567;
+        }
+        .cta-logout svg {
+            stroke: #234567;
+        }
+
+        .cta span {
+            position: relative;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            white-space: nowrap; /* Verhindert Zeilenumbrüche */
+        }
+
+        .cta svg {
+            position: relative;
+            top: 0;
+            margin-left: 10px;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2;
+            transform: translateX(-5px);
+            transition: all 0.3s ease;
+            flex-shrink: 0; /* Verhindert Schrumpfen des Icons */
+        }
+
+        .cta:hover:before {
+            width: 100%;
+        }
+
+        .cta:hover svg {
+            transform: translateX(0);
+        }
+
+        .cta:active {
+            transform: scale(0.95);
+        }
+
+        /* Entfernt alle möglichen vererbten Styles */
+        .cta, .cta-login, .cta-register, .cta-logout {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            text-decoration: none !important;
+            outline: none !important;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-right: 1rem;
+        }
+
+        .profile-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #b1dae7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #234567;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .profile-email {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 16px;
+            color: #234567;
+            white-space: nowrap;
+        }
+
+        .profile-circle:hover {
+            background: #9bc8d7;
+            transform: scale(1.05);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Darkmode Styles für restricted container */
+        body.darkmode .restricted-container {
+            background: #2d2d2d;
+        }
+
+        body.darkmode .restricted-container p {
+            color: #a0aec0;
+        }
+
+        .multiplayer-section {
+            transition: all 0.3s ease;
+        }
+
+        .multiplayer-section button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.5rem;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        body.darkmode .modal-content {
+            background: #2d2d2d;
+            color: #ffffff;
+        }
+
+        body.darkmode .modal-close {
+            color: #a0aec0;
+        }
+
+        body.darkmode .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .modal-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            color: #666;
+        }
+
+        .modal-tab.active {
+            color: #234567;
+            border-bottom-color: #234567;
+        }
+
+        body.darkmode .modal-tab {
+            color: #a0aec0;
+        }
+
+        body.darkmode .modal-tab.active {
+            color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+
+        .modal-form {
+            display: none;
+        }
+
+        .modal-form.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<header class="main-header">
+    <div class="header-content">
+        <a href="/public" style="text-decoration: none; color: inherit;">
+            <span class="header-logo">Freest<b>AI</b>le</span>
+        </a>
+        <div class="flex items-center space-x-4">
+            <% if (it.user) { %>
+                <!-- Eingeloggter Benutzer -->
+                <div class="profile-container">
+                    <div class="profile-circle">
+                        <%= it.user.email.charAt(0).toUpperCase() %>
+                    </div>
+                    <span class="profile-email"><%= it.user.email %></span>
+                    <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
+                        <span>Abmelden</span>
+                        <svg width="15px" height="10px" viewBox="0 0 13 10">
+                            <path d="M1,5 L11,5"></path>
+                            <polyline points="8 1 12 5 8 9"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            <% } else { %>
+                <!-- Nicht eingeloggter Benutzer -->
+                <div class="auth-buttons">
+                    <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
+                        <span>Anmelden</span>
+                        <svg width="15px" height="10px" viewBox="0 0 13 10">
+                            <path d="M1,5 L11,5"></path>
+                            <polyline points="8 1 12 5 8 9"></polyline>
+                        </svg>
+                    </a>
+                    <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
+                        <span>Registrieren</span>
+                        <svg width="15px" height="10px" viewBox="0 0 13 10">
+                            <path d="M1,5 L11,5"></path>
+                            <polyline points="8 1 12 5 8 9"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            <% } %>
+            <label class="switch">
+                <input id="darkmode-toggle" type="checkbox" />
+                <span class="slider">
+                    <div class="star star_1"></div>
+                    <div class="star star_2"></div>
+                    <div class="star star_3"></div>
+                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
+                        <path
+                            transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                            fill="#fff"
+                            d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                        ></path>
+                    </svg>
+                </span>
+            </label>
+        </div>
+    </div>
+</header>
+
+<body>
+<div class="container-wrapper">
+    <div class="container">
+        <div class="header">
+            <h1 class="logo"><b>QUICK</b>mode</h1>
+            <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
+        </div>
+
+        <form class="main-form" action="/present" method="get">
+            <div class="input-group">
+                <label for="topic">What should your presentation be about?</label>
+                <div class="input-wrapper">
+                    <input type="text" name="topic" id="topic" autocomplete="off">
+                    <div class="typing-placeholder"></div>
+                </div>
+                <div class="input-hint">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Tab to use recommendation</span>
+                </div>
+                <label for="presentationLanguage">Select presentation language</label>
+                <div class="input-wrapper">
+                    <select name="presentationLanguage" id="presentationLanguage">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="zh">🇨🇳 中文</option>
+                    </select>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-magic"></i>
+                    Generate Presentation
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="multiplayer-section" style="position: relative; <%= !it.user ? 'opacity: 0.5; filter: grayscale(100%);' : '' %>">
+                <h1 class="logo"><b>MULTI</b>player-Mode</h1>
+                <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+                <% if (it.user) { %>
+                    <form class="main-form" action="/multi" method="get">
+                        <div class="input-group">
+                            <button type="submit">Play together!</button>
+                        </div>
+                    </form>
+                <% } else { %>
+                    <form class="main-form" style="pointer-events: none;">
+                        <div class="input-group">
+                            <button type="button" disabled style="cursor: not-allowed;">Play together!</button>
+                        </div>
+                    </form>
+                <% } %>
+            </div>
+            <% if (!it.user) { %>
+                <div class="restricted-container" style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 10px; margin-top: 2rem;">
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">MULTIplayer-Mode ist only available for registered users</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
+                            <span>Anmelden</span>
+                            <svg width="15px" height="10px" viewBox="0 0 13 10">
+                                <path d="M1,5 L11,5"></path>
+                                <polyline points="8 1 12 5 8 9"></polyline>
+                            </svg>
+                        </a>
+                        <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
+                            <span>Registrieren</span>
+                            <svg width="15px" height="10px" viewBox="0 0 13 10">
+                                <path d="M1,5 L11,5"></path>
+                                <polyline points="8 1 12 5 8 9"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<div class="container features-container">
+    <div class="header">
+        <h1 class="logo">Features</h1>
+        <p class="tagline">Discover what makes FreestAIle special</p>
+    </div>
+    <div class="features">
+        <div class="feature">
+            <i class="fas fa-bolt"></i>
+            <h3>Instant Creation</h3>
+            <p>Get a full presentation in seconds, no preparation needed</p>
+        </div>
+        <div class="feature">
+            <i class="fa-solid fa-face-laugh-squint"></i>
+            <h3>Unpredictable Fun</h3>
+            <p>Challenge yourself with surprising slides and content</p>
+        </div>
+        <div class="feature">
+            <i class="fas fa-users"></i>
+            <h3>Perfect for Groups</h3>
+            <p>Ideal for team building and improv exercises</p>
+        </div>
+    </div>
+    <footer>
+        © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
+    </footer>
+</div>
+
+<!-- Modal für Login/Register -->
+<div id="authModal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+        <div class="modal-tabs">
+            <div class="modal-tab active" onclick="switchTab('login')">Anmelden</div>
+            <div class="modal-tab" onclick="switchTab('register')">Registrieren</div>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="modalLoginForm" class="modal-form active" onsubmit="handleModalLogin(event)">
+            <div class="form-group">
+                <label for="modalEmail">E-Mail</label>
+                <input type="email" id="modalEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="modalPassword">Passwort</label>
+                <input type="password" id="modalPassword" name="password" required>
+            </div>
+            <div class="error-message" id="modalLoginError" style="display: none;"></div>
+            <button type="submit" class="submit-button" style="background: #b1dae7;">Anmelden</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="modalRegisterForm" class="modal-form" onsubmit="handleModalRegister(event)">
+            <div class="form-group">
+                <label for="modalRegisterEmail">E-Mail</label>
+                <input type="email" id="modalRegisterEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="modalRegisterPassword">Passwort</label>
+                <input type="password" id="modalRegisterPassword" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="modalConfirmPassword">Passwort bestätigen</label>
+                <input type="password" id="modalConfirmPassword" name="confirmPassword" required>
+            </div>
+            <div class="error-message" id="modalRegisterError" style="display: none;"></div>
+            <button type="submit" class="submit-button" style="background: #b1e7c8;">Registrieren</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('darkmode-toggle');
+    
+    // Lade gespeicherten Darkmode-Status oder nutze System-Präferenz
+    const savedDarkMode = localStorage.getItem('darkmode');
+    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = savedDarkMode !== null ? savedDarkMode === 'true' : systemPrefersDark;
+    
+    // Setze initialen Status
+    document.body.classList.toggle('darkmode', isDark);
+    toggle.checked = !isDark;
+
+    toggle.addEventListener('change', function() {
+      const dark = !toggle.checked;
+      document.body.classList.toggle('darkmode', dark);
+      localStorage.setItem('darkmode', dark.toString());
+    });
+  });
+
+    // Dynamic typing placeholder effect
+    const topicInput = document.getElementById('topic');
+    const placeholderElement = document.querySelector('.typing-placeholder');
+
+    // List of placeholder suggestions
+    const suggestions = [
+        "The Socioeconomic Impact of Coco-Cola Zero",
+        "Why Giraffes Don't Exist: A Conspiracy Theory",
+        "Quantum Physics for Toddlers",
+        "The Secret Life of Office Plants",
+        "Time Travel and Its Effect on Retirement Planning"
+    ];
+
+    let currentText = "";
+    let charIndex = 0;
+    let suggestionIndex = 0;
+    let typingInterval;
+    let typing = true;
+    let isPlaceholderActive = true;
+
+    function typePlaceholder() {
+        if (!isPlaceholderActive) return;
+        
+        if (charIndex < suggestions[suggestionIndex].length) {
+            currentText += suggestions[suggestionIndex][charIndex];
+            placeholderElement.innerHTML = currentText + '<span class="cursor"></span>';
+            charIndex++;
+        } else {
+            typing = false;
+            setTimeout(() => {
+                if (isPlaceholderActive) {
+                    typingInterval = setInterval(erasePlaceholder, 50);
+                }
+            }, 1000);
+            clearInterval(typingInterval);
+        }
+    }
+
+    function erasePlaceholder() {
+        if (!isPlaceholderActive) return;
+        
+        if (charIndex > 0) {
+            currentText = currentText.slice(0, -1);
+            placeholderElement.innerHTML = currentText + '<span class="cursor"></span>';
+            charIndex--;
+        } else {
+            suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+            typing = true;
+            clearInterval(typingInterval);
+            if (isPlaceholderActive) {
+                typingInterval = setInterval(typePlaceholder, 100);
+            }
+        }
+    }
+
+    function startTypingCycle() {
+        if (!isPlaceholderActive) return;
+        
+        clearInterval(typingInterval);
+        currentText = "";
+        charIndex = 0;
+        typing = true;
+        suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        placeholderElement.innerHTML = '<span class="cursor"></span>';
+        typingInterval = setInterval(typePlaceholder, 100);
+    }
+
+    function resetAndStartPlaceholder() {
+        isPlaceholderActive = true;
+        placeholderElement.style.display = 'block';
+        clearInterval(typingInterval);
+        currentText = "";
+        charIndex = 0;
+        typing = true;
+        suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        placeholderElement.innerHTML = '<span class="cursor"></span>';
+        typingInterval = setInterval(typePlaceholder, 100);
+    }
+
+    // Handle Tab key press
+    topicInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            topicInput.value = suggestions[suggestionIndex];
+            isPlaceholderActive = false;
+            placeholderElement.style.display = 'none';
+            clearInterval(typingInterval);
+            typingInterval = null;
+            suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        }
+    });
+
+    // Handle when user types or clears the input
+    topicInput.addEventListener("input", () => {
+        if (topicInput.value.length > 0) {
+            isPlaceholderActive = false;
+            clearInterval(typingInterval);
+            typingInterval = null;
+            placeholderElement.style.display = 'none';
+        } else {
+            resetAndStartPlaceholder();
+        }
+    });
+
+    // Hide placeholder when input is focused with content
+    topicInput.addEventListener('focus', () => {
+        if (topicInput.value.length > 0) {
+            isPlaceholderActive = false;
+            placeholderElement.style.display = 'none';
+        }
+    });
+
+    // Start the initial typing effect
+    suggestionIndex = 0;
+    resetAndStartPlaceholder();
+
+    // Modal Funktionen
+    function openAuthModal(tab = 'login') {
+        document.getElementById('authModal').style.display = 'flex';
+        switchTab(tab);
+    }
+
+    function closeAuthModal() {
+        document.getElementById('authModal').style.display = 'none';
+        // Reset forms
+        document.getElementById('modalLoginForm').reset();
+        document.getElementById('modalRegisterForm').reset();
+        document.getElementById('modalLoginError').style.display = 'none';
+        document.getElementById('modalRegisterError').style.display = 'none';
+    }
+
+    function switchTab(tab) {
+        // Update tabs
+        document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.modal-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+        
+        // Update forms
+        document.querySelectorAll('.modal-form').forEach(f => f.classList.remove('active'));
+        document.getElementById(`modal${tab.charAt(0).toUpperCase() + tab.slice(1)}Form`).classList.add('active');
+    }
+
+    async function handleModalLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('modalEmail').value;
+        const password = document.getElementById('modalPassword').value;
+        const errorDiv = document.getElementById('modalLoginError');
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                errorDiv.textContent = error.message || 'Anmeldung fehlgeschlagen';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Login-Fehler:', error);
+            errorDiv.textContent = 'Ein Fehler ist aufgetreten';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    async function handleModalRegister(event) {
+        event.preventDefault();
+        const email = document.getElementById('modalRegisterEmail').value;
+        const password = document.getElementById('modalRegisterPassword').value;
+        const confirmPassword = document.getElementById('modalConfirmPassword').value;
+        const errorDiv = document.getElementById('modalRegisterError');
+
+        if (password !== confirmPassword) {
+            errorDiv.textContent = 'Die Passwörter stimmen nicht überein';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                // Nach erfolgreicher Registrierung zum Login-Tab wechseln
+                switchTab('login');
+                document.getElementById('modalEmail').value = email;
+                errorDiv.style.display = 'none';
+                document.getElementById('modalRegisterError').style.display = 'none';
+            } else {
+                const error = await response.json();
+                errorDiv.textContent = error.message || 'Registrierung fehlgeschlagen';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Registrierungs-Fehler:', error);
+            errorDiv.textContent = 'Ein Fehler ist aufgetreten';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // Event Listener für Login/Register Links
+    document.addEventListener('DOMContentLoaded', function() {
+        // Login Links
+        document.querySelectorAll('a[href="/login"]').forEach(link => {
+            link.href = '#';
+            link.onclick = (e) => {
+                e.preventDefault();
+                openAuthModal('login');
+            };
+        });
+
+        // Register Links
+        document.querySelectorAll('a[href="/register"]').forEach(link => {
+            link.href = '#';
+            link.onclick = (e) => {
+                e.preventDefault();
+                openAuthModal('register');
+            };
+        });
+
+        // Schließen des Modals bei Klick außerhalb
+        document.getElementById('authModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('authModal')) {
+                closeAuthModal();
+            }
+        });
+
+        // Schließen des Modals mit Escape-Taste
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('authModal').style.display === 'flex') {
+                closeAuthModal();
+            }
+        });
+    });
+</script>
+</body>
+</html>

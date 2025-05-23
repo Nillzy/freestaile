@@ -53,7 +53,7 @@
         <div class="error-icon">⚠️</div>
         <h1>Oops! Something went wrong</h1>
         <p class="error-message"><%= it.message %></p>
-        <a href="/" class="button">Back to Homepage</a>
+        <a href="/public" class="button">Back to Homepage</a>
     </div>
 </body>
 </html> 
