@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
     `https://${process.env.SUPABASE_USER_ID}.supabase.co`,
@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 // Middleware für die Session-Verwaltung
-const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
     const token = req.cookies.session;
     
     if (!token) {
@@ -33,14 +33,9 @@ const authMiddleware = async (req, res, next) => {
 };
 
 // Middleware für geschützte Routen
-const requireAuth = (req, res, next) => {
+export const requireAuth = (req, res, next) => {
     if (!req.user) {
         return res.redirect('/login?error=unauthorized');
     }
     next();
-};
-
-module.exports = {
-    authMiddleware,
-    requireAuth
 }; 

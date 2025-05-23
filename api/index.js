@@ -1,22 +1,25 @@
-const express = require("express");
-const app = express();
-const path = require("node:path");
-const Eta = require("eta").Eta;
-const eta = new Eta({ views: path.join(__dirname, "public") });
-const { JSDOM } = require("jsdom");
-require("dotenv").config(); // Für Umgebungsvariablen
-const validator = require('validator');
-const cookieParser = require('cookie-parser');
-const { validateRevealSlides } = require("./revealValidator");
-const { exampleUsage, testInvalidSlides } = require("./revealValidatorExample");
-const { v4 } = require('uuid');
-const { createClient } = require('@supabase/supabase-js');
-const { authMiddleware, requireAuth } = require('./middleware/auth');
+import express from "express";
+import path from "node:path";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { Eta } from "eta";
+import { JSDOM } from "jsdom";
+import {} from 'dotenv/config'
+import validator from 'validator';
+import cookieParser from 'cookie-parser';
+import { v4 } from 'uuid';
+import { createClient } from '@supabase/supabase-js';
+import { authMiddleware, requireAuth } from './middleware/auth.js';
+//import { validateRevealSlides } from "./revealValidator.js";
+//import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
+import { fetchSlides, fetchImages } from "./APIService.js";
+import { fetchPresentation, saveSlides } from "./SupabaseService.js";
 
-const { fetchSlides } = require("./APIService.js");
-const { fetchImages } = require("./APIService.js");
-const { fetchPresentation } = require("./SupabaseService.js");
-const {saveSlides} = require("./SupabaseService");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+const eta = new Eta({ views: path.join(__dirname, "../public") });
 
 // Supabase Client für Backend-Authentifizierung
 const supabase = createClient(
@@ -28,7 +31,10 @@ const supabase = createClient(
 app.use(express.json());
 app.use(cookieParser());
 app.use(authMiddleware); // Auth-Middleware für alle Routes
-app.use(express.static("public"));
+
+// Statische Dateien - Reihenfolge ist wichtig!
+app.use('/api', express.static(path.join(__dirname, 'public'))); // Für /api/public Dateien
+app.use(express.static(path.join(__dirname, '../public'))); // Für /public Dateien
 
 // Logout-Route
 app.post("/api/auth/logout", async (req, res) => {
@@ -86,33 +92,6 @@ app.post("/api/auth/login", async (req, res) => {
     }
 });
 
-// Login-Seite Route (aktualisiert)
-app.get("/login", (req, res) => {
-    // Nur wenn bereits eingeloggt, zur Startseite weiterleiten
-    if (req.user) {
-        return res.redirect('/');
-    }
-
-    const registered = req.query.registered === 'true';
-    const error = req.query.error === 'unauthorized' ? 'Bitte melden Sie sich an, um fortzufahren.' : null;
-
-    res.send(eta.render("login", {
-        user: null, // Explizit null setzen, da wir wissen, dass der User nicht eingeloggt ist
-        registered,
-        message: registered ? "Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse und melden Sie sich dann an." : null,
-        error
-    }));
-});
-
-// Registrierungs-Seite Route (aktualisiert)
-app.get("/register", (req, res) => {
-    // Nur wenn bereits eingeloggt, zur Startseite weiterleiten
-    if (req.user) {
-        return res.redirect('/');
-    }
-    res.send(eta.render("register", { user: null })); // Explizit null setzen
-});
-
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
     res.send(eta.render("homepage", { user: req.user }));
@@ -167,11 +146,6 @@ app.get("/present", (req, res) => {
   } else {
     res.redirect("/");
   }
-});
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
 });
 
 async function insertImages(content) {
@@ -304,3 +278,14 @@ setInterval(() => {
         }
     }
 }, 30 * 60 * 1000);
+
+/* ----- FOR LOKALES TESTEN -----
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}/`);
+});
+ */
+
+
+// Exportiere den Express-Handler für Vercel
+export default app;
