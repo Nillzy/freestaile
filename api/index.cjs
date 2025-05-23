@@ -142,11 +142,6 @@ app.get("/present", (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
-});
-
 async function insertImages(content) {
   // Erzeuge ein virtuelles DOM aus dem HTML-String
   const dom = new JSDOM(content);
@@ -277,3 +272,6 @@ setInterval(() => {
         }
     }
 }, 30 * 60 * 1000);
+
+// Exportiere den Express-Handler für Vercel
+module.exports = app;
