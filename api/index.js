@@ -151,6 +151,77 @@ app.post("/api/auth/register", async (req, res) => {
     }
 });
 
+const presentationStatuses = new Map();
+
+app.post("/initiateGeneration", async (req, res) => {
+    const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
+    const accountID = req.user.id;
+    const presentations = req.body.presentations;
+    console.log(presentations);
+
+    if (presentations === undefined || presentations.length === 0) {
+        res.status(500).json({
+            message: "Ein Fehler ist aufgetreten"
+        }).send();
+    }
+
+    let presentationIDs = [];
+
+    for (const presentation of presentations) {
+        const presentationID = v4();
+        presentationIDs.push(presentationID);
+        presentationStatuses.set(presentationID, {
+            status: 'processing',
+            timestamp: Date.now()
+        });
+    }
+
+    console.log(presentationIDs);
+    console.log(presentationStatuses);
+    res.send(presentationIDs);
+
+    //Background process:
+    try {
+        for (let i = 0; i < presentations.length; i++) {
+            const presentationID = presentationIDs[i];
+            const topic = presentations[i].topic;
+            const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
+            const content = await insertImages(contentWithoutImages);
+            const successful = await saveSlides(presentationID, content, topic, accountID); //TODO: Get real account ID
+
+            if (!successful) {
+                presentationStatuses.set(presentationID, {
+                    status: 'error',
+                    message: 'Fehler beim Speichern der Präsentation',
+                    timestamp: Date.now()
+                });
+                res.status(500).json({
+                    message: "Ein Fehler ist aufgetreten"
+                }).send();
+            }
+
+            presentationStatuses.set(presentationID, {
+                status: 'completed',
+                timestamp: Date.now()
+            });
+        }
+    } catch (error) {
+        console.error("Error while fetching and saving slides:", error);
+        if (presentationID) {
+            presentationStatuses.set(presentationID, {
+                status: 'error',
+                message: 'Fehler beim Generieren der Präsentation',
+                timestamp: Date.now()
+            });
+        }
+        res.status(500).send(
+            eta.render("error-page", {
+                message: "Fehler beim Abrufen und Speichern der Präsentation",
+            })
+        );
+    }
+})
+
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
     res.send(eta.render("homepage", { user: req.user }));
@@ -165,7 +236,14 @@ app.get("/multi", (req, res) => {
     if (!req.user) {
         return res.redirect('/');
     }
-    res.send(eta.render("multiplayer", { user: req.user }));
+    res.send(eta.render("multiplayerModeChoice", { user: req.user }));
+});
+
+app.get("/1-device-mode", (req, res) => {
+    if (!req.user) {
+        return res.redirect('/');
+    }
+    res.send(eta.render("1DeviceMode", { user: req.user }));
 });
 
 // Error Page Route (aktualisiert)
@@ -256,8 +334,6 @@ app.get("/present2", async (req, res) => {
   }
 })
 
-const presentationStatuses = new Map();
-
 app.get("/initiateGeneration", async (req, res) => {
     let topic = req.query.presentationID.toString;
     let presentationLanguage = req.query.presentationID.toString();
@@ -328,6 +404,28 @@ app.get("/checkGenerationStatus", (req, res) => {
     res.json(status);
 });
 
+app.get("/checkGenerationStatusMulti", (req, res) => {
+    const presentationIDs = req.query.ids;
+    if (!presentationIDs) {
+        return res.status(400).json({ status: 'error', message: 'Keine Präsentations-IDs angegeben' });
+    }
+
+    const ids = presentationIDs.split(',');
+    if (!ids.every(id => validator.isUUID(id))) {
+        return res.status(400).json({ status: 'error', message: 'Eine oder mehrere ungültige Präsentations-IDs' });
+    }
+
+    const statuses = ids.map(id => {
+        const status = presentationStatuses.get(id);
+        return {
+            id,
+            status: status || { status: 'error', message: 'Präsentation nicht gefunden' }
+        };
+    });
+
+    res.json(statuses);
+});
+
 // Cleanup alte Status-Einträge alle 30 Minuten
 setInterval(() => {
     const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000);
@@ -338,12 +436,12 @@ setInterval(() => {
     }
 }, 30 * 60 * 1000);
 
-/*
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
 });
-*/
+
 
 
 // Exportiere den Express-Handler für Vercel

@@ -7,7 +7,7 @@ export async function fetchPresentation(presentationID) {
     const { data, error } = await supabase
         .from('Presentations')
         .select('topic, content')
-        .eq('id', presentationID)
+        .eq('p_id', presentationID) //TODO: Check if user ID matches
         .single();
 
     if (error || !data || !data.content) {
@@ -17,11 +17,11 @@ export async function fetchPresentation(presentationID) {
     }
 }
 
-export async function saveSlides(presentationID, content, topic) {
+export async function saveSlides(presentationID, content, topic, accountID) {
     const { data, error } = await supabase
         .from('Presentations')
         .insert([
-            { id: presentationID, content: content, topic: topic },
+            { p_id: presentationID, content: content, topic: topic, a_id: accountID },
         ])
         .select()
 

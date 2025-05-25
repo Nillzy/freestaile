@@ -407,6 +407,89 @@
         .modal-form.active {
             display: block;
         }
+
+        /* Animationen für den Input-Hint */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-hint {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            margin-top: 8px;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-hint-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.2;
+            padding: 4px 0;
+        }
+
+        .input-hint-icon {
+            position: relative;
+            width: 1.2em;
+            height: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-hint-icon i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #234567;
+            font-size: 1rem;
+        }
+
+        .input-hint span {
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+        }
+
+        body.darkmode .input-hint-content {
+            color: #a0aec0;
+        }
+
+        body.darkmode .input-hint-icon i {
+            color: #ffffff;
+        }
+
+        .input-hint.fade-in {
+            animation: fadeInDown 0.3s ease forwards;
+        }
+
+        .input-hint.fade-out {
+            animation: fadeOutUp 0.3s ease forwards;
+        }
     </style>
 </head>
 
@@ -484,9 +567,13 @@
                     <input type="text" name="topic" id="topic" autocomplete="off">
                     <div class="typing-placeholder"></div>
                 </div>
-                <div class="input-hint">
-                    <i class="fas fa-lightbulb"></i>
-                    <span>Tab to use recommendation</span>
+                <div class="input-hint" style="display: none;">
+                    <div class="input-hint-content">
+                        <div class="input-hint-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <span>Tab to use recommendation</span>
+                    </div>
                 </div>
                 <label for="presentationLanguage">Select presentation language</label>
                 <div class="input-wrapper">
@@ -747,12 +834,35 @@
         }
     });
 
-    // Hide placeholder when input is focused with content
+    // Input hint visibility handling
+    const inputHint = document.querySelector('.input-hint');
+    
     topicInput.addEventListener('focus', () => {
+        inputHint.style.display = 'block';
+        // Entferne zuerst alle Animation-Klassen
+        inputHint.classList.remove('fade-out');
+        // Trigger reflow
+        void inputHint.offsetWidth;
+        // Füge die fade-in Animation hinzu
+        inputHint.classList.add('fade-in');
+        
         if (topicInput.value.length > 0) {
             isPlaceholderActive = false;
             placeholderElement.style.display = 'none';
         }
+    });
+
+    topicInput.addEventListener('blur', () => {
+        // Entferne fade-in und füge fade-out hinzu
+        inputHint.classList.remove('fade-in');
+        inputHint.classList.add('fade-out');
+        
+        // Warte auf das Ende der Animation bevor wir das Element ausblenden
+        setTimeout(() => {
+            if (!topicInput.matches(':focus')) {  // Prüfe ob das Input noch fokussiert ist
+                inputHint.style.display = 'none';
+            }
+        }, 300); // 300ms entspricht der Animationsdauer
     });
 
     // Start the initial typing effect
