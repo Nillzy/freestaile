@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreestAIle - Multiplayer beitreten</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .main-header {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-logo {
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 1.5rem;
+            color: #234567;
+        }
+        
+        .join-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .join-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+        
+        .join-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .join-header h1 {
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            color: #234567;
+            margin-bottom: 0.5rem;
+        }
+        
+        .lobby-info {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        .lobby-id {
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #234567;
+        }
+        
+        .join-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            color: #234567;
+        }
+        
+        .form-group input {
+            padding: 0.75rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            border-color: #b1dae7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(177, 218, 231, 0.3);
+        }
+        
+        .join-button {
+            background: #b1e7c8;
+            border: none;
+            border-radius: 50px;
+            padding: 0.75rem 2rem;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #234567;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .join-button:hover {
+            background: #9fd6b6;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <a href="/" style="text-decoration: none;">
+            <span class="header-logo">Freest<b>AI</b>le</span>
+        </a>
+    </header>
+    
+    <main class="join-container">
+        <div class="join-card">
+            <div class="join-header">
+                <h1>Multiplayer-Spiel beitreten</h1>
+                <p>Gib deinen Namen ein, um der Lobby beizutreten.</p>
+            </div>
+            
+            <div class="lobby-info">
+                <p>Du trittst Lobby bei:</p>
+                <div class="lobby-id"><%= it.lobbyId %></div>
+            </div>
+            
+            <form class="join-form" id="joinForm">
+                <div class="form-group">
+                    <label for="userName">Dein Name</label>
+                    <input type="text" id="userName" name="userName" placeholder="Wie sollen wir dich nennen?" required>
+                    <div class="error-message" id="errorMessage"></div>
+                </div>
+                
+                <button type="submit" class="join-button">
+                    <i class="fas fa-sign-in-alt"></i> Beitreten
+                </button>
+            </form>
+        </div>
+    </main>
+    
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="/multiplayer/client/socket-client.js"></script>
+    <script>
+        // Lobby-Daten
+        const lobbyId = '<%= it.lobbyId %>';
+        
+        // UI-Elemente
+        const joinForm = document.getElementById('joinForm');
+        const userNameInput = document.getElementById('userName');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Form-Submit-Handler
+        joinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userName = userNameInput.value.trim();
+            
+            if (!userName) {
+                showError('Bitte gib deinen Namen ein');
+                return;
+            }
+            
+            try {
+                // Socket.io-Verbindung herstellen
+                await window.multiplayerClient.connect();
+                
+                // Lobby beitreten
+                await window.multiplayerClient.joinLobby(lobbyId, userName);
+                
+                // Event-Handler registrieren
+                window.multiplayerClient.on('presentationStarted', () => {
+                    window.location.href = `/presentation/${lobbyId}`;
+                });
+                
+                window.multiplayerClient.on('lobbyEnded', (reason) => {
+                    alert(`Die Lobby wurde geschlossen: ${reason.reason}`);
+                    window.location.href = '/';
+                });
+                
+                // Zur Lobby-Seite weiterleiten
+                window.location.href = `/lobby/${lobbyId}`;
+                
+            } catch (error) {
+                console.error('Fehler beim Beitreten der Lobby:', error);
+                showError(error.message || 'Fehler beim Beitreten der Lobby');
+            }
+        });
+        
+        // Fehlermeldung anzeigen
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
