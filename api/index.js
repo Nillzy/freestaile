@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser';
 import { v4 } from 'uuid';
 import { createClient } from '@supabase/supabase-js';
 import { authMiddleware, requireAuth } from './middleware/auth.js';
+import favicon from 'serve-favicon';
 //import { validateRevealSlides } from "./revealValidator.js";
 //import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
@@ -20,6 +21,8 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const eta = new Eta({ views: path.join(__dirname, "../public") });
+
+app.use(favicon(path.join(__dirname, '../public/assets/favicon.ico')));
 
 // Supabase Client für Backend-Authentifizierung
 const supabase = createClient(
@@ -335,11 +338,12 @@ setInterval(() => {
     }
 }, 30 * 60 * 1000);
 
-
+/*
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
 });
+*/
 
 
 // Exportiere den Express-Handler für Vercel

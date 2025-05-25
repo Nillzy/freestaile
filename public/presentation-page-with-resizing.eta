@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presentation about Brownies vs. Muffins – FreestAIle</title>
 
-    <link rel="stylesheet" href="styles/pages/presentation.css">
+    <link rel="stylesheet" href="styles/presentation.css">
 
     <!-- Styles für RevealJS -->
     <link rel="stylesheet" href="styles/revealjsstyles/reveal.min.css">
