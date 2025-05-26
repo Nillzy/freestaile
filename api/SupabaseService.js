@@ -10,7 +10,7 @@ export async function fetchPresentation(presentationID) {
         .eq('p_id', presentationID) //TODO: Check if user ID matches
         .single();
 
-    if (error || !data || !data.content) {
+    if (error || !data || !data.topic || !data.content) {
         return false;
     } else {
         return { topic: data.topic, content: data.content };
@@ -53,17 +53,22 @@ export async function getPresentationIDsFromRoundID(roundID) {
     }
 }
 
-export async function setPresentationIDsFromRoundID(presentationIDs, roundID) {
-    for (const presentationID of presentationIDs) {
+export async function setPresentationIDsAndPlayersFromRoundID(presentationIDs, players, roundID) {
+
+    for (let i = 0; i < presentationIDs.length; i++) {
         const { data, error } = await supabase
             .from('Presentations_in_Round')
-            .insert({ p_id: presentationID, r_id: roundID })
+            .insert({ p_id: presentationIDs[i], player: players[i], r_id: roundID })
             .select();
 
         if (error) {
             console.error("Presentation IDs could not be written to Presentations_in_Round. Reason: " + error.message);
             return false
         }
+    }
+
+    for (const presentationID of presentationIDs) {
+
     }
     return true;
 }
@@ -81,5 +86,19 @@ export async function createRound(roundID, accountID) {
     } else {
         console.error("Round could not be created. Reason: " + error.message);
         return false;
+    }
+}
+
+export async function fetchPlayerName(presentationID) {
+    const { data, error } = await supabase
+        .from('Presentations_in_Round')
+        .select('player')
+        .eq('p_id', presentationID) //TODO: Check if user ID matches
+        .single();
+
+    if (error || !data || !data.player) {
+        return false;
+    } else {
+        return { player: data.player };
     }
 }

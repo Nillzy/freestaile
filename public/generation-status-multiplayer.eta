@@ -338,9 +338,9 @@
     <div class="container">
         <h1>FreestAIle</h1>
         <div id="presentations-container">
-            <% it.presentationIDs.forEach(function(presentationID) { %>
+            <% it.presentationIDs.forEach(function(presentationID, index) { %>
                 <div class="presentation-item" data-presentation-id="<%= presentationID %>">
-                    <h3>Präsentation <%= presentationID %></h3>
+                    <h3><%= it.players[index].player %><%= (it.players[index].player.endsWith('s') || it.players[index].player.endsWith('z')) ? "'" : "'s" %> Präsentation</h3>
                     <div class="status-icon">
                         <div class="wheel-and-hamster loading-animation" role="img" aria-label="Orange and tan hamster running in a metal wheel">
                             <div class="wheel"></div>

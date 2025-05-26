@@ -801,6 +801,21 @@
         body.darkmode .player-input input.error {
             border-color: #fc8181;
         }
+
+        @keyframes duplicate-shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .player-input input.duplicate-error {
+            border-color: #e53e3e;
+            animation: duplicate-shake 0.8s ease-in-out;
+        }
+
+        body.darkmode .player-input input.duplicate-error {
+            border-color: #fc8181;
+        }
     </style>
 </head>
 
@@ -1037,11 +1052,12 @@
             button.classList.remove('ready');
             topicInput.disabled = false;
             nameInput.disabled = false;
-            topicInput.classList.remove('error');
-            nameInput.classList.remove('error');
+            topicInput.classList.remove('error', 'duplicate-error');
+            nameInput.classList.remove('error', 'duplicate-error');
         } else {
             let hasError = false;
             
+            // Prüfe auf leere Felder
             if (!topicInput.value.trim()) {
                 topicInput.classList.add('error');
                 hasError = true;
@@ -1054,6 +1070,40 @@
                 hasError = true;
             } else {
                 nameInput.classList.remove('error');
+            }
+
+            // Prüfe auf doppelte Namen
+            const allNameInputs = document.querySelectorAll('.player-name-input');
+            const currentName = nameInput.value.trim();
+            let duplicateNameFound = false;
+
+            allNameInputs.forEach(input => {
+                if (input !== nameInput && input.value.trim() === currentName) {
+                    duplicateNameFound = true;
+                    input.classList.add('duplicate-error');
+                }
+            });
+
+            if (duplicateNameFound) {
+                nameInput.classList.add('duplicate-error');
+                hasError = true;
+            }
+
+            // Prüfe auf doppelte Themen
+            const allTopicInputs = document.querySelectorAll('.player-input input[placeholder="Präsentationsthema eingeben"]');
+            const currentTopic = topicInput.value.trim();
+            let duplicateTopicFound = false;
+
+            allTopicInputs.forEach(input => {
+                if (input !== topicInput && input.value.trim() === currentTopic) {
+                    duplicateTopicFound = true;
+                    input.classList.add('duplicate-error');
+                }
+            });
+
+            if (duplicateTopicFound) {
+                topicInput.classList.add('duplicate-error');
+                hasError = true;
             }
             
             if (hasError) {
@@ -1230,8 +1280,16 @@
 
     // Event Listener für Input-Felder, um Fehler-Status zu entfernen
     document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('error')) {
-            e.target.classList.remove('error');
+        if (e.target.classList.contains('error') || e.target.classList.contains('duplicate-error')) {
+            e.target.classList.remove('error', 'duplicate-error');
+            
+            // Entferne auch die duplicate-error Klasse von anderen Feldern
+            const allInputs = document.querySelectorAll('.player-input input');
+            allInputs.forEach(input => {
+                if (input !== e.target) {
+                    input.classList.remove('duplicate-error');
+                }
+            });
         }
     });
 </script>

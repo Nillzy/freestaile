@@ -14,7 +14,14 @@ import favicon from 'serve-favicon';
 //import { validateRevealSlides } from "./revealValidator.js";
 //import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
-import { fetchPresentation, saveSlides, getPresentationIDsFromRoundID, createRound, setPresentationIDsFromRoundID } from "./SupabaseService.js";
+import {
+    fetchPresentation,
+    saveSlides,
+    getPresentationIDsFromRoundID,
+    createRound,
+    setPresentationIDsAndPlayersFromRoundID,
+    fetchPlayerName
+} from "./SupabaseService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -165,6 +172,12 @@ app.post("/initiateGeneration", async (req, res) => {
         }).send();
     }
 
+    let players = [];
+
+    for (let i = 0; i < presentations.length; i++) {
+        players.push(presentations[i].player);
+    }
+
     const roundID = v4();
 
     const roundCreated = await createRound(roundID, req.user.id);
@@ -190,7 +203,7 @@ app.post("/initiateGeneration", async (req, res) => {
         });
     }
 
-    const presentationIDsWritten = await setPresentationIDsFromRoundID(presentationIDs, roundID);
+    const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, players, roundID);
 
     if (!presentationIDsWritten) {
         if (!roundCreated) {
@@ -214,7 +227,7 @@ app.post("/initiateGeneration", async (req, res) => {
             const topic = presentations[i].topic;
             const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
             const content = await insertImages(contentWithoutImages);
-            const successful = await saveSlides(presentationID, content, topic, roundID, accountID); //TODO: Get real account ID
+            const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
 
             if (!successful) {
                 presentationStatus.set(presentationID, {
@@ -247,7 +260,7 @@ app.post("/initiateGeneration", async (req, res) => {
             })
         );
     }
-})
+});
 
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
@@ -492,6 +505,18 @@ app.get("/lobby", async (req, res) => {
     }*/
 
     const presentationIDs = await getPresentationIDsFromRoundID(roundID);
+    let players = [];
+    for (const presentationID of presentationIDs) {
+        const player = await fetchPlayerName(presentationID)
+        if (!player) {
+            //TODO: FEHLER
+        }
+        players.push(player);
+    }
+
+    //const zipped = presentationIDs.map((value, index) => [value, players[index]]);
+
+    //console.log(zipped);
 
     if (!presentationIDs || !Array.isArray(presentationIDs)) {
         return res.status(500).send(
@@ -501,8 +526,8 @@ app.get("/lobby", async (req, res) => {
         );
     }
 
-    console.log(presentationIDs);
-    return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs}));
+    console.log(players);
+    return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
 
     // TODO: ETA-Seite implementieren senden ...
 });
