@@ -14,7 +14,7 @@ import favicon from 'serve-favicon';
 //import { validateRevealSlides } from "./revealValidator.js";
 //import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
-import { fetchPresentation, saveSlides } from "./SupabaseService.js";
+import { fetchPresentation, saveSlides, getPresentationIDsFromRoundID } from "./SupabaseService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -165,6 +165,10 @@ app.post("/initiateGeneration", async (req, res) => {
         }).send();
     }
 
+    // TODO: Round anlegen
+
+    const roundID = '4400cb5b-6c7c-4bf4-8b6c-55e663f69f64'; //v4();
+
     let presentationIDs = [];
 
     for (const presentation of presentations) {
@@ -178,7 +182,10 @@ app.post("/initiateGeneration", async (req, res) => {
 
     console.log(presentationIDs);
     console.log(presentationStatuses);
-    res.send(presentationIDs);
+    console.log(roundID);
+    res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+
+    //TODO: Stattdessen roundID erzeugen und zurückschicken, um Lobby zu öffnen
 
     //Background process:
     try {
@@ -187,7 +194,7 @@ app.post("/initiateGeneration", async (req, res) => {
             const topic = presentations[i].topic;
             const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
             const content = await insertImages(contentWithoutImages);
-            const successful = await saveSlides(presentationID, content, topic, accountID); //TODO: Get real account ID
+            const successful = await saveSlides(presentationID, content, topic, roundID, accountID); //TODO: Get real account ID
 
             if (!successful) {
                 presentationStatuses.set(presentationID, {
@@ -332,7 +339,7 @@ app.get("/present2", async (req, res) => {
           })
       );
   }
-})
+});
 
 app.get("/initiateGeneration", async (req, res) => {
     let topic = req.query.presentationID.toString;
@@ -424,6 +431,64 @@ app.get("/checkGenerationStatusMulti", (req, res) => {
     });
 
     res.json(statuses);
+});
+
+app.get("/lobby", async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/');
+    }
+
+    const gameMode = req.query.gameMode;
+    const roundID = req.query.roundID;
+
+    console.log(gameMode, roundID)
+
+    if (!gameMode || !roundID) {
+        return res.redirect('/');
+    }
+
+    // TODO: GameMode behandeln...
+
+    // TODO: Verifizieren, dass die Round zum User gehört
+
+    /*const verifyUserRoundRelation = await fetch ("/verifyUserRoundRelation", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userID: req.user.id,
+            gameMode: gameMode,
+            roundID: roundID
+        })
+    });
+
+    if (!verifyUserRoundRelation || !verifyUserRoundRelation.ok) {
+        return res.status(500).send(
+            eta.render("error-page", {
+                message: "Fehler beim Abrufen der Präsentationen",
+            })
+        );
+    }*/
+
+    const presentationIDs = await getPresentationIDsFromRoundID(roundID);
+
+    if (!presentationIDs || !Array.isArray(presentationIDs)) {
+        return res.status(500).send(
+            eta.render("error-page", {
+                message: "Fehler beim Abrufen der Präsentationen",
+            })
+        );
+    }
+
+    return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs}));
+
+    // TODO: ETA-Seite implementieren senden ...
+});
+
+app.post("/verifyUserRoundRelation", async (req, res) => {
+    //...
+    return true;
 });
 
 // Cleanup alte Status-Einträge alle 30 Minuten

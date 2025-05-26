@@ -17,11 +17,11 @@ export async function fetchPresentation(presentationID) {
     }
 }
 
-export async function saveSlides(presentationID, content, topic, accountID) {
+export async function saveSlides(presentationID, content, topic, roundID, accountID) {
     const { data, error } = await supabase
         .from('Presentations')
         .insert([
-            { p_id: presentationID, content: content, topic: topic, a_id: accountID },
+            { p_id: presentationID, content: content, topic: topic, r_id: roundID, a_id: accountID },
         ])
         .select()
 
@@ -29,6 +29,26 @@ export async function saveSlides(presentationID, content, topic, accountID) {
         return true;
     } else {
         console.error("Presentation could not be saved. Reason: " + error.message);
+        return false
+    }
+}
+
+export async function getPresentationIDsFromRoundID(roundID) {
+    const { data, error } = await supabase
+        .from('Presentations')
+        .select('p_id')
+        .eq('r_id', roundID);
+
+    if (!error) {
+        console.log(data);
+        let presentationIDs = [];
+        for (const i of data) {
+            presentationIDs.push(i.p_id);
+        }
+        console.log(presentationIDs)
+        return presentationIDs;
+    } else {
+        console.error("Presentation IDs could not be fetched. Reason: " + error.message);
         return false
     }
 }

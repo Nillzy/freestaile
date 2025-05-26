@@ -1110,11 +1110,10 @@
 
             const data = await response.json();
 
-            console.log(data);
+            console.log(data.url);
 
-            if (response.ok && data) {
-                // Weiterleitung zur Status-Seite mit den generierten IDs
-                window.location.href = `/checkGenerationStatusMulti?ids=${data.join(',')}`;
+            if (response.ok && data && data.url) {
+                window.location.href = data.url;
             } else {
                 console.error('Fehler bei der Generierung:', data.error || 'Unbekannter Fehler');
             }
