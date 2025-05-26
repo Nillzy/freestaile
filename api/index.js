@@ -14,7 +14,14 @@ import favicon from 'serve-favicon';
 //import { validateRevealSlides } from "./revealValidator.js";
 //import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
-import { fetchPresentation, saveSlides } from "./SupabaseService.js";
+import {
+    fetchPresentation,
+    saveSlides,
+    getPresentationIDsFromRoundID,
+    createRound,
+    setPresentationIDsAndPlayersFromRoundID,
+    fetchPlayerName
+} from "./SupabaseService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -151,6 +158,110 @@ app.post("/api/auth/register", async (req, res) => {
     }
 });
 
+const presentationStatus = new Map();
+
+app.post("/initiateGeneration", async (req, res) => {
+    const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
+    const accountID = req.user.id;
+    const presentations = req.body.presentations;
+    console.log(presentations);
+
+    if (presentations === undefined || presentations.length === 0) {
+        return res.status(500).json({
+            message: "Request not valid"
+        }).send();
+    }
+
+    let players = [];
+
+    for (let i = 0; i < presentations.length; i++) {
+        players.push(presentations[i].player);
+    }
+
+    const roundID = v4();
+
+    const roundCreated = await createRound(roundID, req.user.id);
+
+    setTimeout(function () {
+        console.log("WARTE...")
+    }, 10000000)
+
+    if (!roundCreated) {
+        return res.status(500).json({
+            message: "Round could not be created"
+        }).send();
+    }
+
+    let presentationIDs = [];
+
+    for (const presentation of presentations) {
+        const presentationID = v4();
+        presentationIDs.push(presentationID);
+        presentationStatus.set(presentationID, {
+            status: 'processing',
+            timestamp: Date.now()
+        });
+    }
+
+    const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, players, roundID);
+
+    if (!presentationIDsWritten) {
+        if (!roundCreated) {
+            return res.status(500).json({
+                message: "Presentation ID could not be written for round ID"
+            }).send();
+        }
+    }
+
+    console.log(presentationIDs);
+    console.log(presentationStatus);
+    console.log(roundID);
+    res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+
+    //TODO: Stattdessen roundID erzeugen und zurückschicken, um Lobby zu öffnen
+
+    //Background process:
+    try {
+        for (let i = 0; i < presentations.length; i++) {
+            const presentationID = presentationIDs[i];
+            const topic = presentations[i].topic;
+            const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
+            const content = await insertImages(contentWithoutImages);
+            const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
+
+            if (!successful) {
+                presentationStatus.set(presentationID, {
+                    status: 'error',
+                    message: 'Fehler beim Speichern der Präsentation',
+                    timestamp: Date.now()
+                });
+                res.status(500).json({
+                    message: "Ein Fehler ist aufgetreten"
+                }).send();
+            }
+
+            presentationStatus.set(presentationID, {
+                status: 'completed',
+                timestamp: Date.now()
+            });
+        }
+    } catch (error) {
+        console.error("Error while fetching and saving slides:", error);
+        if (presentationID) {
+            presentationStatus.set(presentationID, {
+                status: 'error',
+                message: 'Fehler beim Generieren der Präsentation',
+                timestamp: Date.now()
+            });
+        }
+        res.status(500).send(
+            eta.render("error-page", {
+                message: "Fehler beim Abrufen und Speichern der Präsentation",
+            })
+        );
+    }
+});
+
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
     res.send(eta.render("homepage", { user: req.user }));
@@ -165,7 +276,14 @@ app.get("/multi", (req, res) => {
     if (!req.user) {
         return res.redirect('/');
     }
-    res.send(eta.render("multiplayer", { user: req.user }));
+    res.send(eta.render("multiplayerModeChoice", { user: req.user }));
+});
+
+app.get("/1-device-mode", (req, res) => {
+    if (!req.user) {
+        return res.redirect('/');
+    }
+    res.send(eta.render("1devicemode", { user: req.user }));
 });
 
 // Error Page Route (aktualisiert)
@@ -254,9 +372,7 @@ app.get("/present2", async (req, res) => {
           })
       );
   }
-})
-
-const presentationStatuses = new Map();
+});
 
 app.get("/initiateGeneration", async (req, res) => {
     let topic = req.query.presentationID.toString;
@@ -264,7 +380,7 @@ app.get("/initiateGeneration", async (req, res) => {
     if (topic !== undefined || topic !== "" || presentationLanguage !== undefined || presentationLanguage !== "") {
         try {
             const presentationID = v4();
-            presentationStatuses.set(presentationID, { 
+            presentationStatus.set(presentationID, { 
                 status: 'processing',
                 timestamp: Date.now()
             });
@@ -281,7 +397,7 @@ app.get("/initiateGeneration", async (req, res) => {
             const successful = await saveSlides(presentationID, content, topic);
 
             if (!successful) {
-                presentationStatuses.set(presentationID, { 
+                presentationStatus.set(presentationID, { 
                     status: 'error', 
                     message: 'Fehler beim Speichern der Präsentation',
                     timestamp: Date.now()
@@ -289,7 +405,7 @@ app.get("/initiateGeneration", async (req, res) => {
                 return;
             }
 
-            presentationStatuses.set(presentationID, { 
+            presentationStatus.set(presentationID, { 
                 status: 'completed',
                 timestamp: Date.now()
             });
@@ -297,7 +413,7 @@ app.get("/initiateGeneration", async (req, res) => {
         } catch (error) {
             console.error("Error while fetching and saving slides:", error);
             if (presentationID) {
-                presentationStatuses.set(presentationID, { 
+                presentationStatus.set(presentationID, { 
                     status: 'error', 
                     message: 'Fehler beim Generieren der Präsentation',
                     timestamp: Date.now()
@@ -320,7 +436,7 @@ app.get("/checkGenerationStatus", (req, res) => {
         return res.status(400).json({ status: 'error', message: 'Ungültige Präsentations-ID' });
     }
 
-    const status = presentationStatuses.get(presentationID);
+    const status = presentationStatus.get(presentationID);
     if (!status) {
         return res.status(404).json({ status: 'error', message: 'Präsentation nicht gefunden' });
     }
@@ -328,22 +444,115 @@ app.get("/checkGenerationStatus", (req, res) => {
     res.json(status);
 });
 
+app.get("/checkGenerationStatusMulti", (req, res) => {
+    const presentationIDs = req.query.ids;
+    if (!presentationIDs) {
+        return res.status(400).json({ status: 'error', message: 'Keine Präsentations-IDs angegeben' });
+    }
+
+    const ids = presentationIDs.split(',');
+    if (!ids.every(id => validator.isUUID(id))) {
+        return res.status(400).json({ status: 'error', message: 'Eine oder mehrere ungültige Präsentations-IDs' });
+    }
+
+    const statuses = ids.map(id => {
+        const status = presentationStatus.get(id);
+        return {
+            id,
+            status: status || { status: 'error', message: 'Präsentation nicht gefunden' }
+        };
+    });
+
+    res.json(statuses);
+});
+
+app.get("/lobby", async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/');
+    }
+
+    const gameMode = req.query.gameMode;
+    const roundID = req.query.roundID;
+
+    console.log(gameMode, roundID)
+
+    if (!gameMode || !roundID) {
+        return res.redirect('/');
+    }
+
+    // TODO: GameMode behandeln...
+
+    // TODO: Verifizieren, dass die Round zum User gehört
+
+    /*const verifyUserRoundRelation = await fetch ("/verifyUserRoundRelation", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userID: req.user.id,
+            gameMode: gameMode,
+            roundID: roundID
+        })
+    });
+
+    if (!verifyUserRoundRelation || !verifyUserRoundRelation.ok) {
+        return res.status(500).send(
+            eta.render("error-page", {
+                message: "Fehler beim Abrufen der Präsentationen",
+            })
+        );
+    }*/
+
+    const presentationIDs = await getPresentationIDsFromRoundID(roundID);
+    let players = [];
+    for (const presentationID of presentationIDs) {
+        const player = await fetchPlayerName(presentationID)
+        if (!player) {
+            //TODO: FEHLER
+        }
+        players.push(player);
+    }
+
+    //const zipped = presentationIDs.map((value, index) => [value, players[index]]);
+
+    //console.log(zipped);
+
+    if (!presentationIDs || !Array.isArray(presentationIDs)) {
+        return res.status(500).send(
+            eta.render("error-page", {
+                message: "Fehler beim Abrufen der Präsentationen",
+            })
+        );
+    }
+
+    console.log(players);
+    return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
+
+    // TODO: ETA-Seite implementieren senden ...
+});
+
+app.post("/verifyUserRoundRelation", async (req, res) => {
+    //...
+    return true;
+});
+
 // Cleanup alte Status-Einträge alle 30 Minuten
 setInterval(() => {
     const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000);
-    for (const [id, status] of presentationStatuses.entries()) {
+    for (const [id, status] of presentationStatus.entries()) {
         if (status.timestamp && status.timestamp < thirtyMinutesAgo) {
-            presentationStatuses.delete(id);
+            presentationStatus.delete(id);
         }
     }
 }, 30 * 60 * 1000);
 
-/*
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
 });
-*/
+
 
 
 // Exportiere den Express-Handler für Vercel

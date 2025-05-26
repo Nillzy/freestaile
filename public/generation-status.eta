@@ -359,7 +359,7 @@
                     viewButton.classList.add('show');
                 } else if (data.status === 'error') {
                     clearInterval(checkInterval);
-                    window.location.href = '/error?message=' + encodeURIComponent(data.message);
+                    window.location.href = '/error-page?message=' + encodeURIComponent(data.message);
                 }
             } catch (error) {
                 console.error('Fehler beim Überprüfen des Status:', error);
