@@ -3,355 +3,718 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreestAIle - Multiplayer Lobby</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Lobby - FreestAIle</title>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-        
-        .main-header {
-            background-color: #fff;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header-logo {
-            font-family: 'Ubuntu', sans-serif;
-            font-size: 1.5rem;
-            color: #234567;
-        }
-        
-        .lobby-container {
-            max-width: 1200px;
+        .container {
+            max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
         .lobby-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        
-        .qr-section {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            background: #fff;
-            padding: 1rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .qr-code img {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .join-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .join-url {
-            font-family: 'Ubuntu', sans-serif;
-            font-size: 1.2rem;
-            background: #f5f5f5;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            word-break: break-all;
-        }
-        
-        .copy-url-btn {
-            background: #b1dae7;
-            border: none;
-            border-radius: 5px;
-            padding: 0.5rem 1rem;
-            font-family: 'Ubuntu', sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            max-width: fit-content;
-        }
-        
-        .copy-url-btn:hover {
-            background: #9bc8d7;
-        }
-        
-        .player-list {
-            margin-top: 2rem;
-        }
-        
-        .player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        .player-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .player-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #b1dae7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Ubuntu', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #234567;
-        }
-        
-        .player-info {
-            flex-grow: 1;
-        }
-        
-        .player-name {
-            font-family: 'Ubuntu', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .player-status {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .start-button {
-            background: #b1e7c8;
-            border: none;
-            border-radius: 50px;
-            padding: 0.75rem 2rem;
-            font-family: 'Ubuntu', sans-serif;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #234567;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 2rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .start-button:hover {
-            background: #9fd6b6;
-            transform: translateY(-2px);
-        }
-        
-        .start-button:disabled {
-            background: #e0e0e0;
-            color: #999;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .waiting-message {
             text-align: center;
-            margin-top: 2rem;
-            font-family: 'Ubuntu', sans-serif;
-            font-size: 1.2rem;
-            color: #666;
+            margin-bottom: 30px;
         }
-
-        @media (max-width: 768px) {
-            .qr-section {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .join-info {
-                align-items: center;
-                text-align: center;
-            }
+        .lobby-id {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+        .qr-code {
+            margin: 20px 0;
+        }
+        .participants-section {
+            margin: 30px 0;
+        }
+        .participants-list {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .participant {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #e3f2fd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .participant.host {
+            background: #1976d2;
+            color: white;
+            font-weight: bold;
+        }
+        .participant.current-user {
+            background: #4caf50;
+            color: white;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #616161;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .status.waiting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
 <body>
-    <header class="main-header">
-        <a href="/" style="text-decoration: none;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-    </header>
-    
-    <main class="lobby-container">
+    <div class="container">
         <div class="lobby-header">
             <h1>Multiplayer Lobby</h1>
-            <div class="lobby-id">Lobby-ID: <strong><%= it.lobbyId %></strong></div>
-        </div>
-        
-        <div class="qr-section">
-            <div class="qr-code">
-                <img src="<%= it.qrCode %>" alt="QR-Code zum Beitreten">
+            <div class="status waiting" id="connection-status">
+                Verbindung wird hergestellt...
             </div>
-            
-            <div class="join-info">
-                <h2>Lade Spieler ein!</h2>
-                <p>Teile diesen QR-Code oder den Link unten, damit andere Spieler beitreten können:</p>
-                
-                <div class="join-url"><%= it.joinUrl %></div>
-                
-                <button class="copy-url-btn" id="copyUrlBtn">
-                    <i class="fas fa-copy"></i> Link kopieren
+            <div class="lobby-id" id="lobby-id-display">
+                Lobby wird erstellt...
+            </div>
+            <div class="qr-code" id="qr-code-container" style="display: block;">
+                <% if (it.qrCode) { %>
+                    <img src="<%= it.qrCode %>" alt="QR-Code" style="max-width: 200px;">
+                <% } %>
+            </div>
+            <div style="text-align:center; margin-bottom: 20px;">
+                <input type="text" id="join-link" value="<%= it.joinUrl %>" readonly style="width:70%;padding:8px;">
+                <button class="btn btn-secondary" onclick="copyJoinLink()">Link kopieren</button>
+            </div>
+        </div>
+
+        <div class="participants-section">
+            <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
+            <div class="participants-list" id="participants-list">
+                <p>Warten auf Teilnehmer...</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <% if (it.isHost) { %>
+                <button class="btn btn-primary" id="start-presentation" disabled>
+                    Präsentation starten
                 </button>
-            </div>
-        </div>
-        
-        <div class="player-list">
-            <h2>Teilnehmer (<span id="playerCount">0</span>)</h2>
-            
-            <div class="player-grid" id="playerGrid">
-                <!-- Spieler werden hier dynamisch eingefügt -->
-            </div>
-        </div>
-        
-        <% if (it.isHost) { %>
-            <button class="start-button" id="startButton" disabled>
-                <i class="fas fa-play"></i> Präsentation starten
+            <% } %>
+            <button class="btn btn-secondary" onclick="copyJoinLink()">
+                Link kopieren
             </button>
-        <% } else { %>
-            <div class="waiting-message">
-                Warte auf den Host, um die Präsentation zu starten...
-            </div>
-        <% } %>
-    </main>
-    
+            <button class="btn btn-secondary" onclick="window.location.href='/main'">
+                Lobby verlassen
+            </button>
+        </div>
+    </div>
+
+    <!-- Socket.IO und Multiplayer Client -->
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="/multiplayer/client/socket-client.js"></script>
     <script>
-        // Lobby-Daten
-        const lobbyId = '<%= it.lobbyId %>';
-        const isHost = <%= it.isHost %>;
-        
-        // UI-Elemente
-        const playerGrid = document.getElementById('playerGrid');
-        const playerCount = document.getElementById('playerCount');
-        const startButton = document.getElementById('startButton');
-        const copyUrlBtn = document.getElementById('copyUrlBtn');
-        
-        // Spieler anzeigen
-        function renderPlayers(players) {
-            playerGrid.innerHTML = '';
-            playerCount.textContent = players.length;
-            
-            players.forEach(player => {
-                const initials = player.name.split(' ')
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .substring(0, 2);
-                
-                const playerCard = document.createElement('div');
-                playerCard.className = 'player-card';
-                playerCard.dataset.playerId = player.id;
-                
-                playerCard.innerHTML = `
-                    <div class="player-avatar">${initials}</div>
-                    <div class="player-info">
-                        <div class="player-name">${player.name}</div>
-                        <div class="player-status">Bereit</div>
-                    </div>
-                `;
-                
-                playerGrid.appendChild(playerCard);
-            });
-            
-            // Start-Button aktivieren, wenn mindestens ein Spieler verbunden ist
-            if (startButton) {
-                startButton.disabled = players.length === 0;
+        // MultiplayerClient direkt eingebettet
+        class MultiplayerClient {
+            constructor() {
+                this.socket = null;
+                this.lobbyId = null;
+                this.isHost = false;
+                this.players = [];
+                this.eventHandlers = {};
+                this.userId = null;
+                this.userName = null;
+                this.hostId = null;
             }
-        }
-        
-        // URL kopieren
-        copyUrlBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText('<%= it.joinUrl %>');
-            copyUrlBtn.innerHTML = '<i class="fas fa-check"></i> Kopiert!';
-            
-            setTimeout(() => {
-                copyUrlBtn.innerHTML = '<i class="fas fa-copy"></i> Link kopieren';
-            }, 2000);
-        });
-        
-        // Multiplayer-Client initialisieren
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await window.multiplayerClient.connect();
-                
-                // Event-Handler registrieren
-                window.multiplayerClient.on('playerJoined', (playerInfo) => {
-                    renderPlayers(window.multiplayerClient.players);
+
+            setUser(userId, userName) {
+                this.userId = userId;
+                this.userName = userName;
+                console.log(`Benutzer gesetzt: userId=${userId}, userName=${userName}`);
+            }
+
+            connect() {
+                return new Promise((resolve, reject) => {
+                    if (!this.userId || !this.userName) {
+                        return reject(new Error("Benutzerdaten (userId, userName) müssen zuerst mit setUser() gesetzt werden."));
+                    }
+                    try {
+                        if (typeof io === "undefined") {
+                            reject(new Error("Socket.IO ist nicht geladen"));
+                            return;
+                        }
+                        this._initializeSocket(resolve, reject);
+                    } catch (err) {
+                        reject(err);
+                    }
                 });
-                
-                window.multiplayerClient.on('playerLeft', (playerInfo) => {
-                    renderPlayers(window.multiplayerClient.players);
+            }
+
+            _initializeSocket(resolve, reject) {
+                this.socket = io("/lobby", {
+                    auth: {
+                        userId: this.userId,
+                        userName: this.userName,
+                    },
                 });
-                
-                window.multiplayerClient.on('presentationStarted', () => {
-                    window.location.href = `/presentation/${lobbyId}`;
+
+                this.socket.on("connect", () => {
+                    console.log("Verbunden mit Socket.io-Server. Eigene Socket-ID:", this.socket.id);
+                    resolve();
                 });
-                
-                window.multiplayerClient.on('lobbyEnded', (reason) => {
-                    alert(`Die Lobby wurde geschlossen: ${reason.reason}`);
-                    window.location.href = '/';
+
+                this.socket.on("connect_error", (err) => {
+                    console.error("Verbindungsfehler:", err);
+                    this._triggerEvent("error", { message: "Verbindungsfehler", error: err });
+                    reject(err);
                 });
-                
-                // Als Host automatisch der Lobby beitreten
-                if (isHost) {
-                    const response = await window.multiplayerClient.createLobby();
-                    console.log('Lobby erstellt:', response);
-                    
-                    // Start-Button-Funktionalität
-                    startButton.addEventListener('click', () => {
-                        window.multiplayerClient.startPresentation();
+
+                this.socket.on("playerJoined", (playerInfo) => {
+                    console.log("Socket Event: playerJoined", playerInfo);
+                    // Füge den Spieler zur lokalen Liste hinzu, falls er noch nicht existiert
+                    const existingPlayerIndex = this.players.findIndex(p => p.user_id === playerInfo.user_id);
+                    if (existingPlayerIndex !== -1) {
+                        this.players[existingPlayerIndex] = { ...this.players[existingPlayerIndex], ...playerInfo };
+                    } else {
+                        this.players.push(playerInfo);
+                    }
+                    if (playerInfo.is_host && !this.hostId) {
+                        this.hostId = playerInfo.user_id;
+                    }
+                    this._triggerEvent("playerJoined", playerInfo);
+                });
+
+                this.socket.on("playerLeft", (playerInfo) => {
+                    console.log("Socket Event: playerLeft", playerInfo);
+                    this.players = this.players.filter(p => p.user_id !== playerInfo.user_id);
+                    this._triggerEvent("playerLeft", playerInfo);
+                });
+
+                this.socket.on("lobbyUpdate", (data) => {
+                    console.log("Socket Event: lobbyUpdate", data);
+                    if (data.players) {
+                        this.players = data.players;
+                    }
+                    if (data.lobby && data.lobby.host_id) {
+                        this.hostId = data.lobby.host_id;
+                    }
+                    this._triggerEvent("lobbyUpdate", data);
+                });
+
+                this.socket.on("hostDisconnected", (data) => {
+                    console.log("Socket Event: hostDisconnected", data);
+                    this._triggerEvent("hostDisconnected", data);
+                });
+
+                this.socket.on("presentationStarted", () => {
+                    this._triggerEvent("presentationStarted");
+                });
+
+                this.socket.on("newChatMessage", (message) => {
+                    this._triggerEvent("newChatMessage", message);
+                });
+
+                this.socket.on("lobbyEnded", (reason) => {
+                    this._triggerEvent("lobbyEnded", reason);
+                });
+            }
+
+            createLobby() {
+                return new Promise((resolve, reject) => {
+                    if (!this.socket) return reject(new Error("Keine Verbindung zum Server"));
+                    if (!this.userId || !this.userName) return reject(new Error("Benutzerdaten nicht gesetzt"));
+
+                    this.socket.emit("createLobby", { userId: this.userId, userName: this.userName }, (response) => {
+                        if (response.success) {
+                            this.lobbyId = response.lobbyId;
+                            this.isHost = true;
+                            this.hostId = response.hostId;
+                            this.players = response.initialPlayers || [];
+                            console.log("Lobby erstellt Client: lobbyId=", this.lobbyId, "hostId=", this.hostId, "players=", this.players);
+                            resolve(response);
+                        } else {
+                            reject(new Error(response.error || "Fehler beim Erstellen der Lobby"));
+                        }
                     });
+                });
+            }
+
+            joinLobby(lobbyId, userNameForLobby) {
+                return new Promise((resolve, reject) => {
+                    if (!this.socket) return reject(new Error("Keine Verbindung zum Server"));
+                    if (!this.userId) return reject(new Error("UserId nicht gesetzt"));
+                    const nameToSend = userNameForLobby || this.userName;
+
+                    this.socket.emit("joinLobby", { lobbyId, userName: nameToSend, userId: this.userId }, (response) => {
+                        if (response.success) {
+                            this.lobbyId = lobbyId;
+                            this.isHost = (response.lobby.hostId === this.userId);
+                            this.players = response.lobby.players || [];
+                            this.hostId = response.lobby.hostId;
+                            console.log("Lobby beigetreten Client: lobbyId=", this.lobbyId, "hostId=", this.hostId, "players=", this.players);
+                            resolve(response.lobby);
+                        } else {
+                            reject(new Error(response.error || "Fehler beim Beitreten der Lobby"));
+                        }
+                    });
+                });
+            }
+
+            startPresentation() {
+                console.log("startPresentation aufgerufen. Client-Status:", {
+                    socket: !!this.socket,
+                    socketConnected: this.socket?.connected,
+                    lobbyId: this.lobbyId,
+                    isHost: this.isHost,
+                    userId: this.userId
+                });
+                
+                if (!this.socket || !this.lobbyId) {
+                    console.error("Nicht mit einer Lobby verbunden oder Socket nicht bereit.");
+                    console.error("Socket:", !!this.socket, "LobbyId:", this.lobbyId);
+                    return;
                 }
                 
-                // Initiale Spielerliste rendern
-                renderPlayers(window.multiplayerClient.players);
+                if (!this.socket.connected) {
+                    console.error("Socket ist nicht verbunden!");
+                    return;
+                }
                 
-            } catch (error) {
-                console.error('Fehler beim Initialisieren des Multiplayer-Clients:', error);
-                alert(`Fehler: ${error.message}`);
+                console.log("Versuche Präsentation zu starten als User:", this.userId, "Socket-ID:", this.socket.id);
+                this.socket.emit("startPresentation");
             }
-        });
-        
-        // Beim Verlassen der Seite Verbindung trennen
-        window.addEventListener('beforeunload', () => {
-            window.multiplayerClient.disconnect();
+
+            sendChatMessage(message) {
+                if (!this.socket || !this.lobbyId) {
+                    console.error("Nicht mit einer Lobby verbunden");
+                    return;
+                }
+                this.socket.emit("chatMessage", message);
+            }
+
+            on(event, callback) {
+                if (!this.eventHandlers[event]) {
+                    this.eventHandlers[event] = [];
+                }
+                this.eventHandlers[event].push(callback);
+            }
+
+            _triggerEvent(event, data) {
+                if (this.eventHandlers[event]) {
+                    this.eventHandlers[event].forEach((callback) => callback(data));
+                }
+            }
+
+            disconnect() {
+                if (this.socket) {
+                    this.socket.disconnect();
+                    this.socket = null;
+                    this.lobbyId = null;
+                    this.isHost = false;
+                    this.players = [];
+                    this.hostId = null;
+                }
+            }
+        }
+
+        // Globale Instanz erstellen
+        window.multiplayerClient = new MultiplayerClient();
+
+        // UI-Logik für Teilnehmerliste
+        function updateParticipantsList(players, hostId, currentUserId) {
+            console.log('Aktualisiere Teilnehmerliste:', { players, hostId, currentUserId });
+            
+            const participantsList = document.getElementById('participants-list');
+            if (!participantsList) {
+                console.error('participants-list Element nicht gefunden');
+                return;
+            }
+
+            participantsList.innerHTML = '';
+
+            if (!players || players.length === 0) {
+                participantsList.innerHTML = '<div class="participant">Keine Teilnehmer</div>';
+                return;
+            }
+
+            const sortedPlayers = [...players].sort((a, b) => {
+                // Host zuerst
+                if (a.is_host && !b.is_host) return -1;
+                if (!a.is_host && b.is_host) return 1;
+                // Aktueller User als nächstes
+                if (a.user_id === currentUserId && b.user_id !== currentUserId) return -1;
+                if (a.user_id !== currentUserId && b.user_id === currentUserId) return 1;
+                // Alphabetisch nach Name
+                return (a.name || '').localeCompare(b.name || '');
+            });
+
+            sortedPlayers.forEach(player => {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'participant';
+                
+                let displayName = player.name || 'Unbenannter Spieler';
+                
+                if (player.user_id === currentUserId) {
+                    playerElement.className += ' current-user';
+                    displayName += ' (Du)';
+                }
+                
+                if (player.is_host) {
+                    playerElement.className += ' host';
+                    displayName += ' (Host)';
+                }
+                
+                playerElement.textContent = displayName;
+                participantsList.appendChild(playerElement);
+            });
+
+            console.log(`Teilnehmerliste aktualisiert: ${players.length} Spieler`);
+        }
+
+        // Warte darauf, dass Socket.IO geladen ist
+        function waitForSocketIO() {
+            return new Promise((resolve, reject) => {
+                if (typeof io !== 'undefined') {
+                    resolve();
+                } else {
+                    let attempts = 0;
+                    const checkInterval = setInterval(() => {
+                        attempts++;
+                        if (typeof io !== 'undefined') {
+                            clearInterval(checkInterval);
+                            resolve();
+                        } else if (attempts > 50) {
+                            clearInterval(checkInterval);
+                            reject(new Error('Socket.IO konnte nicht geladen werden'));
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        // Hauptinitialisierungslogik
+        async function initializeLobby() {
+            try {
+                await waitForSocketIO();
+                console.log('Socket.IO geladen');
+                
+                // Benutzerdaten aus dem Template
+                const userData = {
+                    userId: '<%= it.userId || "" %>',
+                    userName: '<%= it.userName || "User" %>',
+                    isHost: <%= it.isHost ? 'true' : 'false' %>
+                };
+
+                console.log('Template-Daten:', userData);
+                
+                // Prüfe Benutzerdaten
+                if (!userData.userId || userData.userId === '') {
+                    updateStatus('Fehler: Keine Benutzer-ID verfügbar', 'error');
+                    console.error('Keine userId verfügbar:', userData);
+                    return;
+                }
+
+                // Lobby-ID aus Template
+                const lobbyId = '<%= it.lobbyId || "" %>';
+                console.log('Lobby-ID aus Template:', lobbyId);
+                
+                if (!lobbyId || lobbyId === '') {
+                    updateStatus('Fehler: Keine Lobby-ID verfügbar', 'error');
+                    console.error('Keine lobbyId verfügbar');
+                    return;
+                }
+
+                // Setze Benutzerdaten im MultiplayerClient
+                if (window.multiplayerClient) {
+                    window.multiplayerClient.setUser(userData.userId, userData.userName);
+                    console.log('Benutzerdaten gesetzt:', userData.userId, userData.userName);
+                    
+                    // Verbindung herstellen
+                    await window.multiplayerClient.connect();
+                    console.log('Socket-Verbindung hergestellt');
+                    updateStatus('Verbunden - Socket.IO aktiv', 'connected');
+                    
+                    if (userData.isHost) {
+                        console.log('Host-Modus aktiviert');
+                        
+                        // Als Host: Mit bestehender Lobby verbinden
+                        window.multiplayerClient.lobbyId = lobbyId;
+                        window.multiplayerClient.isHost = true;
+                        
+                        // Socket der Lobby hinzufügen
+                        if (window.multiplayerClient.socket) {
+                            window.multiplayerClient.socket.emit('reconnectToLobby', {
+                                lobbyId: lobbyId,
+                                userId: userData.userId,
+                                userName: userData.userName
+                            });
+                        }
+                        
+                        updateStatus('Als Host mit Lobby verbunden', 'connected');
+                        
+                        // Start-Button aktivieren
+                        const startBtn = document.getElementById('start-presentation');
+                        if (startBtn) {
+                            startBtn.disabled = false;
+                            console.log('Start-Button aktiviert für Host. LobbyId:', window.multiplayerClient.lobbyId);
+                        }
+                        
+                        // Debug: Prüfe MultiplayerClient-Status
+                        console.log('MultiplayerClient Status:', {
+                            socket: !!window.multiplayerClient.socket,
+                            lobbyId: window.multiplayerClient.lobbyId,
+                            isHost: window.multiplayerClient.isHost,
+                            userId: window.multiplayerClient.userId
+                        });
+                    } else {
+                        // Als Teilnehmer: Nur Socket-Verbindung herstellen, da bereits beigetreten
+                        console.log('Teilnehmer-Modus: Bereits der Lobby beigetreten, nur Socket-Verbindung...');
+                        
+                        // Setze Lobby-ID im Client
+                        if (window.multiplayerClient.socket) {
+                            window.multiplayerClient.lobbyId = lobbyId;
+                            
+                            // Informiere Server, dass wir wieder verbunden sind (optional)
+                            window.multiplayerClient.socket.emit('reconnectToLobby', {
+                                lobbyId: lobbyId,
+                                userId: userData.userId,
+                                userName: userData.userName
+                            });
+                        }
+                        
+                        updateStatus('Mit Lobby verbunden', 'connected');
+                    }
+                } else {
+                    console.error('MultiplayerClient nicht verfügbar');
+                    updateStatus('Fehler: MultiplayerClient nicht verfügbar', 'error');
+                }
+
+                // Event-Listener für Teilnehmer-Updates
+                window.multiplayerClient.on('playerJoined', (playerInfo) => {
+                    console.log('Spieler beigetreten:', playerInfo);
+                    // Lade aktuelle Daten neu, um sicherzustellen, dass wir die neueste Liste haben
+                    loadLobbyData(lobbyId);
+                });
+
+                window.multiplayerClient.on('playerLeft', (playerInfo) => {
+                    console.log('Spieler verlassen:', playerInfo);
+                    // Lade aktuelle Daten neu
+                    loadLobbyData(lobbyId);
+                });
+
+                window.multiplayerClient.on('lobbyUpdate', (data) => {
+                    console.log('Lobby-Update erhalten:', data);
+                    if (data.players) {
+                        updateParticipantsList(data.players, data.lobby?.host_id, userData.userId);
+                        updateParticipantCount(data.players.length);
+                    }
+                });
+
+                window.multiplayerClient.on('presentationStarted', () => {
+                    updateStatus('Präsentation gestartet!', 'connected');
+                    setTimeout(() => {
+                        // Weiterleitung zur Match-Seite mit allen nötigen Parametern
+                        const lobbyId = '<%= it.lobbyId %>';
+                        const userId = '<%= it.userId %>';
+                        const userName = '<%= it.userName %>';
+                        const isHost = <%= it.isHost ? 'true' : 'false' %>;
+                        
+                        window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
+                    }, 2000);
+                });
+
+                window.multiplayerClient.on('error', (error) => {
+                    console.error('Socket-Fehler:', error);
+                    updateStatus('Fehler: ' + error.message, 'error');
+                });
+
+                // Regelmäßige Aktualisierung der Lobby-Daten
+                setInterval(() => {
+                    loadLobbyData(lobbyId);
+                }, 3000); // Alle 3 Sekunden (häufiger für bessere Synchronisation)
+
+            } catch (error) {
+                console.error('Fehler bei der Initialisierung:', error);
+                updateStatus('Initialisierungsfehler: ' + error.message, 'error');
+            }
+        }
+
+        // Lobby-Daten von der API laden
+        async function loadLobbyData(lobbyId) {
+            try {
+                console.log('Lade Lobby-Daten für:', lobbyId);
+                const response = await fetch(`/api/lobby/${lobbyId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Lobby-Daten erhalten:', data);
+                
+                if (data.players) {
+                    updateParticipantsList(data.players, data.lobby?.host_id, window.multiplayerClient?.userId);
+                    updateParticipantCount(data.players.length);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Fehler beim Laden der Lobby-Daten:', error);
+                return null;
+            }
+        }
+
+        let currentLobbyId = null;
+        let joinUrl = null;
+
+        // Status-Updates
+        function updateStatus(message, type = 'waiting') {
+            const statusEl = document.getElementById('connection-status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+            }
+        }
+
+        function updateLobbyDisplay(lobbyId, qrCode = null) {
+            currentLobbyId = lobbyId;
+            joinUrl = `${window.location.origin}/join?id=${lobbyId}`;
+            
+            const lobbyIdEl = document.getElementById('lobby-id-display');
+            if (lobbyIdEl) {
+                lobbyIdEl.textContent = `Lobby-ID: ${lobbyId}`;
+            }
+            
+            const joinLinkEl = document.getElementById('join-link');
+            if (joinLinkEl) {
+                joinLinkEl.value = joinUrl;
+            }
+            
+            if (qrCode) {
+                const qrContainer = document.getElementById('qr-code-container');
+                if (qrContainer) {
+                    qrContainer.innerHTML = `<img src="${qrCode}" alt="QR-Code" style="max-width: 200px;">`;
+                    qrContainer.style.display = 'block';
+                }
+            }
+        }
+
+        function updateParticipantCount(count) {
+            const countEl = document.getElementById('participant-count');
+            if (countEl) {
+                countEl.textContent = count || 0;
+            }
+        }
+
+        function copyJoinLink() {
+            const input = document.getElementById('join-link');
+            if (input && input.value) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    alert('Link wurde in die Zwischenablage kopiert!');
+                }).catch(() => {
+                    prompt('Kopieren Sie diesen Link:', input.value);
+                });
+            }
+        }
+
+        // Starte die Initialisierung
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded - starte Multiplayer-Initialisierung');
+            
+            // Zeige sofort die Lobby-ID an
+            const lobbyId = '<%= it.lobbyId %>';
+            console.log('Lobby-ID beim Laden:', lobbyId);
+            
+            if (lobbyId && lobbyId !== '') {
+                updateLobbyDisplay(lobbyId, '<%= it.qrCode || "" %>');
+            }
+            
+            // Zeige sofort die initialen Spieler an
+            try {
+                // Sichere JSON-Übertragung der initialen Spielerdaten
+                const initialPlayersData = `<%- JSON.stringify(it.players || []) %>`;
+                console.log('Raw JSON String:', initialPlayersData);
+                
+                let initialPlayers = [];
+                if (initialPlayersData && initialPlayersData !== '[]' && initialPlayersData !== '') {
+                    try {
+                        initialPlayers = JSON.parse(initialPlayersData);
+                    } catch (parseError) {
+                        console.warn('JSON Parse Fehler für initiale Spieler:', parseError);
+                        initialPlayers = [];
+                    }
+                }
+                
+                const hostId = '<%= it.lobbyDetails?.host_id || it.user?.id || "" %>';
+                const currentUserId = '<%= it.userId || "" %>';
+                
+                console.log('Initiale Daten:', { initialPlayers, hostId, currentUserId });
+                
+                if (initialPlayers && initialPlayers.length > 0) {
+                    updateParticipantsList(initialPlayers, hostId, currentUserId);
+                    updateParticipantCount(initialPlayers.length);
+                    updateStatus('Lobby geladen', 'connected');
+                } else {
+                    console.log('Keine initialen Spieler gefunden');
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden der initialen Spieler:', error);
+            }
+            
+            // Starte die Socket.IO-Initialisierung
+            initializeLobby();
+
+            // Start-Button Event-Listener
+            const startBtn = document.getElementById('start-presentation');
+            if (startBtn) {
+                startBtn.addEventListener('click', () => {
+                    if (window.multiplayerClient) {
+                        console.log('Starte Präsentation...');
+                        window.multiplayerClient.startPresentation();
+                        startBtn.disabled = true;
+                        startBtn.textContent = 'Präsentation wird gestartet...';
+                    }
+                });
+            }
         });
     </script>
 </body>

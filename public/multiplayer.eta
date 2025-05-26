@@ -602,6 +602,183 @@
         body.darkmode .error-message {
             color: #fc8181;
         }
+
+        /* Neue Multiplayer-Buttons */
+        .multiplayer-actions {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .multiplayer-card {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 250px;
+            cursor: pointer;
+        }
+
+        .multiplayer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .multiplayer-card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #234567;
+        }
+
+        .multiplayer-card-title {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #234567;
+            margin-bottom: 0.5rem;
+        }
+
+        .multiplayer-card-description {
+            font-family: "Inter", sans-serif;
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .multiplayer-card-button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: #b1dae7;
+            color: #234567;
+            border: none;
+            border-radius: 8px;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .multiplayer-card-button:hover {
+            background: #9bc8d7;
+        }
+
+        .host-card {
+            border: 2px solid #b1e7c8;
+        }
+
+        .host-card .multiplayer-card-button {
+            background: #b1e7c8;
+        }
+
+        .host-card .multiplayer-card-button:hover {
+            background: #9bd7b1;
+        }
+
+        .join-card {
+            border: 2px solid #b1dae7;
+        }
+
+        /* Join-Modal spezifische Styles */
+        .join-form {
+            text-align: center;
+        }
+
+        .code-input {
+            font-size: 1.5rem !important;
+            text-align: center;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 1rem !important;
+        }
+
+        .name-input {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .join-button {
+            width: 100%;
+            padding: 1rem;
+            background: #b1dae7;
+            color: #234567;
+            border: none;
+            border-radius: 8px;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .join-button:hover {
+            background: #9bc8d7;
+        }
+
+        .join-button:disabled {
+            background: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #234567;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Darkmode für neue Elemente */
+        body.darkmode .multiplayer-card {
+            background: #2d2d2d;
+            border-color: #4d4d4d;
+        }
+
+        body.darkmode .multiplayer-card-title {
+            color: #ffffff;
+        }
+
+        body.darkmode .multiplayer-card-description {
+            color: #a0aec0;
+        }
+
+        body.darkmode .modal-content {
+            background: #2d2d2d;
+        }
+
+        body.darkmode .form-group label {
+            color: #ffffff;
+        }
+
+        body.darkmode .modal-close {
+            color: #a0aec0;
+        }
+
+        body.darkmode .modal-close:hover {
+            color: #ffffff;
+        }
+
+        body.darkmode .modal-tab {
+            color: #a0aec0;
+        }
+
+        body.darkmode .modal-tab.active {
+            color: #ffffff;
+        }
     </style>
 </head>
 
@@ -685,6 +862,23 @@
         <button id="startGameButton" class="start-game-button" disabled>
             Spiel starten
         </button>
+
+        <!-- Neue Multiplayer-Aktionen -->
+        <div class="multiplayer-actions">
+            <div class="multiplayer-card host-card" onclick="hostGame()">
+                <div class="multiplayer-card-icon">🏠</div>
+                <h3 class="multiplayer-card-title">Spiel hosten</h3>
+                <p class="multiplayer-card-description">Erstelle eine neue Lobby und lade andere Spieler ein</p>
+                <button class="multiplayer-card-button">Lobby erstellen</button>
+            </div>
+
+            <div class="multiplayer-card join-card" onclick="showJoinModal()">
+                <div class="multiplayer-card-icon">🚪</div>
+                <h3 class="multiplayer-card-title">Spiel beitreten</h3>
+                <p class="multiplayer-card-description">Tritt einer bestehenden Lobby mit einem 6-stelligen Code bei</p>
+                <button class="multiplayer-card-button">Lobby beitreten</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -723,6 +917,30 @@
             </div>
             <div class="error-message" id="registerError"></div>
             <button type="submit" class="modal-submit">Registrieren</button>
+        </form>
+    </div>
+</div>
+
+<!-- Join-Modal -->
+<div class="modal-overlay" id="joinModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="hideJoinModal()">&times;</button>
+        <h2 style="text-align: center; margin-bottom: 1.5rem; font-family: 'Ubuntu', sans-serif; color: #234567;">Lobby beitreten</h2>
+        
+        <form class="join-form" onsubmit="joinGame(event)">
+            <div class="form-group">
+                <label for="lobbyCode">6-stelliger Lobby-Code:</label>
+                <input type="text" id="lobbyCode" class="code-input" placeholder="ABC123" maxlength="6" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="playerName">Dein Name:</label>
+                <input type="text" id="playerName" class="name-input" placeholder="Spielername" maxlength="20" required>
+            </div>
+            
+            <button type="submit" class="join-button" id="joinButton">
+                Lobby beitreten
+            </button>
         </form>
     </div>
 </div>
@@ -952,6 +1170,131 @@
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             closeAuthModal();
+        }
+    });
+
+    // Neue Multiplayer-Funktionen
+    async function hostGame() {
+        try {
+            // Loading-Zustand anzeigen
+            const hostCard = document.querySelector('.host-card .multiplayer-card-button');
+            const originalText = hostCard.textContent;
+            hostCard.innerHTML = '<span class="loading-spinner"></span>Erstelle Lobby...';
+            hostCard.disabled = true;
+
+            const response = await fetch('/api/multiplayer/host', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: '<%= it.user ? it.user.email.split("@")[0] : "Host" %>'
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Zur Lobby weiterleiten
+                window.location.href = `/multiplayer-lobby/${data.lobbyId}`;
+            } else {
+                alert('Fehler beim Erstellen der Lobby: ' + (data.error || 'Unbekannter Fehler'));
+                hostCard.textContent = originalText;
+                hostCard.disabled = false;
+            }
+        } catch (error) {
+            console.error('Fehler beim Hosten des Spiels:', error);
+            alert('Fehler beim Erstellen der Lobby');
+            const hostCard = document.querySelector('.host-card .multiplayer-card-button');
+            hostCard.textContent = 'Lobby erstellen';
+            hostCard.disabled = false;
+        }
+    }
+
+    function showJoinModal() {
+        const modal = document.getElementById('joinModal');
+        modal.classList.add('active');
+        document.getElementById('lobbyCode').focus();
+    }
+
+    function hideJoinModal() {
+        const modal = document.getElementById('joinModal');
+        modal.classList.remove('active');
+        // Form zurücksetzen
+        document.getElementById('lobbyCode').value = '';
+        document.getElementById('playerName').value = '';
+        const joinButton = document.getElementById('joinButton');
+        joinButton.textContent = 'Lobby beitreten';
+        joinButton.disabled = false;
+    }
+
+    async function joinGame(event) {
+        event.preventDefault();
+        
+        const code = document.getElementById('lobbyCode').value.trim().toUpperCase();
+        const name = document.getElementById('playerName').value.trim();
+        const joinButton = document.getElementById('joinButton');
+
+        if (!code || !name) {
+            alert('Bitte gib sowohl den Lobby-Code als auch deinen Namen ein.');
+            return;
+        }
+
+        if (code.length !== 6) {
+            alert('Der Lobby-Code muss genau 6 Zeichen lang sein.');
+            return;
+        }
+
+        try {
+            // Loading-Zustand anzeigen
+            joinButton.innerHTML = '<span class="loading-spinner"></span>Trete bei...';
+            joinButton.disabled = true;
+
+            const response = await fetch('/api/multiplayer/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    code: code,
+                    name: name
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Zur Lobby weiterleiten
+                window.location.href = `/multiplayer-lobby/${data.lobbyId}`;
+            } else {
+                alert('Fehler beim Beitreten der Lobby: ' + (data.error || 'Lobby nicht gefunden'));
+                joinButton.textContent = 'Lobby beitreten';
+                joinButton.disabled = false;
+            }
+        } catch (error) {
+            console.error('Fehler beim Beitreten des Spiels:', error);
+            alert('Fehler beim Beitreten der Lobby');
+            joinButton.textContent = 'Lobby beitreten';
+            joinButton.disabled = false;
+        }
+    }
+
+    // Code-Input automatisch formatieren
+    document.getElementById('lobbyCode').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    // Modal schließen bei Klick außerhalb
+    document.getElementById('joinModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideJoinModal();
+        }
+    });
+
+    // ESC-Taste zum Schließen des Modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideJoinModal();
         }
     });
 </script>

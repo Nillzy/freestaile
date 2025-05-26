@@ -3,231 +3,420 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreestAIle - Multiplayer beitreten</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Lobby beitreten - FreestAIle</title>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-        
-        .main-header {
-            background-color: #fff;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header-logo {
-            font-family: 'Ubuntu', sans-serif;
-            font-size: 1.5rem;
-            color: #234567;
-        }
-        
-        .join-container {
+        .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 2rem;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .join-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
-        }
-        
         .join-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
         }
-        
-        .join-header h1 {
-            font-family: 'Ubuntu', sans-serif;
-            font-weight: 700;
-            color: #234567;
-            margin-bottom: 0.5rem;
-        }
-        
-        .lobby-info {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-        
-        .lobby-id {
-            font-family: 'Ubuntu', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #234567;
-        }
-        
-        .join-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            margin-bottom: 20px;
         }
-        
         .form-group label {
-            font-family: 'Ubuntu', sans-serif;
-            font-weight: 700;
-            color: #234567;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-        
         .form-group input {
-            padding: 0.75rem 1rem;
-            border: 2px solid #ddd;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            box-sizing: border-box;
         }
-        
-        .form-group input:focus {
-            border-color: #b1dae7;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(177, 218, 231, 0.3);
-        }
-        
-        .join-button {
-            background: #b1e7c8;
+        .btn {
+            padding: 12px 24px;
+            margin: 10px;
             border: none;
-            border-radius: 50px;
-            padding: 0.75rem 2rem;
-            font-family: 'Ubuntu', sans-serif;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #234567;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
+            font-size: 16px;
         }
-        
-        .join-button:hover {
-            background: #9fd6b6;
-            transform: translateY(-2px);
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+            width: 100%;
         }
-        
-        .error-message {
-            color: #e74c3c;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .status.waiting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .participants-section {
+            margin: 30px 0;
             display: none;
+        }
+        .participants-list {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .participant {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #e3f2fd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .participant.host {
+            background: #1976d2;
+            color: white;
+            font-weight: bold;
+        }
+        .participant.current-user {
+            background: #4caf50;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <header class="main-header">
-        <a href="/" style="text-decoration: none;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-    </header>
-    
-    <main class="join-container">
-        <div class="join-card">
-            <div class="join-header">
-                <h1>Multiplayer-Spiel beitreten</h1>
-                <p>Gib deinen Namen ein, um der Lobby beizutreten.</p>
-            </div>
-            
-            <div class="lobby-info">
-                <p>Du trittst Lobby bei:</p>
-                <div class="lobby-id"><%= it.lobbyId %></div>
-            </div>
-            
-            <form class="join-form" id="joinForm">
-                <div class="form-group">
-                    <label for="userName">Dein Name</label>
-                    <input type="text" id="userName" name="userName" placeholder="Wie sollen wir dich nennen?" required>
-                    <div class="error-message" id="errorMessage"></div>
-                </div>
-                
-                <button type="submit" class="join-button">
-                    <i class="fas fa-sign-in-alt"></i> Beitreten
-                </button>
-            </form>
+    <div class="container">
+        <div class="join-header">
+            <h1>Lobby beitreten</h1>
+            <p>Lobby-ID: <strong><%= it.lobbyId %></strong></p>
         </div>
-    </main>
-    
+
+        <div class="status waiting" id="connection-status">
+            Bereit zum Beitreten
+        </div>
+
+        <form id="join-form">
+            <div class="form-group">
+                <label for="player-name">Dein Name:</label>
+                <input type="text" id="player-name" name="playerName" 
+                       value="<%= it.userName %>" 
+                       placeholder="Gib deinen Namen ein" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="join-button">
+                Lobby beitreten
+            </button>
+        </form>
+
+        <div class="participants-section" id="participants-section">
+            <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
+            <div class="participants-list" id="participants-list">
+                <p>Warten auf Teilnehmer...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.IO und Multiplayer Client -->
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="/multiplayer/client/socket-client.js"></script>
     <script>
-        // Lobby-Daten
-        const lobbyId = '<%= it.lobbyId %>';
-        
-        // UI-Elemente
-        const joinForm = document.getElementById('joinForm');
-        const userNameInput = document.getElementById('userName');
-        const errorMessage = document.getElementById('errorMessage');
-        
-        // Form-Submit-Handler
-        joinForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const userName = userNameInput.value.trim();
-            
-            if (!userName) {
-                showError('Bitte gib deinen Namen ein');
-                return;
+        // MultiplayerClient-Klasse direkt hier definieren
+        class MultiplayerClient {
+            constructor() {
+                this.socket = null;
+                this.lobbyId = null;
+                this.userId = null;
+                this.userName = null;
+                this.players = [];
+                this.isHost = false;
+                this.eventHandlers = {};
             }
-            
-            try {
-                // Socket.io-Verbindung herstellen
-                await window.multiplayerClient.connect();
-                
-                // Lobby beitreten
-                await window.multiplayerClient.joinLobby(lobbyId, userName);
-                
-                // Event-Handler registrieren
-                window.multiplayerClient.on('presentationStarted', () => {
-                    window.location.href = `/presentation/${lobbyId}`;
-                });
-                
-                window.multiplayerClient.on('lobbyEnded', (reason) => {
-                    alert(`Die Lobby wurde geschlossen: ${reason.reason}`);
-                    window.location.href = '/';
-                });
-                
-                // Zur Lobby-Seite weiterleiten
-                window.location.href = `/lobby/${lobbyId}`;
-                
-            } catch (error) {
-                console.error('Fehler beim Beitreten der Lobby:', error);
-                showError(error.message || 'Fehler beim Beitreten der Lobby');
+
+            setUser(userId, userName) {
+                this.userId = userId;
+                this.userName = userName;
             }
-        });
-        
-        // Fehlermeldung anzeigen
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
+
+            async connect() {
+                return new Promise((resolve, reject) => {
+                    try {
+                        this.socket = io('/lobby');
+                        
+                        this.socket.on('connect', () => {
+                            console.log('Socket verbunden');
+                            resolve();
+                        });
+
+                        this.socket.on('connect_error', (error) => {
+                            console.error('Socket-Verbindungsfehler:', error);
+                            reject(new Error('Verbindung fehlgeschlagen'));
+                        });
+
+                        this.socket.on('lobbyUpdate', (data) => {
+                            this.players = data.players || [];
+                            this.emit('lobbyUpdate', data);
+                        });
+
+                        this.socket.on('playerJoined', (data) => {
+                            this.emit('playerJoined', data);
+                        });
+
+                        this.socket.on('playerLeft', (data) => {
+                            this.emit('playerLeft', data);
+                        });
+
+                        this.socket.on('presentationStarted', (data) => {
+                            this.emit('presentationStarted', data);
+                        });
+
+                        this.socket.on('hostDisconnected', (data) => {
+                            this.emit('hostDisconnected', data);
+                        });
+
+                        this.socket.on('error', (error) => {
+                            console.error('Socket-Fehler:', error);
+                            this.emit('error', error);
+                        });
+
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+
+            async joinLobby(lobbyId, playerName) {
+                return new Promise((resolve, reject) => {
+                    if (!this.socket) {
+                        reject(new Error('Nicht verbunden'));
+                        return;
+                    }
+
+                    this.lobbyId = lobbyId;
+                    this.userName = playerName;
+
+                    console.log('Sende joinLobby Event:', {
+                        lobbyId: lobbyId,
+                        userId: this.userId,
+                        userName: playerName
+                    });
+
+                    this.socket.emit('joinLobby', {
+                        lobbyId: lobbyId,
+                        userId: this.userId,
+                        userName: playerName
+                    }, (response) => {
+                        console.log('joinLobby Response erhalten:', response);
+                        
+                        if (response && response.success) {
+                            this.players = response.lobby?.players || [];
+                            this.isHost = response.lobby?.hostId === this.userId;
+                            console.log('Erfolgreich beigetreten, Spieler:', this.players);
+                            resolve(response.lobby);
+                        } else {
+                            const errorMsg = response?.error || 'Unbekannter Fehler beim Beitreten';
+                            console.error('Fehler beim Beitreten:', errorMsg);
+                            reject(new Error(errorMsg));
+                        }
+                    });
+
+                    // Timeout für den Fall, dass keine Antwort kommt
+                    setTimeout(() => {
+                        reject(new Error('Timeout beim Beitreten der Lobby'));
+                    }, 10000);
+                });
+            }
+
+            on(event, handler) {
+                if (!this.eventHandlers[event]) {
+                    this.eventHandlers[event] = [];
+                }
+                this.eventHandlers[event].push(handler);
+            }
+
+            emit(event, data) {
+                if (this.eventHandlers[event]) {
+                    this.eventHandlers[event].forEach(handler => handler(data));
+                }
+            }
+
+            disconnect() {
+                if (this.socket) {
+                    this.socket.disconnect();
+                    this.socket = null;
+                }
+            }
         }
+
+        // Globale Instanz erstellen
+        window.multiplayerClient = new MultiplayerClient();
+    </script>
+
+    <script>
+        // Daten aus dem Template
+        const lobbyData = {
+            lobbyId: '<%= it.lobbyId %>',
+            userId: '<%= it.userId %>',
+            userName: '<%= it.userName %>'
+        };
+
+        console.log('Template-Daten:', lobbyData);
+
+        // Status-Updates
+        function updateStatus(message, type = 'waiting') {
+            const statusEl = document.getElementById('connection-status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            console.log('Status Update:', message, type);
+        }
+
+        function updateParticipantCount() {
+            const count = window.multiplayerClient ? window.multiplayerClient.players.length : 0;
+            document.getElementById('participant-count').textContent = count;
+        }
+
+        function showParticipantsSection() {
+            document.getElementById('participants-section').style.display = 'block';
+        }
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', () => {
+            const joinForm = document.getElementById('join-form');
+            const joinButton = document.getElementById('join-button');
+            const playerNameInput = document.getElementById('player-name');
+
+            console.log('DOM geladen, initialisiere...');
+
+            // Fallback-UserId generieren, falls nicht eingeloggt
+            let userId = lobbyData.userId;
+            if (!userId || userId === 'undefined') {
+                userId = localStorage.getItem('tempUserId') || `guest_${Date.now()}`;
+                localStorage.setItem('tempUserId', userId);
+                console.log('Fallback userId generiert:', userId);
+            }
+
+            console.log('Finale userId:', userId);
+
+            joinForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const playerName = playerNameInput.value.trim();
+                if (!playerName) {
+                    alert('Bitte gib einen Namen ein!');
+                    return;
+                }
+
+                console.log('Versuche beizutreten mit:', {
+                    lobbyId: lobbyData.lobbyId,
+                    userId: userId,
+                    playerName: playerName
+                });
+
+                joinButton.disabled = true;
+                joinButton.textContent = 'Verbinde...';
+                updateStatus('Verbindung wird hergestellt...', 'waiting');
+
+                // Setze Benutzerdaten im MultiplayerClient
+                if (window.multiplayerClient) {
+                    window.multiplayerClient.setUser(userId, playerName);
+                    
+                    // Verbindung herstellen
+                    window.multiplayerClient.connect()
+                        .then(() => {
+                            console.log('Socket verbunden, trete Lobby bei...');
+                            updateStatus('Verbunden - Trete Lobby bei...', 'waiting');
+                            
+                            // Lobby beitreten
+                            return window.multiplayerClient.joinLobby(lobbyData.lobbyId, playerName);
+                        })
+                        .then((lobbyInfo) => {
+                            console.log('Erfolgreich beigetreten:', lobbyInfo);
+                            updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
+                            joinButton.textContent = 'Beigetreten!';
+                            
+                            // Weiterleitung zur Lobby-Seite nach kurzer Verzögerung
+                            setTimeout(() => {
+                                const lobbyUrl = `/lobby?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
+                                console.log('Weiterleitung zu:', lobbyUrl);
+                                
+                                // Versuche die Weiterleitung
+                                try {
+                                    window.location.href = lobbyUrl;
+                                } catch (redirectError) {
+                                    console.error('Fehler bei der Weiterleitung:', redirectError);
+                                    // Fallback: Manuelle Weiterleitung
+                                    window.location.replace(lobbyUrl);
+                                }
+                            }, 1500);
+                        })
+                        .catch((error) => {
+                            console.error('Detaillierter Fehler beim Beitreten:', error);
+                            updateStatus('Fehler: ' + error.message, 'error');
+                            joinButton.disabled = false;
+                            joinButton.textContent = 'Lobby beitreten';
+                        });
+
+                    // Event-Listener für Lobby-Events
+                    window.multiplayerClient.on('playerJoined', (data) => {
+                        console.log('Spieler beigetreten:', data);
+                        updateParticipantCount();
+                    });
+
+                    window.multiplayerClient.on('playerLeft', (data) => {
+                        console.log('Spieler verlassen:', data);
+                        updateParticipantCount();
+                    });
+
+                    window.multiplayerClient.on('presentationStarted', () => {
+                        updateStatus('Präsentation gestartet!', 'connected');
+                        // Hier könnten Sie zur Präsentationsseite weiterleiten
+                        setTimeout(() => {
+                            window.location.href = '/present'; // oder zur entsprechenden Präsentationsseite
+                        }, 2000);
+                    });
+
+                    window.multiplayerClient.on('hostDisconnected', (data) => {
+                        updateStatus('Host hat die Verbindung getrennt', 'error');
+                        setTimeout(() => {
+                            window.location.href = '/main';
+                        }, 3000);
+                    });
+
+                    window.multiplayerClient.on('error', (error) => {
+                        console.error('MultiplayerClient Fehler:', error);
+                        updateStatus('Verbindungsfehler: ' + error.message, 'error');
+                    });
+
+                } else {
+                    console.error('MultiplayerClient nicht verfügbar');
+                    updateStatus('Fehler: MultiplayerClient nicht verfügbar', 'error');
+                    joinButton.disabled = false;
+                    joinButton.textContent = 'Lobby beitreten';
+                }
+            });
+        });
     </script>
 </body>
 </html> 

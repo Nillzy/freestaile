@@ -12,6 +12,11 @@ const { exampleUsage, testInvalidSlides } = require("./revealValidatorExample");
 const { v4 } = require("uuid");
 const { createClient } = require("@supabase/supabase-js");
 const { authMiddleware, requireAuth } = require("./middleware/auth");
+const QRCode = require("qrcode");
+const http = require("http");
+
+// Socket.IO Setup importieren
+const setupMultiplayerServer = require("./multiplayer/server/index");
 
 const { fetchSlides } = require("./APIService.js");
 const { fetchImages } = require("./APIService.js");
@@ -24,11 +29,34 @@ const supabase = createClient(
   process.env.SUPABASE_API_KEY
 );
 
+// HTTP-Server erstellen
+const server = http.createServer(app);
+
+// Socket.IO-Server einrichten
+const { io, lobbyNamespace, lobbies } = setupMultiplayerServer(
+  server,
+  supabase
+);
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(authMiddleware); // Auth-Middleware für alle Routes
 app.use(express.static("public"));
+
+// Explizite Route für Multiplayer-Client-Dateien mit korrektem MIME-Type
+app.get("/multiplayer/client/socket-client.js", (req, res) => {
+  res.setHeader("Content-Type", "application/javascript");
+  res.sendFile(path.join(__dirname, "multiplayer/client/socket-client.js"));
+});
+
+app.get("/js/multiplayer-client.js", (req, res) => {
+  res.setHeader("Content-Type", "application/javascript");
+  res.sendFile(path.join(__dirname, "public/js/multiplayer-client.js"));
+});
+
+// Fallback für andere Multiplayer-Dateien
+app.use("/multiplayer", express.static(path.join(__dirname, "multiplayer")));
 
 // Logout-Route
 app.post("/api/auth/logout", async (req, res) => {
@@ -137,6 +165,38 @@ app.get("/multi", (req, res) => {
   res.send(eta.render("multiplayer", { user: req.user }));
 });
 
+app.get("/create-lobby", async (req, res) => {
+  if (!req.user) {
+    return res.redirect("/");
+  }
+
+  // Debug: Vollständige req.user Struktur ausgeben
+  console.log(
+    "Create-lobby Route - req.user vollständig:",
+    JSON.stringify(req.user, null, 2)
+  );
+
+  // Benutzerinformationen aus der Authentifizierung holen
+  const userId = req.user.id;
+  const userName = req.user.email || req.user.name || "Host";
+
+  console.log("Create-lobby Route - Benutzerdaten:", {
+    userId: userId,
+    userName: userName,
+    user: req.user,
+  });
+
+  // Rendere die Lobby-Seite mit Socket.IO-Integration
+  res.send(
+    eta.render("lobby", {
+      user: req.user,
+      userId: userId,
+      userName: userName,
+      isHost: true,
+    })
+  );
+});
+
 // Error Page Route (aktualisiert)
 app.get("/error-page", (req, res) => {
   res.send(
@@ -182,7 +242,7 @@ app.get("/present", (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);
 });
 
@@ -333,3 +393,27 @@ setInterval(() => {
     }
   }
 }, 30 * 60 * 1000);
+
+app.get("/join", (req, res) => {
+  const lobbyId = req.query.id;
+
+  if (!lobbyId) {
+    return res.redirect("/main");
+  }
+
+  // Benutzerinformationen holen (falls eingeloggt)
+  const userId = req.user ? req.user.id : null;
+  const userName = req.user
+    ? req.user.email || req.user.name || "Gast"
+    : "Gast";
+
+  // Rendere die Join-Seite
+  res.send(
+    eta.render("join", {
+      user: req.user,
+      lobbyId: lobbyId,
+      userId: userId,
+      userName: userName,
+    })
+  );
+});
