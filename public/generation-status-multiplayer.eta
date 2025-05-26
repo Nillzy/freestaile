@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Präsentation wird generiert</title>
+    <title>Lobby – FreestAIle</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -310,60 +310,106 @@
         .button:hover {
             background-color: #2980b9;
         }
+        #presentations-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .presentation-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .presentation-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .presentation-item .status-icon {
+            margin: 1rem auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Ihre Präsentation wird generiert</h1>
-        <div class="status-icon">
-            <div class="wheel-and-hamster" id="loadingAnimation" role="img" aria-label="Orange and tan hamster running in a metal wheel">
-                <div class="wheel"></div>
-                <div class="hamster">
-                    <div class="hamster__body">
-                        <div class="hamster__head">
-                            <div class="hamster__ear"></div>
-                            <div class="hamster__eye"></div>
-                            <div class="hamster__nose"></div>
+        <h1>FreestAIle</h1>
+        <div id="presentations-container">
+            <% it.presentationIDs.forEach(function(presentationID) { %>
+                <div class="presentation-item" data-presentation-id="<%= presentationID %>">
+                    <h3>Präsentation <%= presentationID %></h3>
+                    <div class="status-icon">
+                        <div class="wheel-and-hamster loading-animation" role="img" aria-label="Orange and tan hamster running in a metal wheel">
+                            <div class="wheel"></div>
+                            <div class="hamster">
+                                <div class="hamster__body">
+                                    <div class="hamster__head">
+                                        <div class="hamster__ear"></div>
+                                        <div class="hamster__eye"></div>
+                                        <div class="hamster__nose"></div>
+                                    </div>
+                                    <div class="hamster__limb hamster__limb--fr"></div>
+                                    <div class="hamster__limb hamster__limb--fl"></div>
+                                    <div class="hamster__limb hamster__limb--br"></div>
+                                    <div class="hamster__limb hamster__limb--bl"></div>
+                                    <div class="hamster__tail"></div>
+                                </div>
+                            </div>
+                            <div class="spoke"></div>
                         </div>
-                        <div class="hamster__limb hamster__limb--fr"></div>
-                        <div class="hamster__limb hamster__limb--fl"></div>
-                        <div class="hamster__limb hamster__limb--br"></div>
-                        <div class="hamster__limb hamster__limb--bl"></div>
-                        <div class="hamster__tail"></div>
+                        <div class="checkmark"></div>
                     </div>
+                    <a href="/present2?presentationID=<%= presentationID %>" class="button view-button">Zur Präsentation</a>
                 </div>
-                <div class="spoke"></div>
-            </div>
-            <div class="checkmark" id="checkmark"></div>
+            <% }); %>
         </div>
-        <p>Bitte haben Sie einen Moment Geduld, während wir Ihre Präsentation erstellen.</p>
-        <p>Sie werden automatisch weitergeleitet, sobald die Generierung abgeschlossen ist.</p>
-        <p>Präsentations-ID: <%= it.presentationID %></p>
-        <a href="/present2?presentationID=<%= it.presentationID %>" class="button" id="viewButton">Zur Präsentation</a>
     </div>
 
     <script>
-        const presentationID = '<%= it.presentationID %>';
-        const loadingAnimation = document.getElementById('loadingAnimation');
-        const checkmark = document.getElementById('checkmark');
-        const viewButton = document.getElementById('viewButton');
-        
-        const checkInterval = setInterval(async () => {
-            try {
-                const response = await fetch(`/checkGenerationStatus?presentationID=${presentationID}`);
-                const data = await response.json();
-                if (data.status === 'completed') {
-                    clearInterval(checkInterval);
-                    loadingAnimation.style.display = 'none';
-                    checkmark.classList.add('show');
-                    viewButton.classList.add('show');
-                } else if (data.status === 'error') {
-                    clearInterval(checkInterval);
-                    window.location.href = '/error?message=' + encodeURIComponent(data.message);
+        const presentationIDsRaw = '<%= it.presentationIDs %>';
+        const presentationIDs = presentationIDsRaw.split(',');
+        const completedPresentations = new Set();
+
+        async function checkGenerationStatus() {
+            for (const presentationID of presentationIDs) {
+                if (completedPresentations.has(presentationID)) continue;
+
+                try {
+                    const response = await fetch(`/checkGenerationStatus?presentationID=${presentationID}`);
+                    console.log(response);
+                    const data = await response.json();
+
+                    const presentationItem = document.querySelector(`[data-presentation-id="${presentationID}"]`);
+                    const loadingAnimation = presentationItem.querySelector('.loading-animation');
+                    const checkmark = presentationItem.querySelector('.checkmark');
+                    const viewButton = presentationItem.querySelector('.view-button');
+
+                    if (data.status === 'completed') {
+                        completedPresentations.add(presentationID);
+                        loadingAnimation.style.display = 'none';
+                        checkmark.classList.add('show');
+                        viewButton.classList.add('show');
+
+                        if (completedPresentations.size === presentationIDs.length && checkInterval) {
+                            clearInterval(checkInterval);
+                        }
+                    } else if (data.status === 'error' && checkInterval) {
+                        clearInterval(checkInterval);
+                        window.location.href = '/error-page?message=' + encodeURIComponent(data.message);
+                    }
+                } catch (error) {
+                    console.error('Fehler beim Überprüfen des Status:', error);
                 }
-            } catch (error) {
-                console.error('Fehler beim Überprüfen des Status:', error);
             }
+        }
+
+        checkGenerationStatus()
+
+        const checkInterval = setInterval(async () => {
+            await checkGenerationStatus();
         }, 1000);
     </script>
 </body>

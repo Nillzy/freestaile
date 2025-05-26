@@ -14,7 +14,7 @@ import favicon from 'serve-favicon';
 //import { validateRevealSlides } from "./revealValidator.js";
 //import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
-import { fetchPresentation, saveSlides, getPresentationIDsFromRoundID } from "./SupabaseService.js";
+import { fetchPresentation, saveSlides, getPresentationIDsFromRoundID, createRound, setPresentationIDsFromRoundID } from "./SupabaseService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -151,7 +151,7 @@ app.post("/api/auth/register", async (req, res) => {
     }
 });
 
-const presentationStatuses = new Map();
+const presentationStatus = new Map();
 
 app.post("/initiateGeneration", async (req, res) => {
     const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
@@ -160,28 +160,48 @@ app.post("/initiateGeneration", async (req, res) => {
     console.log(presentations);
 
     if (presentations === undefined || presentations.length === 0) {
-        res.status(500).json({
-            message: "Ein Fehler ist aufgetreten"
+        return res.status(500).json({
+            message: "Request not valid"
         }).send();
     }
 
-    // TODO: Round anlegen
+    const roundID = v4();
 
-    const roundID = '4400cb5b-6c7c-4bf4-8b6c-55e663f69f64'; //v4();
+    const roundCreated = await createRound(roundID, req.user.id);
+
+    setTimeout(function () {
+        console.log("WARTE...")
+    }, 10000000)
+
+    if (!roundCreated) {
+        return res.status(500).json({
+            message: "Round could not be created"
+        }).send();
+    }
 
     let presentationIDs = [];
 
     for (const presentation of presentations) {
         const presentationID = v4();
         presentationIDs.push(presentationID);
-        presentationStatuses.set(presentationID, {
+        presentationStatus.set(presentationID, {
             status: 'processing',
             timestamp: Date.now()
         });
     }
 
+    const presentationIDsWritten = await setPresentationIDsFromRoundID(presentationIDs, roundID);
+
+    if (!presentationIDsWritten) {
+        if (!roundCreated) {
+            return res.status(500).json({
+                message: "Presentation ID could not be written for round ID"
+            }).send();
+        }
+    }
+
     console.log(presentationIDs);
-    console.log(presentationStatuses);
+    console.log(presentationStatus);
     console.log(roundID);
     res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
 
@@ -197,7 +217,7 @@ app.post("/initiateGeneration", async (req, res) => {
             const successful = await saveSlides(presentationID, content, topic, roundID, accountID); //TODO: Get real account ID
 
             if (!successful) {
-                presentationStatuses.set(presentationID, {
+                presentationStatus.set(presentationID, {
                     status: 'error',
                     message: 'Fehler beim Speichern der Präsentation',
                     timestamp: Date.now()
@@ -207,7 +227,7 @@ app.post("/initiateGeneration", async (req, res) => {
                 }).send();
             }
 
-            presentationStatuses.set(presentationID, {
+            presentationStatus.set(presentationID, {
                 status: 'completed',
                 timestamp: Date.now()
             });
@@ -215,7 +235,7 @@ app.post("/initiateGeneration", async (req, res) => {
     } catch (error) {
         console.error("Error while fetching and saving slides:", error);
         if (presentationID) {
-            presentationStatuses.set(presentationID, {
+            presentationStatus.set(presentationID, {
                 status: 'error',
                 message: 'Fehler beim Generieren der Präsentation',
                 timestamp: Date.now()
@@ -347,7 +367,7 @@ app.get("/initiateGeneration", async (req, res) => {
     if (topic !== undefined || topic !== "" || presentationLanguage !== undefined || presentationLanguage !== "") {
         try {
             const presentationID = v4();
-            presentationStatuses.set(presentationID, { 
+            presentationStatus.set(presentationID, { 
                 status: 'processing',
                 timestamp: Date.now()
             });
@@ -364,7 +384,7 @@ app.get("/initiateGeneration", async (req, res) => {
             const successful = await saveSlides(presentationID, content, topic);
 
             if (!successful) {
-                presentationStatuses.set(presentationID, { 
+                presentationStatus.set(presentationID, { 
                     status: 'error', 
                     message: 'Fehler beim Speichern der Präsentation',
                     timestamp: Date.now()
@@ -372,7 +392,7 @@ app.get("/initiateGeneration", async (req, res) => {
                 return;
             }
 
-            presentationStatuses.set(presentationID, { 
+            presentationStatus.set(presentationID, { 
                 status: 'completed',
                 timestamp: Date.now()
             });
@@ -380,7 +400,7 @@ app.get("/initiateGeneration", async (req, res) => {
         } catch (error) {
             console.error("Error while fetching and saving slides:", error);
             if (presentationID) {
-                presentationStatuses.set(presentationID, { 
+                presentationStatus.set(presentationID, { 
                     status: 'error', 
                     message: 'Fehler beim Generieren der Präsentation',
                     timestamp: Date.now()
@@ -403,7 +423,7 @@ app.get("/checkGenerationStatus", (req, res) => {
         return res.status(400).json({ status: 'error', message: 'Ungültige Präsentations-ID' });
     }
 
-    const status = presentationStatuses.get(presentationID);
+    const status = presentationStatus.get(presentationID);
     if (!status) {
         return res.status(404).json({ status: 'error', message: 'Präsentation nicht gefunden' });
     }
@@ -423,7 +443,7 @@ app.get("/checkGenerationStatusMulti", (req, res) => {
     }
 
     const statuses = ids.map(id => {
-        const status = presentationStatuses.get(id);
+        const status = presentationStatus.get(id);
         return {
             id,
             status: status || { status: 'error', message: 'Präsentation nicht gefunden' }
@@ -481,6 +501,7 @@ app.get("/lobby", async (req, res) => {
         );
     }
 
+    console.log(presentationIDs);
     return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs}));
 
     // TODO: ETA-Seite implementieren senden ...
@@ -494,9 +515,9 @@ app.post("/verifyUserRoundRelation", async (req, res) => {
 // Cleanup alte Status-Einträge alle 30 Minuten
 setInterval(() => {
     const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000);
-    for (const [id, status] of presentationStatuses.entries()) {
+    for (const [id, status] of presentationStatus.entries()) {
         if (status.timestamp && status.timestamp < thirtyMinutesAgo) {
-            presentationStatuses.delete(id);
+            presentationStatus.delete(id);
         }
     }
 }, 30 * 60 * 1000);

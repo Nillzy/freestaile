@@ -35,7 +35,7 @@ export async function saveSlides(presentationID, content, topic, roundID, accoun
 
 export async function getPresentationIDsFromRoundID(roundID) {
     const { data, error } = await supabase
-        .from('Presentations')
+        .from('Presentations_in_Round')
         .select('p_id')
         .eq('r_id', roundID);
 
@@ -50,5 +50,36 @@ export async function getPresentationIDsFromRoundID(roundID) {
     } else {
         console.error("Presentation IDs could not be fetched. Reason: " + error.message);
         return false
+    }
+}
+
+export async function setPresentationIDsFromRoundID(presentationIDs, roundID) {
+    for (const presentationID of presentationIDs) {
+        const { data, error } = await supabase
+            .from('Presentations_in_Round')
+            .insert({ p_id: presentationID, r_id: roundID })
+            .select();
+
+        if (error) {
+            console.error("Presentation IDs could not be written to Presentations_in_Round. Reason: " + error.message);
+            return false
+        }
+    }
+    return true;
+}
+
+export async function createRound(roundID, accountID) {
+    const { data, error } = await supabase
+        .from('Rounds')
+        .insert([
+            { r_id: roundID, a_id: accountID },
+        ])
+        .select()
+
+    if (!error) {
+        return true;
+    } else {
+        console.error("Round could not be created. Reason: " + error.message);
+        return false;
     }
 }
