@@ -283,7 +283,7 @@ app.get("/1-device-mode", (req, res) => {
     if (!req.user) {
         return res.redirect('/');
     }
-    res.send(eta.render("1DeviceMode", { user: req.user }));
+    res.send(eta.render("1devicemode", { user: req.user }));
 });
 
 // Error Page Route (aktualisiert)
