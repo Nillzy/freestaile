@@ -264,7 +264,7 @@ app.post("/initiateGeneration", async (req, res) => {
 
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
-    res.send(eta.render("homepage", { user: req.user }));
+    res.send(eta.render("Home-Page", { user: req.user }));
 });
 
 // Landing Page Route (aktualisiert)

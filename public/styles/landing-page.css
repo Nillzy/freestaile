@@ -167,6 +167,16 @@ body.darkmode button {
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+.input-group i {
+    padding-top: 1.1rem;
+    color: #fff !important;
+    vertical-align: middle;
+    /* Stellt sicher, dass das Icon auf gleicher Höhe wie der Text ist */
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.2em;
+}
+
 label {
     display: block;
     margin-bottom: 0.75rem;

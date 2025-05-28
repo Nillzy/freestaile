@@ -301,7 +301,7 @@
 
         /* Darkmode Styles für restricted container */
         body.darkmode .restricted-container {
-            background: #2d2d2d;
+            background: rgba(30, 41, 59, 0.95);
         }
 
         body.darkmode .restricted-container p {
@@ -898,7 +898,7 @@
                 <% } %>
             </div>
             <% if (!it.user) { %>
-                <div class="restricted-container" style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 10px; margin-top: 2rem;">
+                <div class="restricted-container">
                     <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">MULTIplayer-Mode ist only available for registered users</p>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
                         <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
