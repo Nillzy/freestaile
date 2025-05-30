@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreestAIle - Multiplayer Mode</title>
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
@@ -167,6 +169,12 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
         }
+        
+        /* Apply dark mode styles to profile circle immediately with class on html element */
+        html.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
 
         .profile-email {
             font-family: "Ubuntu", sans-serif;
@@ -174,10 +182,23 @@
             color: #234567;
             white-space: nowrap;
         }
+        
+        html.darkmode .profile-email {
+            color: #ffffff;
+        }
 
         .profile-circle:hover {
             background: #9bc8d7;
             transform: scale(1.05);
+        }
+
+        body.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-email {
+            color: #ffffff;
         }
 
         .auth-buttons {
@@ -614,10 +635,12 @@
             <% if (it.user) { %>
             <!-- Eingeloggter Benutzer -->
             <div class="profile-container">
-                <div class="profile-circle">
-                    <%= it.user.email.charAt(0).toUpperCase() %>
-                </div>
-                <span class="profile-email"><%= it.user.email %></span>
+                <a href="/user" style="text-decoration: none;">
+                    <div class="profile-circle">
+                        <%= it.user.email.charAt(0).toUpperCase() %>
+                    </div>
+                </a>
+                <div class="profile-email"><%= it.user.email %></div>
                 <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
                     <span>Abmelden</span>
                     <svg width="15px" height="10px" viewBox="0 0 13 10">
@@ -694,5 +717,26 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('darkmode-toggle');
+        
+        // Get current dark mode status (already set by darkmode-init.js)
+        const isDark = document.documentElement.classList.contains('darkmode');
+        
+        // Set toggle position based on current dark mode status
+        toggle.checked = !isDark;
+        
+        // Ensure body also has the class for backward compatibility
+        document.body.classList.toggle('darkmode', isDark);
+
+        toggle.addEventListener('change', function() {
+            const dark = !toggle.checked;
+            document.documentElement.classList.toggle('darkmode', dark);
+            document.body.classList.toggle('darkmode', dark);
+            localStorage.setItem('darkmode', dark.toString());
+        });
+    });
+</script>
 </body>
 </html>

@@ -180,6 +180,15 @@
             transform: scale(1.05);
         }
 
+        body.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-email {
+            color: #ffffff;
+        }
+
         .auth-buttons {
             display: flex;
             gap: 1rem;
