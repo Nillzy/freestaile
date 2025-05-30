@@ -20,7 +20,8 @@ import {
     getPresentationIDsFromRoundID,
     createRound,
     setPresentationIDsAndPlayersFromRoundID,
-    fetchPlayerName
+    fetchPlayerName,
+    getRoundsFromAccountID
 } from "./SupabaseService.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +29,8 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const eta = new Eta({ views: path.join(__dirname, "../public") });
+
+let presentationStatus = new Map();
 
 app.use(favicon(path.join(__dirname, '../public/assets/favicon.ico')));
 
@@ -158,7 +161,56 @@ app.post("/api/auth/register", async (req, res) => {
     }
 });
 
-const presentationStatus = new Map();
+app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
+    try {
+        const { error: presentationsInRoundError } = await supabase
+            .from('Presentations_in_Round')
+            .delete()
+            .eq('a_id', req.user.id);
+
+        if (presentationsInRoundError) {
+            console.error('Fehler beim Löschen der Präsentationen:', presentationsInRoundError);
+            return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
+        }
+
+        const { error: presentationsError } = await supabase
+            .from('Presentations')
+            .delete()
+            .eq('a_id', req.user.id);
+
+        if (presentationsError) {
+            console.error('Fehler beim Löschen der Präsentationen:', presentationsError);
+            return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
+        }
+
+        // Lösche zuerst alle abhängigen Daten
+        const { error: roundsError } = await supabase
+            .from('Rounds')
+            .delete()
+            .eq('a_id', req.user.id);
+
+        if (roundsError) {
+            console.error('Fehler beim Löschen der Runden:', roundsError);
+            return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
+        }
+
+        // Lösche den Benutzer bei Supabase
+        const { error: deleteUserError } = await supabase.auth.admin.deleteUser(req.user.id);
+
+        if (deleteUserError) {
+            console.error('Fehler beim Löschen des Supabase-Accounts:', deleteUserError);
+            return res.status(500).json({ error: 'Fehler beim Löschen des Accounts' });
+        }
+
+        // Lösche den Session-Cookie
+        res.clearCookie('session');
+
+        res.status(200).json({ message: 'Account erfolgreich gelöscht' });
+    } catch (error) {
+        console.error('Fehler beim Löschen des Accounts:', error);
+        res.status(500).json({ error: 'Interner Serverfehler' });
+    }
+});
 
 app.post("/initiateGeneration", async (req, res) => {
     const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
@@ -172,19 +224,16 @@ app.post("/initiateGeneration", async (req, res) => {
         }).send();
     }
 
-    let players = [];
+    let playersAndTopics = [];
 
     for (let i = 0; i < presentations.length; i++) {
-        players.push(presentations[i].player);
+        const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
+        playersAndTopics.push(playerAndTopic);
     }
 
     const roundID = v4();
 
     const roundCreated = await createRound(roundID, req.user.id);
-
-    setTimeout(function () {
-        console.log("WARTE...")
-    }, 10000000)
 
     if (!roundCreated) {
         return res.status(500).json({
@@ -203,7 +252,7 @@ app.post("/initiateGeneration", async (req, res) => {
         });
     }
 
-    const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, players, roundID);
+    const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID);
 
     if (!presentationIDsWritten) {
         if (!roundCreated) {
@@ -217,8 +266,6 @@ app.post("/initiateGeneration", async (req, res) => {
     console.log(presentationStatus);
     console.log(roundID);
     res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
-
-    //TODO: Stattdessen roundID erzeugen und zurückschicken, um Lobby zu öffnen
 
     //Background process:
     try {
@@ -235,9 +282,6 @@ app.post("/initiateGeneration", async (req, res) => {
                     message: 'Fehler beim Speichern der Präsentation',
                     timestamp: Date.now()
                 });
-                res.status(500).json({
-                    message: "Ein Fehler ist aufgetreten"
-                }).send();
             }
 
             presentationStatus.set(presentationID, {
@@ -254,12 +298,12 @@ app.post("/initiateGeneration", async (req, res) => {
                 timestamp: Date.now()
             });
         }
-        res.status(500).send(
-            eta.render("error-page", {
-                message: "Fehler beim Abrufen und Speichern der Präsentation",
-            })
-        );
     }
+});
+
+app.get("/user", requireAuth, async (req, res) => {
+    const rounds = await getRoundsFromAccountID(req.user.id);
+    res.send(eta.render("account", { user: req.user, rounds: rounds }));
 });
 
 // Startseite Route (aktualisiert)
@@ -272,17 +316,11 @@ app.get("/main", (req, res) => {
     res.send(eta.render("dashboardNew", { user: req.user }));
 });
 
-app.get("/multi", (req, res) => {
-    if (!req.user) {
-        return res.redirect('/');
-    }
+app.get("/multi", requireAuth, (req, res) => {
     res.send(eta.render("multiplayerModeChoice", { user: req.user }));
 });
 
-app.get("/1-device-mode", (req, res) => {
-    if (!req.user) {
-        return res.redirect('/');
-    }
+app.get("/1-device-mode", requireAuth, (req, res) => {
     res.send(eta.render("1devicemode", { user: req.user }));
 });
 
@@ -292,11 +330,6 @@ app.get("/error-page", (req, res) => {
         user: req.user,
         message: req.query.message
     }));
-});
-
-// Beispiel für eine geschützte Route
-app.get("/dashboard", requireAuth, (req, res) => {
-    res.send(eta.render("dashboard", { user: req.user }));
 });
 
 app.get("/present", (req, res) => {
@@ -357,10 +390,10 @@ app.get("/present2", async (req, res) => {
       const data = await fetchPresentation(presentationID);
 
       if (!data) {
-          eta.render("error-page", {
-              message: "Fehler beim Abrufen und Speichern der Präsentation",
-          })
-          return
+          console.log("Hier!!!!");
+          return res.send(eta.render("error-page", {
+              message: "The presentation does not exist or is still generating.",
+          }));
       }
 
       console.log(data);
@@ -374,7 +407,7 @@ app.get("/present2", async (req, res) => {
   }
 });
 
-app.get("/initiateGeneration", async (req, res) => {
+app.get("/initiateGeneration", requireAuth, async (req, res) => {
     let topic = req.query.presentationID.toString;
     let presentationLanguage = req.query.presentationID.toString();
     if (topic !== undefined || topic !== "" || presentationLanguage !== undefined || presentationLanguage !== "") {
@@ -430,10 +463,10 @@ app.get("/initiateGeneration", async (req, res) => {
     }
 });
 
-app.get("/checkGenerationStatus", (req, res) => {
-    const presentationID = req.query.presentationID;
+app.post("/checkGenerationStatus", requireAuth, (req, res) => {
+    const presentationID = req.body.presentationID;
     if (!presentationID || !validator.isUUID(presentationID)) {
-        return res.status(400).json({ status: 'error', message: 'Ungültige Präsentations-ID' });
+        return res.status(400).json({ status: 'error', message: 'Ungültige Präsentations-ID(s)' });
     }
 
     const status = presentationStatus.get(presentationID);
@@ -444,39 +477,14 @@ app.get("/checkGenerationStatus", (req, res) => {
     res.json(status);
 });
 
-app.get("/checkGenerationStatusMulti", (req, res) => {
-    const presentationIDs = req.query.ids;
-    if (!presentationIDs) {
-        return res.status(400).json({ status: 'error', message: 'Keine Präsentations-IDs angegeben' });
-    }
-
-    const ids = presentationIDs.split(',');
-    if (!ids.every(id => validator.isUUID(id))) {
-        return res.status(400).json({ status: 'error', message: 'Eine oder mehrere ungültige Präsentations-IDs' });
-    }
-
-    const statuses = ids.map(id => {
-        const status = presentationStatus.get(id);
-        return {
-            id,
-            status: status || { status: 'error', message: 'Präsentation nicht gefunden' }
-        };
-    });
-
-    res.json(statuses);
-});
-
-app.get("/lobby", async (req, res) => {
-    if (!req.user) {
-        return res.redirect('/');
-    }
+app.get("/lobby", requireAuth, async (req, res) => {
 
     const gameMode = req.query.gameMode;
     const roundID = req.query.roundID;
 
     console.log(gameMode, roundID)
 
-    if (!gameMode || !roundID) {
+    if (!gameMode || !roundID || !validator.isUUID(roundID)) {
         return res.redirect('/');
     }
 
@@ -508,15 +516,9 @@ app.get("/lobby", async (req, res) => {
     let players = [];
     for (const presentationID of presentationIDs) {
         const player = await fetchPlayerName(presentationID)
-        if (!player) {
-            //TODO: FEHLER
-        }
         players.push(player);
     }
 
-    //const zipped = presentationIDs.map((value, index) => [value, players[index]]);
-
-    //console.log(zipped);
 
     if (!presentationIDs || !Array.isArray(presentationIDs)) {
         return res.status(500).send(
@@ -528,8 +530,6 @@ app.get("/lobby", async (req, res) => {
 
     console.log(players);
     return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
-
-    // TODO: ETA-Seite implementieren senden ...
 });
 
 app.post("/verifyUserRoundRelation", async (req, res) => {
@@ -546,7 +546,6 @@ setInterval(() => {
         }
     }
 }, 30 * 60 * 1000);
-
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

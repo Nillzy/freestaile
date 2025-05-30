@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
     <title>Lobby – FreestAIle</title>
     <style>
         body {
@@ -378,7 +380,13 @@
                 if (completedPresentations.has(presentationID)) continue;
 
                 try {
-                    const response = await fetch(`/checkGenerationStatus?presentationID=${presentationID}`);
+                    const response = await fetch(`/checkGenerationStatus`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ presentationID: presentationID })
+                    });
                     console.log(response);
                     const data = await response.json();
 
@@ -410,7 +418,7 @@
 
         const checkInterval = setInterval(async () => {
             await checkGenerationStatus();
-        }, 1000);
+        }, 2000);
     </script>
 </body>
 </html> 

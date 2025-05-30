@@ -53,12 +53,48 @@ export async function getPresentationIDsFromRoundID(roundID) {
     }
 }
 
-export async function setPresentationIDsAndPlayersFromRoundID(presentationIDs, players, roundID) {
+export async function getRoundsFromAccountID(accountID) {
+    const { data, error } = await supabase
+        .from('Presentations_in_Round')
+        .select('r_id, p_id, player, topic, created_at')
+        .eq('a_id', accountID)
+        .order('created_at', { ascending: false });
+
+    if (!error) {
+        // Gruppiere die Daten nach r_id
+        const roundsMap = new Map();
+        
+        data.forEach(item => {
+            if (!roundsMap.has(item.r_id)) {
+                roundsMap.set(item.r_id, {
+                    roundId: item.r_id,
+                    createdAt: item.created_at,
+                    presentations: []
+                });
+            }
+            roundsMap.get(item.r_id).presentations.push({
+                presentationId: item.p_id,
+                player: item.player,
+                topic: item.topic
+            });
+        });
+
+        // Konvertiere Map zu Array
+        const rounds = Array.from(roundsMap.values());
+        console.log(rounds);
+        return rounds;
+    } else {
+        console.error("Data could not be fetched. Reason: " + error.message);
+        return false;
+    }
+}
+
+export async function setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID) {
 
     for (let i = 0; i < presentationIDs.length; i++) {
         const { data, error } = await supabase
             .from('Presentations_in_Round')
-            .insert({ p_id: presentationIDs[i], player: players[i], r_id: roundID })
+            .insert({ p_id: presentationIDs[i], player: playersAndTopics[i].player, topic: playersAndTopics[i].topic, r_id: roundID, a_id: accountID })
             .select();
 
         if (error) {

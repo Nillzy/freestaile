@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreestAIle - PowerPoint Karaoke</title>
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
@@ -137,6 +139,12 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
         }
+        
+        /* Apply dark mode styles to profile circle immediately with class on html element */
+        html.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
 
         .profile-circle:hover {
             background: #9bc8d7;
@@ -161,6 +169,19 @@
             font-size: 16px;
             color: #234567;
             white-space: nowrap;
+        }
+        
+        html.darkmode .profile-email {
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-email {
+            color: #ffffff;
         }
 
         /* Basis-Styles für alle Buttons */
@@ -324,39 +345,53 @@
         }
 
         .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            padding: 0;
+            margin: 0;
+            background: #fff;
             border: none;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-            padding: 0.5rem;
             line-height: 1;
+            cursor: pointer;
+            color: #234567;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: background 0.2s, color 0.2s;
         }
-
         .modal-close:hover {
-            color: #333;
+            background: #f0f0f0;
+            color: #e53e3e;
         }
-
-        body.darkmode .modal-content {
-            background: #2d2d2d;
-            color: #ffffff;
-        }
-
         body.darkmode .modal-close {
-            color: #a0aec0;
+            background: #23272f;
+            color: #fff;
         }
-
         body.darkmode .modal-close:hover {
-            color: #ffffff;
+            background: #3a3a3a;
+            color: #e53e3e;
+        }
+        body.darkmode .modal-content {
+            background: #23272f;
+            color: #fff;
         }
 
         .modal-tabs {
             display: flex;
             margin-bottom: 1.5rem;
             border-bottom: 2px solid #e2e8f0;
+            padding-top: 0.5rem;
+            justify-content: center;
+            gap: 2rem;
         }
 
         .modal-tab {
@@ -365,6 +400,8 @@
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
             color: #666;
+            min-width: 120px;
+            text-align: center;
         }
 
         .modal-tab.active {
@@ -431,11 +468,48 @@
             color: #234567;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            background: #e2e8f0;
+            opacity: 0.7;
         }
 
-        .submit-button:hover {
-            opacity: 0.9;
+        .submit-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .submit-button.active {
+            background: #b1dae7;
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(177, 218, 231, 0.3);
+        }
+
+        .submit-button.active:hover {
+            background: #9bc8d7;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(177, 218, 231, 0.4);
+        }
+
+        .submit-button[style*="background: #b1e7c8"] {
+            background: #e2e8f0 !important;
+            opacity: 0.7;
+        }
+
+        .submit-button[style*="background: #b1e7c8"].active {
+            background: #b1e7c8 !important;
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(177, 231, 200, 0.3);
+        }
+
+        .submit-button[style*="background: #b1e7c8"].active:hover {
+            background: #9bd7b8 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(177, 231, 200, 0.4);
         }
     </style>
 </head>
@@ -449,10 +523,12 @@
         <% if (it.user) { %>
             <!-- Eingeloggter Benutzer -->
             <div class="profile-container">
-                <div class="profile-circle">
-                    <%= it.user.email.charAt(0).toUpperCase() %>
-                </div>
-                <span class="profile-email"><%= it.user.email %></span>
+                <a href="/user" style="text-decoration: none;">
+                    <div class="profile-circle">
+                        <%= it.user.email.charAt(0).toUpperCase() %>
+                    </div>
+                </a>
+                <div class="profile-email"><%= it.user.email %></div>
                 <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
                     <span>Abmelden</span>
                     <svg width="15px" height="10px" viewBox="0 0 13 10">
@@ -576,7 +652,8 @@
                 <input type="password" id="modalPassword" name="password" required>
             </div>
             <div class="error-message" id="modalLoginError" style="display: none;"></div>
-            <button type="submit" class="submit-button" style="background: #b1dae7;">Anmelden</button>
+            <div class="success-message" id="modalLoginSuccess" style="display: none; color: #4CAF50; margin-bottom: 1rem;"></div>
+            <button type="submit" class="submit-button" style="background: #b1dae7;" disabled>Anmelden</button>
         </form>
 
         <!-- Register Form -->
@@ -594,7 +671,7 @@
                 <input type="password" id="modalConfirmPassword" name="confirmPassword" required>
             </div>
             <div class="error-message" id="modalRegisterError" style="display: none;"></div>
-            <button type="submit" class="submit-button" style="background: #b1e7c8;">Registrieren</button>
+            <button type="submit" class="submit-button" style="background: #b1e7c8;" disabled>Registrieren</button>
         </form>
     </div>
 </div>
@@ -603,17 +680,18 @@
   document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.getElementById('darkmode-toggle');
     
-    // Lade gespeicherten Darkmode-Status oder nutze System-Präferenz
-    const savedDarkMode = localStorage.getItem('darkmode');
-    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedDarkMode !== null ? savedDarkMode === 'true' : systemPrefersDark;
+    // Get current dark mode status (already set by darkmode-init.js)
+    const isDark = document.documentElement.classList.contains('darkmode');
     
-    // Setze initialen Status
-    document.body.classList.toggle('darkmode', isDark);
+    // Set toggle position based on current dark mode status
     toggle.checked = !isDark;
+    
+    // Ensure body also has the class for backward compatibility
+    document.body.classList.toggle('darkmode', isDark);
 
     toggle.addEventListener('change', function() {
       const dark = !toggle.checked;
+      document.documentElement.classList.toggle('darkmode', dark);
       document.body.classList.toggle('darkmode', dark);
       localStorage.setItem('darkmode', dark.toString());
     });
@@ -699,6 +777,10 @@
         document.getElementById('modalEmail').value = email;
         errorDiv.style.display = 'none';
         document.getElementById('modalRegisterError').style.display = 'none';
+        // Zeige Erfolgsmeldung
+        const successDiv = document.getElementById('modalLoginSuccess');
+        successDiv.textContent = 'Wenn Sie noch nicht registriert sind, haben Sie jetzt eine Bestätigungs-E-Mail erhalten.';
+        successDiv.style.display = 'block';
       } else {
         errorDiv.textContent = data.message || 'Registrierung fehlgeschlagen';
         errorDiv.style.display = 'block';
@@ -743,6 +825,93 @@
         closeAuthModal();
       }
     });
+  });
+
+  // Formular-Validierung für Login
+  document.getElementById('modalLoginForm').addEventListener('input', function() {
+    const email = document.getElementById('modalEmail').value;
+    const password = document.getElementById('modalPassword').value;
+    const submitButton = this.querySelector('.submit-button');
+    
+    if (email && password) {
+      submitButton.classList.add('active');
+      submitButton.disabled = false;
+    } else {
+      submitButton.classList.remove('active');
+      submitButton.disabled = true;
+    }
+  });
+
+  // Formular-Validierung für Register
+  document.getElementById('modalRegisterForm').addEventListener('input', function() {
+    const email = document.getElementById('modalRegisterEmail').value;
+    const password = document.getElementById('modalRegisterPassword').value;
+    const confirmPassword = document.getElementById('modalConfirmPassword').value;
+    const submitButton = this.querySelector('.submit-button');
+    
+    if (email && password && confirmPassword) {
+      submitButton.classList.add('active');
+      submitButton.disabled = false;
+    } else {
+      submitButton.classList.remove('active');
+      submitButton.disabled = true;
+    }
+  });
+
+  // Enter-Taste Handler für Login
+  document.getElementById('modalLoginForm').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      const email = document.getElementById('modalEmail').value;
+      const password = document.getElementById('modalPassword').value;
+      if (!email || !password) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Enter-Taste Handler für Register
+  document.getElementById('modalRegisterForm').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      const email = document.getElementById('modalRegisterEmail').value;
+      const password = document.getElementById('modalRegisterPassword').value;
+      const confirmPassword = document.getElementById('modalConfirmPassword').value;
+      if (!email || !password || !confirmPassword) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Initiale Validierung beim Laden
+  document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('modalLoginForm');
+    const registerForm = document.getElementById('modalRegisterForm');
+    
+    if (loginForm) {
+      const email = document.getElementById('modalEmail').value;
+      const password = document.getElementById('modalPassword').value;
+      const submitButton = loginForm.querySelector('.submit-button');
+      
+      if (email && password) {
+        submitButton.classList.add('active');
+        submitButton.disabled = false;
+      } else {
+        submitButton.disabled = true;
+      }
+    }
+    
+    if (registerForm) {
+      const email = document.getElementById('modalRegisterEmail').value;
+      const password = document.getElementById('modalRegisterPassword').value;
+      const confirmPassword = document.getElementById('modalConfirmPassword').value;
+      const submitButton = registerForm.querySelector('.submit-button');
+      
+      if (email && password && confirmPassword) {
+        submitButton.classList.add('active');
+        submitButton.disabled = false;
+      } else {
+        submitButton.disabled = true;
+      }
+    }
   });
 </script>
 </body>
