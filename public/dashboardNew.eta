@@ -531,12 +531,16 @@
         /* Hamster Wheel Loading Animation */
         .wheel-and-hamster {
             --dur: 1s;
-            position: relative;
+            position: absolute;
             width: 12em;
             height: 12em;
             font-size: 14px;
             display: none;
-            margin: 0 auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            opacity: 1 !important; /* Verhindert, dass die Animation von der Opacity des Containers betroffen wird */
         }
 
         .wheel,
@@ -860,6 +864,15 @@
             background: #9bd7b8 !important;
             transform: translateY(-3px);
             box-shadow: 0 6px 16px rgba(177, 231, 200, 0.4);
+        }
+
+        .container-wrapper {
+            position: relative;
+        }
+
+        .container-wrapper.loading {
+            opacity: 0.5;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -1393,20 +1406,20 @@
 
     // Form Submit Handler
     document.getElementById('quickModeForm').addEventListener('submit', function(e) {
-        const generateButton = document.getElementById('generateButton');
+        const containerWrapper = document.querySelector('.container-wrapper');
         const loadingAnimation = document.getElementById('loadingAnimation');
         
-        generateButton.style.display = 'none';
+        containerWrapper.classList.add('loading');
         loadingAnimation.style.display = 'block';
     });
 
     // Reset Button and Loading Animation when navigating back
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
-            const generateButton = document.getElementById('generateButton');
+            const containerWrapper = document.querySelector('.container-wrapper');
             const loadingAnimation = document.getElementById('loadingAnimation');
             
-            generateButton.style.display = 'block';
+            containerWrapper.classList.remove('loading');
             loadingAnimation.style.display = 'none';
         }
     });
