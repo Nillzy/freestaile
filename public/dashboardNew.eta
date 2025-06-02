@@ -1006,6 +1006,7 @@
             <div class="multiplayer-section" style="position: relative; <%= !it.user ? 'opacity: 0.5; filter: grayscale(100%);' : '' %>">
                 <h1 class="logo"><b>MULTI</b>player-Mode</h1>
                 <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+                <p class="tagline">Play with <b>RANDOM</b> topics, so no one knows what awaits you...</p>
                 <% if (it.user) { %>
                     <form class="main-form" action="/multi" method="get">
                         <div class="input-group">

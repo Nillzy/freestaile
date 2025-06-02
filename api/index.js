@@ -163,11 +163,12 @@ app.post("/api/auth/register", async (req, res) => {
 });
 
 app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
+    const accountID = req.user.id;
     try {
         const { error: presentationsInRoundError } = await supabase
             .from('Presentations_in_Round')
             .delete()
-            .eq('a_id', req.user.id);
+            .eq('a_id', accountID);
 
         if (presentationsInRoundError) {
             console.error('Fehler beim Löschen der Präsentationen:', presentationsInRoundError);
@@ -177,7 +178,7 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
         const { error: presentationsError } = await supabase
             .from('Presentations')
             .delete()
-            .eq('a_id', req.user.id);
+            .eq('a_id', accountID);
 
         if (presentationsError) {
             console.error('Fehler beim Löschen der Präsentationen:', presentationsError);
@@ -188,7 +189,7 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
         const { error: roundsError } = await supabase
             .from('Rounds')
             .delete()
-            .eq('a_id', req.user.id);
+            .eq('a_id', accountID);
 
         if (roundsError) {
             console.error('Fehler beim Löschen der Runden:', roundsError);
@@ -196,7 +197,7 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
         }
 
         // Lösche den Benutzer bei Supabase
-        const { error: deleteUserError } = await supabase.auth.admin.deleteUser(req.user.id);
+        const { error: deleteUserError } = await supabase.auth.admin.deleteUser(accountID);
 
         if (deleteUserError) {
             console.error('Fehler beim Löschen des Supabase-Accounts:', deleteUserError);
@@ -343,7 +344,7 @@ app.get("/error-page", (req, res) => {
 });
 
 app.get("/present", (req, res) => {
-  if (req.query.topic !== undefined || req.query.presentationLanguage !== undefined) {
+  if (req.query.topic !== undefined && req.query.presentationLanguage !== undefined) {
     fetchSlides(req.query.topic, req.query.presentationLanguage)
       .then((content) => insertImages(content))
       .then((contentWithImages) => {
