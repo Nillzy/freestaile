@@ -265,11 +265,13 @@ app.post("/initiateGeneration", async (req, res) => {
     console.log(presentationIDs);
     console.log(presentationStatus);
     console.log(roundID);
-    res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+    setTimeout( () => {
+        res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+    }, 500);
 
     //Background process:
-    try {
-        for (let i = 0; i < presentations.length; i++) {
+    for (let i = 0; i < presentations.length; i++) {
+        try {
             const presentationID = presentationIDs[i];
             const topic = presentations[i].topic;
             const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
@@ -284,19 +286,22 @@ app.post("/initiateGeneration", async (req, res) => {
                 });
             }
 
-            presentationStatus.set(presentationID, {
-                status: 'completed',
-                timestamp: Date.now()
-            });
-        }
-    } catch (error) {
-        console.error("Error while fetching and saving slides:", error);
-        if (presentationID) {
-            presentationStatus.set(presentationID, {
-                status: 'error',
-                message: 'Fehler beim Generieren der Präsentation',
-                timestamp: Date.now()
-            });
+            setTimeout(() => {
+                presentationStatus.set(presentationID, {
+                    status: 'completed',
+                    timestamp: Date.now()
+                });
+            }, 500);
+        } catch (error) {
+            const presentationID = presentationIDs[i];
+            console.error("Error while fetching and saving slides:", error);
+            if (presentationID) {
+                presentationStatus.set(presentationID, {
+                    status: 'error',
+                    message: 'Fehler beim Generieren der Präsentation',
+                    timestamp: Date.now()
+                });
+            }
         }
     }
 });
@@ -407,7 +412,11 @@ app.get("/present2", async (req, res) => {
   }
 });
 
-app.get("/initiateGeneration", requireAuth, async (req, res) => {
+app.get("/debugPresentationStatus", (req, res) => {
+    console.log(presentationStatus);
+});
+
+/*app.get("/initiateGeneration", requireAuth, async (req, res) => {
     let topic = req.query.presentationID.toString;
     let presentationLanguage = req.query.presentationID.toString();
     if (topic !== undefined || topic !== "" || presentationLanguage !== undefined || presentationLanguage !== "") {
@@ -461,7 +470,7 @@ app.get("/initiateGeneration", requireAuth, async (req, res) => {
     } else {
         res.redirect("/");
     }
-});
+});*/
 
 app.post("/checkGenerationStatus", requireAuth, (req, res) => {
     const presentationID = req.body.presentationID;
@@ -513,6 +522,20 @@ app.get("/lobby", requireAuth, async (req, res) => {
     }*/
 
     const presentationIDs = await getPresentationIDsFromRoundID(roundID);
+
+    if (!presentationIDs) {
+        return res.status(500).send(
+            eta.render("error-page", {
+                message: "Datenbank-Fehler beim Abrufen der Runden-Informationen",
+            })
+        );
+    } else if (presentationIDs === "INVALID_ROUND") {
+        return res.status(500).send(
+            eta.render("error-page", {
+                message: "Ungültige Rundeninformationen",
+            })
+        );
+    }
     let players = [];
     for (const presentationID of presentationIDs) {
         const player = await fetchPlayerName(presentationID)

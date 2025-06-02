@@ -1,61 +1,115 @@
 import { validateRevealSlides } from "./revealValidator.js";
 import { GoogleGenAI } from "@google/genai";
 
-const MAX_RETRIES = 3;
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-export async function fetchSlides(topic, presentationLanguage, retryCount = 0) {
+export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
 
     const prompt = buildPrompt(topic, presentationLanguage);
 
-    /*const url = 'https://openrouter.ai/api/v1/chat/completions';
-    const options = {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-        },
-        body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
-    };*/
-
-    /*try {
-        const response = await fetch(url, options);
-        if (response.ok) {
-            const json = await response.json();
-            const content = json.choices?.[0]?.message?.content;
-            console.log(json);
-            return content;
-        } else {
-            console.log(response.
-            return '';
-        }
-    } catch (error) {
-        console.error(error);
-    }*/
+    let content;
 
     try {
+        if (tryCount <= 3) {
+            // First 3 times with Gemini
+
+            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+            const response = await ai.models.generateContent({
+                model: "gemini-2.0-flash",
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            });
+
+            if (response.text) {
+                content = response.text.toString();
+            } else {
+                throw new Error("Gemini API Error\n");
+            }
+
+        } else if (tryCount <= 6) {
+            // Second 3 tries with DeepSeek (Fallback)
+
+            const url = 'https://openrouter.ai/api/v1/chat/completions';
+            const options = {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+                body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
+            };
+
+            const response = await fetch(url, options);
+
+            if (response.ok) {
+                const json = await response.json();
+                if (json.choices && json.choices[0].message && json.choices[0].message.content) {
+                    content = json.choices[0].message.content;
+                }
+            } else {
+                throw new Error("DeepSeek API Error\n");
+            }
+
+        } else {
+            return "<h2 style='text-align: center'>Neither Google Gemini nor DeepSeek could generate a presentation about the given topic '" + topic + "' after several tries. Please try again later or try another topic.</h2>";
+        }
+
+        if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
+            console.error("AI responded with 'NO_SLIDE'.");
+            throw new Error("AI responded with 'NO_SLIDE'.");
+        }
+
+        content = content.replace("```html", "");
+        content = content.replace("```", "");
+
+        validateRevealSlides(content);
+        return content;
+
+    } catch (error) {
+        console.error("Error: " + error + "Starting another try...");
+        return fetchSlides(topic, presentationLanguage, tryCount + 1);
+    }
+
+    /*try {
         const response = await ai.models.generateContent({
             model: "gemini-2.0-flash",
             contents: [{
                 parts: [{ text: prompt }]
             }]
         });
+
+        if (response.ok && response.text) {
+            let content = response.text.toString();
+
+            if (content === undefined || content === null) {
+                console.error(response);
+                return;
+            }
+
+            if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
+                console.error("Could not generate slide.");
+                return "<h2 style='text-align: center'>No presentation could be generated about the given topic '" + topic + "'. Please try again with another one.</h2>";
+            }
+
+            content = content.replace("```html", "");
+            content = content.replace("```", "");
+            
+            try {
+                validateRevealSlides(content);
+                return content;
+            } catch (validationError) {
+                console.error(
+                    `Validierungsfehler (Versuch ${tryCount + 1}/${MAX_TRIES}):`,
+                    validationError.message
+                );
+            }
+        } else {
+            
+        }
+
+        //TODO: if !response.ok retry... (Nach 3-mal Fehler DeepSeek)
         
-        let content = response.text.toString();
-
-        if (content === undefined || content === null) {
-            console.error(response);
-            return;
-        }
-
-        if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
-            console.error("Could not generate slide.");
-            return "<h2 style='text-align: center'>No presentation could be generated about the given topic '" + topic + "'. Please try again with another one.</h2>";
-        }
-
-        content = content.replace("```html", "");
-        content = content.replace("```", "");
+        
 
 
         try {
@@ -63,25 +117,25 @@ export async function fetchSlides(topic, presentationLanguage, retryCount = 0) {
             return content;
         } catch (validationError) {
             console.error(
-                `Validierungsfehler (Versuch ${retryCount + 1}/${MAX_RETRIES}):`,
+                `Validierungsfehler (Versuch ${tryCount + 1}/${MAX_TRIES}):`,
                 validationError.message
             );
 
-            if (retryCount < MAX_RETRIES) {
+            if (tryCount < MAX_TRIES) {
                 console.log(
-                    `Starte erneuten Versuch ${retryCount + 1}/${MAX_RETRIES}...`
+                    `Starte erneuten Versuch ${tryCount + 1}/${MAX_TRIES}...`
                 );
-                return fetchSlides(topic, presentationLanguage, retryCount + 1);
+                return fetchSlides(topic, presentationLanguage, tryCount + 1);
             } else {
                 console.log(
-                    `Maximale Anzahl von Versuchen (${MAX_RETRIES}) erreicht. Letzter Fehler: ${validationError.message}`
+                    `Maximale Anzahl von Versuchen (${MAX_TRIES}) erreicht. Letzter Fehler: ${validationError.message}`
                 );
             }
         }
     } catch (error) {
         console.error(error);
         throw error;
-    }
+    }*/
 }
 
 function buildPrompt(topic, presentationLanguage) {

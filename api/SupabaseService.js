@@ -45,7 +45,9 @@ export async function getPresentationIDsFromRoundID(roundID) {
         for (const i of data) {
             presentationIDs.push(i.p_id);
         }
-        console.log(presentationIDs)
+        if (presentationIDs.length === 0) {
+            return "INVALID_ROUND"
+        }
         return presentationIDs;
     } else {
         console.error("Presentation IDs could not be fetched. Reason: " + error.message);
