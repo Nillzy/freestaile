@@ -953,6 +953,7 @@
                     <input type="text" name="topic" id="topic" autocomplete="off">
                     <div class="typing-placeholder"></div>
                 </div>
+                <div class="error-message" id="topicError" style="display:none;"></div>
                 <div class="input-hint" style="display: none;">
                     <div class="input-hint-content">
                         <div class="input-hint-icon">
@@ -1408,7 +1409,19 @@
     document.getElementById('quickModeForm').addEventListener('submit', function(e) {
         const containerWrapper = document.querySelector('.container-wrapper');
         const loadingAnimation = document.getElementById('loadingAnimation');
-        
+        const topicInput = document.getElementById('topic');
+        const topicError = document.getElementById('topicError');
+        const value = topicInput.value.trim();
+        if (value.length < 3 || value.length > 20) {
+            e.preventDefault();
+            topicError.textContent = 'Topic must be between 3 and 20 characters.';
+            topicError.style.display = 'block';
+            topicInput.classList.add('error');
+            return;
+        } else {
+            topicError.style.display = 'none';
+            topicInput.classList.remove('error');
+        }
         containerWrapper.classList.add('loading');
         loadingAnimation.style.display = 'block';
     });
@@ -1508,6 +1521,15 @@
             } else {
                 submitButton.disabled = true;
             }
+        }
+    });
+
+    // Fehler verschwindet, sobald die Eingabe wieder gültig ist
+    document.getElementById('topic').addEventListener('input', function() {
+        const topicError = document.getElementById('topicError');
+        if (this.value.trim().length >= 3 && this.value.trim().length <= 20) {
+            topicError.style.display = 'none';
+            this.classList.remove('error');
         }
     });
 </script>

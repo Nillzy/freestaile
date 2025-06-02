@@ -1,5 +1,6 @@
 import express from "express";
 import path from "node:path";
+import fs from "fs";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { Eta } from "eta";
@@ -227,6 +228,10 @@ app.post("/initiateGeneration", async (req, res) => {
     let playersAndTopics = [];
 
     for (let i = 0; i < presentations.length; i++) {
+        if (presentations[i].topic === "//RANDOM//") {
+            presentations[i].topic = getRandomTopic();
+            console.log("IT WORKED: " + presentations[i].topic);
+        }
         const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
         playersAndTopics.push(playerAndTopic);
     }
@@ -575,7 +580,14 @@ app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
 });
 
+function getRandomTopic() {
+    const topicsPath = path.join(__dirname, 'topics.json');
+    const topicsData = JSON.parse(fs.readFileSync(topicsPath, 'utf8'));
+    const topics = topicsData.powerpoint_karaoke_topics;
+    const randomIndex = Math.floor(Math.random() * topics.length);
+    return topics[randomIndex];
+}
 
-
-// Exportiere den Express-Handler für Vercel
+// Express handler for Vercel:
 export default app;
+

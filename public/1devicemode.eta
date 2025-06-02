@@ -816,7 +816,7 @@
 
         .player-input input.error {
             border-color: #e53e3e;
-            animation: shake 0.5s ease-in-out;
+            /* animation: shake 0.5s ease-in-out; entfernt */
         }
 
         body.darkmode .player-input input.error {
@@ -831,11 +831,55 @@
 
         .player-input input.duplicate-error {
             border-color: #e53e3e;
-            animation: duplicate-shake 0.8s ease-in-out;
+            /* animation: duplicate-shake 0.8s ease-in-out; entfernt */
         }
 
         body.darkmode .player-input input.duplicate-error {
             border-color: #fc8181;
+        }
+
+        /* Füge die shake-Animation für .shake hinzu */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .player-input input.shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* CSS für den Switch */
+        .random-switch-label {
+            user-select: none;
+        }
+        .random-switch {
+            width: 32px;
+            height: 18px;
+            appearance: none;
+            background: #b1dae7;
+            outline: none;
+            border-radius: 18px;
+            position: relative;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        .random-switch:checked {
+            background: #b1e7c8;
+        }
+        .random-switch::before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        .random-switch:checked::before {
+            transform: translateX(14px);
         }
     </style>
 </head>
@@ -1010,17 +1054,15 @@
                     </div>
                 </div>
             </div>
-            <div class="player-input">
-                <input type="text" placeholder="Präsentationsthema eingeben" required>
+            <div class="player-input player-topic-row" style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="text" placeholder="Präsentationsthema eingeben" required class="topic-input">
+                <label class="random-switch-label" style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                    <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
+                    <span style="font-size: 13px; font-family: Ubuntu, sans-serif;">Random Topic</span>
+                </label>
             </div>
+            <div class="error-message topic-error" style="display:none;"></div>
             <div class="player-actions">
-                <button class="ready-button" onclick="toggleReady(this)">
-                    <span>OK</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </button>
                 <button class="delete-button" onclick="removePlayer(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 69 14" class="svgIcon bin-top">
                         <g clip-path="url(#clip0_35_24)">
@@ -1067,87 +1109,10 @@
         updateAddPlayerCard();
     }
 
-    function toggleReady(button) {
-        const playerCard = button.closest('.player-card');
-        const topicInput = playerCard.querySelector('.player-input input[placeholder="Präsentationsthema eingeben"]');
-        const nameInput = playerCard.querySelector('.player-name-input');
-        
-        if (button.classList.contains('ready')) {
-            button.classList.remove('ready');
-            topicInput.disabled = false;
-            nameInput.disabled = false;
-            topicInput.classList.remove('error', 'duplicate-error');
-            nameInput.classList.remove('error', 'duplicate-error');
-        } else {
-            let hasError = false;
-            
-            // Prüfe auf leere Felder
-            if (!topicInput.value.trim()) {
-                topicInput.classList.add('error');
-                hasError = true;
-            } else {
-                topicInput.classList.remove('error');
-            }
-            
-            if (!nameInput.value.trim()) {
-                nameInput.classList.add('error');
-                hasError = true;
-            } else {
-                nameInput.classList.remove('error');
-            }
-
-            // Prüfe auf doppelte Namen
-            const allNameInputs = document.querySelectorAll('.player-name-input');
-            const currentName = nameInput.value.trim();
-            let duplicateNameFound = false;
-
-            allNameInputs.forEach(input => {
-                if (input !== nameInput && input.value.trim() === currentName) {
-                    duplicateNameFound = true;
-                    input.classList.add('duplicate-error');
-                }
-            });
-
-            if (duplicateNameFound) {
-                nameInput.classList.add('duplicate-error');
-                hasError = true;
-            }
-
-            // Prüfe auf doppelte Themen
-            const allTopicInputs = document.querySelectorAll('.player-input input[placeholder="Präsentationsthema eingeben"]');
-            const currentTopic = topicInput.value.trim();
-            let duplicateTopicFound = false;
-
-            allTopicInputs.forEach(input => {
-                if (input !== topicInput && input.value.trim() === currentTopic) {
-                    duplicateTopicFound = true;
-                    input.classList.add('duplicate-error');
-                }
-            });
-
-            if (duplicateTopicFound) {
-                topicInput.classList.add('duplicate-error');
-                hasError = true;
-            }
-            
-            if (hasError) {
-                return;
-            }
-            
-            button.classList.add('ready');
-            topicInput.disabled = true;
-            nameInput.disabled = true;
-        }
-        
-        updateStartButton();
-    }
-
     function updateStartButton() {
         const startButton = document.getElementById('startGameButton');
-        const readyPlayers = document.querySelectorAll('.ready-button.ready').length;
-        
-        // Button aktivieren, wenn mindestens ein Spieler bereit ist und alle Spieler bereit sind
-        startButton.disabled = readyPlayers < minPlayers || readyPlayers !== playerCount;
+        // Button ist nur deaktiviert, wenn keine Spieler vorhanden sind
+        startButton.disabled = playerCount < minPlayers;
     }
 
     function updateAddPlayerCard() {
@@ -1161,15 +1126,82 @@
 
     // Event Listener für den Start-Button
     document.getElementById('startGameButton').addEventListener('click', async function() {
+        let hasError = false;
+        const allNameInputs = document.querySelectorAll('.player-name-input');
+        const allTopicRows = document.querySelectorAll('.player-topic-row');
+        let names = [];
+        let topics = [];
+
+        allNameInputs.forEach(input => {
+            const value = input.value.trim();
+            if (!value) {
+                input.classList.remove('shake');
+                void input.offsetWidth;
+                input.classList.add('error', 'shake');
+                hasError = true;
+            } else {
+                input.classList.remove('error');
+            }
+            names.push(value);
+        });
+        allTopicRows.forEach(row => {
+            const topicInput = row.querySelector('.topic-input');
+            const randomSwitch = row.querySelector('.random-switch');
+            const errorDiv = row.parentElement.querySelector('.topic-error');
+            if (!randomSwitch.checked) {
+                const value = topicInput.value.trim();
+                if (value.length < 3 || value.length > 20) {
+                    topicInput.classList.remove('shake');
+                    void topicInput.offsetWidth;
+                    topicInput.classList.add('error', 'shake');
+                    errorDiv.textContent = 'Topic must be between 3 and 20 characters.';
+                    errorDiv.style.display = 'block';
+                    hasError = true;
+                } else {
+                    topicInput.classList.remove('error');
+                    errorDiv.style.display = 'none';
+                }
+                topics.push(value);
+            } else {
+                topicInput.classList.remove('error');
+                if (errorDiv) errorDiv.style.display = 'none';
+                topics.push('//RANDOM//');
+            }
+        });
+        // Prüfe auf doppelte Namen
+        const nameCount = {};
+        names.forEach(name => {
+            if (name) {
+                nameCount[name] = (nameCount[name] || 0) + 1;
+            }
+        });
+        names.forEach((name, idx) => {
+            if (name && nameCount[name] > 1) {
+                allNameInputs[idx].classList.remove('shake');
+                void allNameInputs[idx].offsetWidth;
+                allNameInputs[idx].classList.add('duplicate-error', 'shake');
+                hasError = true;
+            } else {
+                allNameInputs[idx].classList.remove('duplicate-error');
+            }
+        });
+        setTimeout(() => {
+            document.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
+        }, 600);
+        if (hasError) {
+            return;
+        }
+        // Präsentationen zusammenstellen:
         const presentations = Array.from(document.querySelectorAll('.player-card')).map(card => {
-            const topicInput = card.querySelector('input[placeholder="Präsentationsthema eingeben"]');
             const nameInput = card.querySelector('.player-name-input');
+            const topicRow = card.querySelector('.player-topic-row');
+            const topicInput = topicRow.querySelector('.topic-input');
+            const randomSwitch = topicRow.querySelector('.random-switch');
             return {
                 player: nameInput.value,
-                topic: topicInput.value
+                topic: randomSwitch.checked ? '//RANDOM//' : topicInput.value
             };
         });
-
         try {
             const response = await fetch('/initiateGeneration', {
                 method: 'POST',
@@ -1181,11 +1213,7 @@
                     user: { id: '<%= it.user.id %>' }
                 })
             });
-
             const data = await response.json();
-
-            console.log(data.url);
-
             if (response.ok && data && data.url) {
                 window.location.href = data.url;
             } else {
@@ -1304,9 +1332,26 @@
 
     // Event Listener für Input-Felder, um Fehler-Status zu entfernen
     document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('player-name-input') || (e.target.closest('.player-input') && e.target.placeholder === 'Präsentationsthema eingeben')) {
+            updateStartButton();
+        }
+        if (e.target.classList.contains('topic-input')) {
+            const row = e.target.closest('.player-topic-row');
+            const randomSwitch = row.querySelector('.random-switch');
+            const errorDiv = row.parentElement.querySelector('.topic-error');
+            if (!randomSwitch.checked) {
+                const value = e.target.value.trim();
+                if (value.length >= 3 && value.length <= 20) {
+                    errorDiv.style.display = 'none';
+                    e.target.classList.remove('error');
+                }
+            } else {
+                errorDiv.style.display = 'none';
+                e.target.classList.remove('error');
+            }
+        }
         if (e.target.classList.contains('error') || e.target.classList.contains('duplicate-error')) {
             e.target.classList.remove('error', 'duplicate-error');
-            
             // Entferne auch die duplicate-error Klasse von anderen Feldern
             const allInputs = document.querySelectorAll('.player-input input');
             allInputs.forEach(input => {
@@ -1316,6 +1361,21 @@
             });
         }
     });
+
+    function toggleRandomTopic(checkbox) {
+        const playerInputRow = checkbox.closest('.player-topic-row');
+        const topicInput = playerInputRow.querySelector('.topic-input');
+        if (checkbox.checked) {
+            topicInput.disabled = true;
+            topicInput.value = '';
+            topicInput.placeholder = 'Random Topic';
+            topicInput.classList.remove('error', 'shake');
+        } else {
+            topicInput.disabled = false;
+            topicInput.placeholder = 'Präsentationsthema eingeben';
+        }
+        updateStartButton();
+    }
 </script>
 </body>
 </html> 
