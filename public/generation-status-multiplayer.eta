@@ -418,7 +418,7 @@
 
         const checkInterval = setInterval(async () => {
             await checkGenerationStatus();
-        }, 2000);
+        }, 3000);
     </script>
 </body>
 </html> 

@@ -950,7 +950,7 @@
             <div class="input-group">
                 <label for="topic">What should your presentation be about?</label>
                 <div class="input-wrapper">
-                    <input type="text" name="topic" id="topic" autocomplete="off">
+                    <input type="text" name="topic" id="topic" autocomplete="off" maxlength="50">
                     <div class="typing-placeholder"></div>
                 </div>
                 <div class="error-message" id="topicError" style="display:none;"></div>
@@ -1413,9 +1413,9 @@
         const topicInput = document.getElementById('topic');
         const topicError = document.getElementById('topicError');
         const value = topicInput.value.trim();
-        if (value.length < 3 || value.length > 20) {
+        if (value.length < 3 || value.length > 50) {
             e.preventDefault();
-            topicError.textContent = 'Topic must be between 3 and 20 characters.';
+            topicError.textContent = 'Topic must be between 3 and 50 characters.';
             topicError.style.display = 'block';
             topicInput.classList.add('error');
             return;
@@ -1528,7 +1528,7 @@
     // Fehler verschwindet, sobald die Eingabe wieder gültig ist
     document.getElementById('topic').addEventListener('input', function() {
         const topicError = document.getElementById('topicError');
-        if (this.value.trim().length >= 3 && this.value.trim().length <= 20) {
+        if (this.value.trim().length >= 3 && this.value.trim().length <= 50) {
             topicError.style.display = 'none';
             this.classList.remove('error');
         }

@@ -7,13 +7,67 @@ export async function fetchPresentation(presentationID) {
     const { data, error } = await supabase
         .from('Presentations')
         .select('topic, content')
-        .eq('p_id', presentationID) //TODO: Check if user ID matches
+        .eq('p_id', presentationID)
         .single();
 
     if (error || !data || !data.topic || !data.content) {
         return false;
     } else {
         return { topic: data.topic, content: data.content };
+    }
+}
+
+export async function checkGenerationStatus(presentationID) {
+    const { data, error } = await supabase
+        .from('GenerationStates')
+        .select('state')
+        .eq('p_id', presentationID)
+        .single();
+
+    if (error || !data || data.state === undefined) {
+        return { status: "error", message: 'Error fetching generation status' };
+    } else {
+        switch (data.state) {
+            case 0:
+                return { status: "processing" };
+            case 1:
+                return { status: "completed" };
+            default:
+                return { status: "error", message: 'Error during generation' };
+        }
+    }
+}
+
+export async function setGenerationStatus(presentationID, state, accountID) {
+
+    let stateNum;
+    switch (state) {
+        case 'processing':
+            stateNum = 0;
+            break;
+        case 'completed':
+            stateNum = 1;
+            break;
+        case 'error':
+            stateNum = 2;
+            break;
+        default:
+            return;
+    }
+
+    const { data, error } = await supabase
+        .from('GenerationStates')
+        .upsert([
+            { p_id: presentationID, state: stateNum, a_id: accountID },
+        ])
+        .select();
+
+
+    if (!error) {
+        return true;
+    } else {
+        console.error("Presentation status could not be saved. Reason: " + error.message);
+        return false;
     }
 }
 
@@ -29,7 +83,7 @@ export async function saveSlides(presentationID, content, topic, roundID, accoun
         return true;
     } else {
         console.error("Presentation could not be saved. Reason: " + error.message);
-        return false
+        return false;
     }
 }
 

@@ -1055,7 +1055,7 @@
                 </div>
             </div>
             <div class="player-input player-topic-row" style="display: flex; align-items: center; gap: 0.5rem;">
-                <input type="text" placeholder="Präsentationsthema eingeben" required class="topic-input">
+                <input type="text" placeholder="Präsentationsthema eingeben" required class="topic-input" maxlength="50">
                 <label class="random-switch-label" style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
                     <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
                     <span style="font-size: 13px; font-family: Ubuntu, sans-serif;">Random Topic</span>
@@ -1150,11 +1150,11 @@
             const errorDiv = row.parentElement.querySelector('.topic-error');
             if (!randomSwitch.checked) {
                 const value = topicInput.value.trim();
-                if (value.length < 3 || value.length > 20) {
+                if (value.length < 3 || value.length > 50) {
                     topicInput.classList.remove('shake');
                     void topicInput.offsetWidth;
                     topicInput.classList.add('error', 'shake');
-                    errorDiv.textContent = 'Topic must be between 3 and 20 characters.';
+                    errorDiv.textContent = 'Topic must be between 3 and 50 characters.';
                     errorDiv.style.display = 'block';
                     hasError = true;
                 } else {
@@ -1341,7 +1341,7 @@
             const errorDiv = row.parentElement.querySelector('.topic-error');
             if (!randomSwitch.checked) {
                 const value = e.target.value.trim();
-                if (value.length >= 3 && value.length <= 20) {
+                if (value.length >= 3 && value.length <= 50) {
                     errorDiv.style.display = 'none';
                     e.target.classList.remove('error');
                 }

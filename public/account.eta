@@ -455,9 +455,11 @@
         <div class="flex items-center space-x-4">
             <% if (it.user) { %>
                 <div class="profile-container">
-                    <div class="profile-circle">
-                        <%= it.user.email.charAt(0).toUpperCase() %>
-                    </div>
+                    <a href="/user" style="text-decoration: none;">
+                        <div class="profile-circle">
+                            <%= it.user.email.charAt(0).toUpperCase() %>
+                        </div>
+                    </a>
                     <span class="profile-email"><%= it.user.email %></span>
                     <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
                         <span>Abmelden</span>
@@ -562,6 +564,15 @@
 
     <div class="copy-feedback">Link kopiert</div>
 
+    <div id="deleteAccountModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 3000; justify-content: center; align-items: center;">
+        <div style="background: #fff; padding: 2rem; border-radius: 10px; max-width: 90vw; min-width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); text-align: center;">
+            <h2 style="margin-bottom: 1rem; color: #e74c3c;">Account wirklich löschen?</h2>
+            <p style="margin-bottom: 2rem;">Sind Sie sicher, dass Sie Ihren Account löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            <button id="deleteAccountConfirmBtn" style="background: #e74c3c; color: #fff; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-family: Ubuntu, sans-serif; font-weight: 600; margin-right: 1rem; cursor: pointer;">Account wirklich löschen</button>
+            <button id="deleteAccountCancelBtn" style="background: #f0f0f0; color: #234567; border: none; border-radius: 5px; padding: 0.7rem 1.5rem; font-size: 1rem; font-family: Ubuntu, sans-serif; font-weight: 600; cursor: pointer;">Abbrechen</button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const toggle = document.getElementById('darkmode-toggle');
@@ -584,10 +595,17 @@
         });
 
         function confirmDeleteAccount() {
-            if (confirm('Sind Sie sicher, dass Sie Ihren Account löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
-                deleteAccount();
-            }
+            document.getElementById('deleteAccountModal').style.display = 'flex';
         }
+
+        document.getElementById('deleteAccountCancelBtn').onclick = function() {
+            document.getElementById('deleteAccountModal').style.display = 'none';
+        };
+
+        document.getElementById('deleteAccountConfirmBtn').onclick = function() {
+            document.getElementById('deleteAccountModal').style.display = 'none';
+            deleteAccount();
+        };
 
         async function deleteAccount() {
             try {
