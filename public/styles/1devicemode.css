@@ -1,0 +1,824 @@
+.auth-button {
+    position: relative;
+    margin: auto;
+    padding: 12px 18px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.auth-button:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    border-radius: 50px;
+    width: 45px;
+    height: 45px;
+    transition: all 0.3s ease;
+}
+
+.auth-button span {
+    position: relative;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #234567;
+}
+
+.auth-button svg {
+    position: relative;
+    top: 0;
+    margin-left: 10px;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: #234567;
+    stroke-width: 2;
+    transform: translateX(-5px);
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover:before {
+    width: 100%;
+}
+
+.auth-button:hover svg {
+    transform: translateX(0);
+}
+
+.auth-button:active {
+    transform: scale(0.95);
+}
+
+/* Spezifische Styles für Login (blau) */
+.auth-button-login:before {
+    background: #b1dae7;
+}
+.auth-button-login:hover:before {
+    background: #b1dae7;
+}
+
+/* Spezifische Styles für Register (grün) */
+.auth-button-register:before {
+    background: #b1e7c8;
+}
+.auth-button-register:hover:before {
+    background: #b1e7c8;
+}
+
+/* Spezifische Styles für Logout (rot) */
+.auth-button-logout {
+    position: relative;
+    margin: auto;
+    padding: 12px 18px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.auth-button-logout:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    border-radius: 50px;
+    background: #e7b1b1;
+    width: 45px;
+    height: 45px;
+    transition: all 0.3s ease;
+}
+
+.auth-button-logout span {
+    position: relative;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #234567;
+}
+
+.auth-button-logout svg {
+    position: relative;
+    top: 0;
+    margin-left: 10px;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: #234567;
+    stroke-width: 2;
+    transform: translateX(-5px);
+    transition: all 0.3s ease;
+}
+
+.auth-button-logout:hover:before {
+    width: 100%;
+    background: #e7b1b1;
+}
+
+.auth-button-logout:hover svg {
+    transform: translateX(0);
+}
+
+.auth-button-logout:active {
+    transform: scale(0.95);
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-right: 1rem;
+}
+
+.profile-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #b1dae7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #234567;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Apply dark mode styles to profile circle immediately with class on html element */
+html.darkmode .profile-circle {
+    background: #3d3d3d;
+    color: #ffffff;
+}
+
+.profile-email {
+    font-family: "Ubuntu", sans-serif;
+    font-size: 16px;
+    color: #234567;
+    white-space: nowrap;
+}
+
+html.darkmode .profile-email {
+    color: #ffffff;
+}
+
+.profile-circle:hover {
+    background: #9bc8d7;
+    transform: scale(1.05);
+}
+
+body.darkmode .profile-circle {
+    background: #3d3d3d;
+    color: #ffffff;
+}
+
+body.darkmode .profile-email {
+    color: #ffffff;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Multiplayer-spezifische Styles */
+.player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.player-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.player-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.player-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #b1dae7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #234567;
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-name {
+    font-family: "Ubuntu", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #234567;
+    margin: 0;
+}
+
+.player-topic {
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.player-input {
+    margin-top: 1rem;
+}
+
+.player-input input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 5px;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.player-input input:focus {
+    outline: none;
+    border-color: #b1dae7;
+}
+
+.player-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.player-actions button {
+    padding: 0.4rem 0.6rem;
+    border: none;
+    border-radius: 4px;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-width: 40px;
+    height: 32px;
+}
+
+.ready-button {
+    position: relative;
+    margin: auto;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    min-width: 60px;
+    height: 32px;
+}
+
+.ready-button:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    border-radius: 50px;
+    background: #b1e7c8;
+    width: 45px;
+    height: 32px;
+    transition: all 0.3s ease;
+}
+
+.ready-button span {
+    position: relative;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #234567;
+}
+
+.ready-button svg {
+    position: relative;
+    top: 0;
+    margin-left: 10px;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: #234567;
+    stroke-width: 2;
+    transform: translateX(-5px);
+    transition: all 0.3s ease;
+}
+
+.ready-button:hover:before {
+    width: 100%;
+    background: #b1e7c8;
+}
+
+.ready-button:hover svg {
+    transform: translateX(0);
+}
+
+.ready-button:active {
+    transform: scale(0.95);
+}
+
+.ready-button.ready {
+    cursor: default;
+}
+
+.ready-button.ready:before {
+    width: 100%;
+    background: #b1e7c8;
+}
+
+.ready-button.ready svg {
+    transform: translateX(0);
+}
+
+/* Darkmode Styles */
+body.darkmode .ready-button span {
+    color: #ffffff;
+}
+
+body.darkmode .ready-button:before {
+    background: #2d5a3f;
+}
+
+body.darkmode .ready-button.ready:before {
+    background: #2d5a3f;
+}
+
+body.darkmode .ready-button svg {
+    stroke: #ffffff;
+}
+
+/* Neuer Löschen-Button Style */
+.delete-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    border: none;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition-duration: 0.3s;
+    overflow: hidden;
+    position: relative;
+    gap: 1px;
+    padding: 0;
+}
+
+.delete-button .svgIcon {
+    width: 12px;
+    transition-duration: 0.3s;
+}
+
+.delete-button .svgIcon path {
+    fill: #234567;
+}
+
+.delete-button:hover {
+    background-color: #e7b1b1;
+}
+
+.delete-button:hover .bin-bottom {
+    width: 12px;
+    transition-duration: 0.3s;
+    transform: translateY(60%);
+}
+
+.delete-button .bin-top {
+    transform-origin: bottom right;
+}
+
+.delete-button:hover .bin-top {
+    width: 12px;
+    transition-duration: 0.3s;
+    transform: translateY(60%) rotate(160deg);
+}
+
+/* Darkmode Styles */
+body.darkmode .delete-button {
+    background: #4d4d4d;
+}
+
+body.darkmode .delete-button .svgIcon path {
+    fill: #ffffff;
+}
+
+body.darkmode .delete-button:hover {
+    background: #e7b1b1;
+}
+
+.start-game-button {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 2rem;
+    background: #b1dae7;
+    color: #234567;
+    border: none;
+    border-radius: 5px;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.start-game-button:hover {
+    background: #9bc8d7;
+}
+
+.start-game-button:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Darkmode Styles */
+body.darkmode .player-card {
+    background: #2d2d2d;
+}
+
+body.darkmode .player-name {
+    color: #ffffff;
+}
+
+body.darkmode .player-topic {
+    color: #a0aec0;
+}
+
+body.darkmode .player-input input {
+    background: #3d3d3d;
+    border-color: #4d4d4d;
+    color: #ffffff;
+}
+
+body.darkmode .player-input input:focus {
+    border-color: #b1dae7;
+}
+
+body.darkmode .status-waiting {
+    background: #3d3d3d;
+    color: #a0aec0;
+}
+
+body.darkmode .start-game-button:disabled {
+    background: #3d3d3d;
+    color: #666;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 0;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #234567;
+}
+
+.modal-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.modal-tab {
+    padding: 0.5rem 1rem;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    position: relative;
+}
+
+.modal-tab.active {
+    color: #234567;
+}
+
+.modal-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #234567;
+}
+
+.modal-form {
+    display: none;
+}
+
+.modal-form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #234567;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background: #f8fafc;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #b1dae7;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(177, 218, 231, 0.2);
+}
+
+.modal-submit {
+    width: 100%;
+    padding: 0.75rem;
+    background: #b1dae7;
+    color: #234567;
+    border: none;
+    border-radius: 8px;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 1rem;
+}
+
+.modal-submit:hover {
+    background: #9bc8d7;
+    transform: translateY(-1px);
+}
+
+.modal-submit:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    color: #e53e3e;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.error-message.active {
+    display: block;
+}
+
+/* Dark Mode Styles für Modal */
+body.darkmode .modal-content {
+    background: #2d2d2d;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+body.darkmode .modal-close {
+    color: #a0aec0;
+}
+
+body.darkmode .modal-close:hover {
+    color: #ffffff;
+}
+
+body.darkmode .modal-tab {
+    color: #a0aec0;
+}
+
+body.darkmode .modal-tab.active {
+    color: #ffffff;
+}
+
+body.darkmode .modal-tab.active::after {
+    background: #b1dae7;
+}
+
+body.darkmode .modal-tabs {
+    border-bottom-color: #4d4d4d;
+}
+
+body.darkmode .form-group label {
+    color: #ffffff;
+}
+
+body.darkmode .form-group input {
+    background: #3d3d3d;
+    border-color: #4d4d4d;
+    color: #ffffff;
+}
+
+body.darkmode .form-group input:focus {
+    border-color: #b1dae7;
+    background: #2d2d2d;
+}
+
+body.darkmode .modal-submit {
+    background: #b1dae7;
+    color: #234567;
+}
+
+body.darkmode .modal-submit:hover {
+    background: #9bc8d7;
+}
+
+body.darkmode .error-message {
+    color: #fc8181;
+}
+
+.add-player-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    height: 100%;
+    min-height: 150px;
+    grid-column: auto;
+}
+
+.add-player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.add-player-card .plus-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #b1e7c8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #234567;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.add-player-card .plus-icon i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
+.add-player-card:hover .plus-icon {
+    transform: scale(1.1);
+    background: #9bd7b8;
+}
+
+/* Darkmode Styles */
+body.darkmode .add-player-card {
+    background: #2d2d2d;
+}
+
+body.darkmode .add-player-card .plus-icon {
+    background: #2d5a3f;
+    color: #ffffff;
+}
+
+body.darkmode .add-player-card:hover .plus-icon {
+    background: #3d6a4f;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.player-input input.error {
+    border-color: #e53e3e;
+    animation: shake 0.5s ease-in-out;
+}
+
+body.darkmode .player-input input.error {
+    border-color: #fc8181;
+}
+
+@keyframes duplicate-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.player-input input.duplicate-error {
+    border-color: #e53e3e;
+    animation: duplicate-shake 0.8s ease-in-out;
+}
+
+body.darkmode .player-input input.duplicate-error {
+    border-color: #fc8181;
+}
