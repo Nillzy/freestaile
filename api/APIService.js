@@ -13,12 +13,17 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
 
             const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-            const response = await ai.models.generateContent({
-                model: "gemini-2.0-flash",
-                contents: [{
-                    parts: [{ text: prompt }]
-                }]
-            });
+            const response = await Promise.race([
+                ai.models.generateContent({
+                    model: "gemini-2.0-flash",
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                }),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("GeminiTimeout")), 60000)
+                )
+            ]);
 
             if (response.text) {
                 content = response.text.toString();
@@ -39,7 +44,12 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
                 body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
             };
 
-            const response = await fetch(url, options);
+            const response = await Promise.race([
+                fetch(url, options),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("DeepSeekTimeout")), 150000)
+                )
+            ]);
 
             if (response.ok) {
                 const json = await response.json();
@@ -66,6 +76,11 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
         return content;
 
     } catch (error) {
+        if (error.message === "GeminiTimeout") {
+            return fetchSlides(topic, presentationLanguage, 4);
+        } else if (error.message === "DeepSeekTimeout") {
+            return fetchSlides(topic, presentationLanguage, 7);
+        }
         console.error("Error: " + error + "Starting another try...");
         return fetchSlides(topic, presentationLanguage, tryCount + 1);
     }
