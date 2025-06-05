@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreestAIle - AI-Powered Presentation Karaoke</title>
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/pages/landing-page.css">
+    <link rel="stylesheet" href="styles/landing-page.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Basis-Styles für alle Buttons */
@@ -280,12 +282,22 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
         }
+        
+        /* Apply dark mode styles to profile circle immediately with class on html element */
+        html.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
 
         .profile-email {
             font-family: "Ubuntu", sans-serif;
             font-size: 16px;
             color: #234567;
             white-space: nowrap;
+        }
+        
+        html.darkmode .profile-email {
+            color: #ffffff;
         }
 
         .profile-circle:hover {
@@ -301,11 +313,20 @@
 
         /* Darkmode Styles für restricted container */
         body.darkmode .restricted-container {
-            background: #2d2d2d;
+            background: rgba(30, 41, 59, 0.95);
         }
 
         body.darkmode .restricted-container p {
             color: #a0aec0;
+        }
+
+        body.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-email {
+            color: #ffffff;
         }
 
         .multiplayer-section {
@@ -343,39 +364,53 @@
         }
 
         .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            padding: 0;
+            margin: 0;
+            background: #fff;
             border: none;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-            padding: 0.5rem;
             line-height: 1;
+            cursor: pointer;
+            color: #234567;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: background 0.2s, color 0.2s;
         }
-
         .modal-close:hover {
-            color: #333;
+            background: #f0f0f0;
+            color: #e53e3e;
         }
-
-        body.darkmode .modal-content {
-            background: #2d2d2d;
-            color: #ffffff;
-        }
-
         body.darkmode .modal-close {
-            color: #a0aec0;
+            background: #23272f;
+            color: #fff;
         }
-
         body.darkmode .modal-close:hover {
-            color: #ffffff;
+            background: #3a3a3a;
+            color: #e53e3e;
+        }
+        body.darkmode .modal-content {
+            background: #23272f;
+            color: #fff;
         }
 
         .modal-tabs {
             display: flex;
             margin-bottom: 1.5rem;
             border-bottom: 2px solid #e2e8f0;
+            padding-top: 0.5rem;
+            justify-content: center;
+            gap: 2rem;
         }
 
         .modal-tab {
@@ -384,6 +419,8 @@
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
             color: #666;
+            min-width: 120px;
+            text-align: center;
         }
 
         .modal-tab.active {
@@ -407,6 +444,436 @@
         .modal-form.active {
             display: block;
         }
+
+        /* Animationen für den Input-Hint */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-hint {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            margin-top: 8px;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-hint-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.2;
+            padding: 4px 0;
+        }
+
+        .input-hint-icon {
+            position: relative;
+            width: 1.2em;
+            height: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-hint-icon i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #234567;
+            font-size: 1rem;
+        }
+
+        .input-hint span {
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+        }
+
+        body.darkmode .input-hint-content {
+            color: #a0aec0;
+        }
+
+        body.darkmode .input-hint-icon i {
+            color: #ffffff;
+        }
+
+        .input-hint.fade-in {
+            animation: fadeInDown 0.3s ease forwards;
+        }
+
+        .input-hint.fade-out {
+            animation: fadeOutUp 0.3s ease forwards;
+        }
+
+        /* Hamster Wheel Loading Animation */
+        .wheel-and-hamster {
+            --dur: 1s;
+            position: absolute;
+            width: 12em;
+            height: 12em;
+            font-size: 14px;
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            opacity: 1 !important; /* Verhindert, dass die Animation von der Opacity des Containers betroffen wird */
+        }
+
+        .wheel,
+        .hamster,
+        .hamster div,
+        .spoke {
+            position: absolute;
+        }
+
+        .wheel,
+        .spoke {
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .wheel {
+            background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%);
+            z-index: 2;
+        }
+
+        .hamster {
+            animation: hamster var(--dur) ease-in-out infinite;
+            top: 50%;
+            left: calc(50% - 3.5em);
+            width: 7em;
+            height: 3.75em;
+            transform: rotate(4deg) translate(-0.8em,1.85em);
+            transform-origin: 50% 0;
+            z-index: 1;
+        }
+
+        .hamster__head {
+            animation: hamsterHead var(--dur) ease-in-out infinite;
+            background: hsl(30,90%,55%);
+            border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
+            box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset,
+                    0.75em -1.55em 0 hsl(30,90%,90%) inset;
+            top: 0;
+            left: -2em;
+            width: 2.75em;
+            height: 2.5em;
+            transform-origin: 100% 50%;
+        }
+
+        .hamster__ear {
+            animation: hamsterEar var(--dur) ease-in-out infinite;
+            background: hsl(0,90%,85%);
+            border-radius: 50%;
+            box-shadow: -0.25em 0 hsl(30,90%,55%) inset;
+            top: -0.25em;
+            right: -0.25em;
+            width: 0.75em;
+            height: 0.75em;
+            transform-origin: 50% 75%;
+        }
+
+        .hamster__eye {
+            animation: hamsterEye var(--dur) linear infinite;
+            background-color: hsl(0,0%,0%);
+            border-radius: 50%;
+            top: 0.375em;
+            left: 1.25em;
+            width: 0.5em;
+            height: 0.5em;
+        }
+
+        .hamster__nose {
+            background: hsl(0,90%,75%);
+            border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
+            top: 0.75em;
+            left: 0;
+            width: 0.2em;
+            height: 0.25em;
+        }
+
+        .hamster__body {
+            animation: hamsterBody var(--dur) ease-in-out infinite;
+            background: hsl(30,90%,90%);
+            border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
+            box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset,
+                    0.15em -0.5em 0 hsl(30,90%,80%) inset;
+            top: 0.25em;
+            left: 2em;
+            width: 4.5em;
+            height: 3em;
+            transform-origin: 17% 50%;
+            transform-style: preserve-3d;
+        }
+
+        .hamster__limb--fr,
+        .hamster__limb--fl {
+            clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
+            top: 2em;
+            left: 0.5em;
+            width: 1em;
+            height: 1.5em;
+            transform-origin: 50% 0;
+        }
+
+        .hamster__limb--fr {
+            animation: hamsterFRLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
+            transform: rotate(15deg) translateZ(-1px);
+        }
+
+        .hamster__limb--fl {
+            animation: hamsterFLLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%);
+            transform: rotate(15deg);
+        }
+
+        .hamster__limb--br,
+        .hamster__limb--bl {
+            border-radius: 0.75em 0.75em 0 0;
+            clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
+            top: 1em;
+            left: 2.8em;
+            width: 1.5em;
+            height: 2.5em;
+            transform-origin: 50% 30%;
+        }
+
+        .hamster__limb--br {
+            animation: hamsterBRLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
+            transform: rotate(-25deg) translateZ(-1px);
+        }
+
+        .hamster__limb--bl {
+            animation: hamsterBLLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%);
+            transform: rotate(-25deg);
+        }
+
+        .hamster__tail {
+            animation: hamsterTail var(--dur) linear infinite;
+            background: hsl(0,90%,85%);
+            border-radius: 0.25em 50% 50% 0.25em;
+            box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset;
+            top: 1.5em;
+            right: -0.5em;
+            width: 1em;
+            height: 0.5em;
+            transform: rotate(30deg) translateZ(-1px);
+            transform-origin: 0.25em 0.25em;
+        }
+
+        .spoke {
+            animation: spoke var(--dur) linear infinite;
+            background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%),
+                    linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
+        }
+
+        @keyframes hamster {
+            from, to {
+                transform: rotate(4deg) translate(-0.8em,1.85em);
+            }
+            50% {
+                transform: rotate(0) translate(-0.8em,1.85em);
+            }
+        }
+
+        @keyframes hamsterHead {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(0);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(8deg);
+            }
+        }
+
+        @keyframes hamsterEye {
+            from, 90%, to {
+                transform: scaleY(1);
+            }
+            95% {
+                transform: scaleY(0);
+            }
+        }
+
+        @keyframes hamsterEar {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(0);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(12deg);
+            }
+        }
+
+        @keyframes hamsterBody {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(0);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(-2deg);
+            }
+        }
+
+        @keyframes hamsterFRLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(50deg) translateZ(-1px);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(-30deg) translateZ(-1px);
+            }
+        }
+
+        @keyframes hamsterFLLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(-30deg);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(50deg);
+            }
+        }
+
+        @keyframes hamsterBRLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(-60deg) translateZ(-1px);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(20deg) translateZ(-1px);
+            }
+        }
+
+        @keyframes hamsterBLLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(20deg);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(-60deg);
+            }
+        }
+
+        @keyframes hamsterTail {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(30deg) translateZ(-1px);
+            }
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(10deg) translateZ(-1px);
+            }
+        }
+
+        @keyframes spoke {
+            from {
+                transform: rotate(0);
+            }
+            to {
+                transform: rotate(-1turn);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #234567;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            color: #234567;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            background: #e2e8f0;
+            opacity: 0.7;
+        }
+
+        .submit-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .submit-button.active {
+            background: #b1dae7;
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(177, 218, 231, 0.3);
+        }
+
+        .submit-button[style*="background: #b1e7c8"] {
+            background: #e2e8f0 !important;
+            opacity: 0.7;
+        }
+
+        .submit-button[style*="background: #b1e7c8"].active {
+            background: #b1e7c8 !important;
+            opacity: 1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(177, 231, 200, 0.3);
+        }
+
+        .submit-button[style*="background: #b1e7c8"].active:hover {
+            background: #9bd7b8 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(177, 231, 200, 0.4);
+        }
+
+        .container-wrapper {
+            position: relative;
+        }
+
+        .container-wrapper.loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -419,10 +886,12 @@
             <% if (it.user) { %>
                 <!-- Eingeloggter Benutzer -->
                 <div class="profile-container">
-                    <div class="profile-circle">
-                        <%= it.user.email.charAt(0).toUpperCase() %>
-                    </div>
-                    <span class="profile-email"><%= it.user.email %></span>
+                    <a href="/user" style="text-decoration: none;">
+                        <div class="profile-circle">
+                            <%= it.user.email.charAt(0).toUpperCase() %>
+                        </div>
+                    </a>
+                    <div class="profile-email"><%= it.user.email %></div>
                     <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
                         <span>Abmelden</span>
                         <svg width="15px" height="10px" viewBox="0 0 13 10">
@@ -477,16 +946,20 @@
             <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
         </div>
 
-        <form class="main-form" action="/present" method="get">
+        <form class="main-form" action="/present" method="get" id="quickModeForm">
             <div class="input-group">
                 <label for="topic">What should your presentation be about?</label>
                 <div class="input-wrapper">
                     <input type="text" name="topic" id="topic" autocomplete="off">
                     <div class="typing-placeholder"></div>
                 </div>
-                <div class="input-hint">
-                    <i class="fas fa-lightbulb"></i>
-                    <span>Tab to use recommendation</span>
+                <div class="input-hint" style="display: none;">
+                    <div class="input-hint-content">
+                        <div class="input-hint-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <span>Tab to use recommendation</span>
+                    </div>
                 </div>
                 <label for="presentationLanguage">Select presentation language</label>
                 <div class="input-wrapper">
@@ -501,10 +974,28 @@
                         <option value="zh">🇨🇳 中文</option>
                     </select>
                 </div>
-                <button type="submit">
+                <button type="submit" id="generateButton">
                     <i class="fas fa-magic"></i>
                     Generate Presentation
                 </button>
+                <div class="wheel-and-hamster" id="loadingAnimation" role="img" aria-label="Orange and tan hamster running in a metal wheel">
+                    <div class="wheel"></div>
+                    <div class="hamster">
+                        <div class="hamster__body">
+                            <div class="hamster__head">
+                                <div class="hamster__ear"></div>
+                                <div class="hamster__eye"></div>
+                                <div class="hamster__nose"></div>
+                            </div>
+                            <div class="hamster__limb hamster__limb--fr"></div>
+                            <div class="hamster__limb hamster__limb--fl"></div>
+                            <div class="hamster__limb hamster__limb--br"></div>
+                            <div class="hamster__limb hamster__limb--bl"></div>
+                            <div class="hamster__tail"></div>
+                        </div>
+                    </div>
+                    <div class="spoke"></div>
+                </div>
             </div>
         </form>
     </div>
@@ -529,7 +1020,7 @@
                 <% } %>
             </div>
             <% if (!it.user) { %>
-                <div class="restricted-container" style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 10px; margin-top: 2rem;">
+                <div class="restricted-container">
                     <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">MULTIplayer-Mode ist only available for registered users</p>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
                         <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
@@ -600,7 +1091,8 @@
                 <input type="password" id="modalPassword" name="password" required>
             </div>
             <div class="error-message" id="modalLoginError" style="display: none;"></div>
-            <button type="submit" class="submit-button" style="background: #b1dae7;">Anmelden</button>
+            <div class="success-message" id="modalLoginSuccess" style="display: none; color: #4CAF50; margin-bottom: 1rem;"></div>
+            <button type="submit" class="submit-button" style="background: #b1dae7;" disabled>Anmelden</button>
         </form>
 
         <!-- Register Form -->
@@ -618,7 +1110,7 @@
                 <input type="password" id="modalConfirmPassword" name="confirmPassword" required>
             </div>
             <div class="error-message" id="modalRegisterError" style="display: none;"></div>
-            <button type="submit" class="submit-button" style="background: #b1e7c8;">Registrieren</button>
+            <button type="submit" class="submit-button" style="background: #b1e7c8;" disabled>Registrieren</button>
         </form>
     </div>
 </div>
@@ -627,17 +1119,18 @@
     document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.getElementById('darkmode-toggle');
     
-    // Lade gespeicherten Darkmode-Status oder nutze System-Präferenz
-    const savedDarkMode = localStorage.getItem('darkmode');
-    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedDarkMode !== null ? savedDarkMode === 'true' : systemPrefersDark;
+    // Get current dark mode status (already set by darkmode-init.js)
+    const isDark = document.documentElement.classList.contains('darkmode');
     
-    // Setze initialen Status
-    document.body.classList.toggle('darkmode', isDark);
+    // Set toggle position based on current dark mode status
     toggle.checked = !isDark;
+    
+    // Ensure body also has the class for backward compatibility
+    document.body.classList.toggle('darkmode', isDark);
 
     toggle.addEventListener('change', function() {
       const dark = !toggle.checked;
+      document.documentElement.classList.toggle('darkmode', dark);
       document.body.classList.toggle('darkmode', dark);
       localStorage.setItem('darkmode', dark.toString());
     });
@@ -747,12 +1240,35 @@
         }
     });
 
-    // Hide placeholder when input is focused with content
+    // Input hint visibility handling
+    const inputHint = document.querySelector('.input-hint');
+    
     topicInput.addEventListener('focus', () => {
+        inputHint.style.display = 'block';
+        // Entferne zuerst alle Animation-Klassen
+        inputHint.classList.remove('fade-out');
+        // Trigger reflow
+        void inputHint.offsetWidth;
+        // Füge die fade-in Animation hinzu
+        inputHint.classList.add('fade-in');
+        
         if (topicInput.value.length > 0) {
             isPlaceholderActive = false;
             placeholderElement.style.display = 'none';
         }
+    });
+
+    topicInput.addEventListener('blur', () => {
+        // Entferne fade-in und füge fade-out hinzu
+        inputHint.classList.remove('fade-in');
+        inputHint.classList.add('fade-out');
+        
+        // Warte auf das Ende der Animation bevor wir das Element ausblenden
+        setTimeout(() => {
+            if (!topicInput.matches(':focus')) {  // Prüfe ob das Input noch fokussiert ist
+                inputHint.style.display = 'none';
+            }
+        }, 300); // 300ms entspricht der Animationsdauer
     });
 
     // Start the initial typing effect
@@ -837,6 +1353,10 @@
                 document.getElementById('modalEmail').value = email;
                 errorDiv.style.display = 'none';
                 document.getElementById('modalRegisterError').style.display = 'none';
+                // Zeige Erfolgsmeldung
+                const successDiv = document.getElementById('modalLoginSuccess');
+                successDiv.textContent = 'Wenn Sie noch nicht registriert sind, haben Sie jetzt eine Bestätigungs-E-Mail erhalten.';
+                successDiv.style.display = 'block';
             } else {
                 const error = await response.json();
                 errorDiv.textContent = error.message || 'Registrierung fehlgeschlagen';
@@ -882,6 +1402,113 @@
                 closeAuthModal();
             }
         });
+    });
+
+    // Form Submit Handler
+    document.getElementById('quickModeForm').addEventListener('submit', function(e) {
+        const containerWrapper = document.querySelector('.container-wrapper');
+        const loadingAnimation = document.getElementById('loadingAnimation');
+        
+        containerWrapper.classList.add('loading');
+        loadingAnimation.style.display = 'block';
+    });
+
+    // Reset Button and Loading Animation when navigating back
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            const containerWrapper = document.querySelector('.container-wrapper');
+            const loadingAnimation = document.getElementById('loadingAnimation');
+            
+            containerWrapper.classList.remove('loading');
+            loadingAnimation.style.display = 'none';
+        }
+    });
+
+    // Formular-Validierung für Login
+    document.getElementById('modalLoginForm').addEventListener('input', function() {
+        const email = document.getElementById('modalEmail').value;
+        const password = document.getElementById('modalPassword').value;
+        const submitButton = this.querySelector('.submit-button');
+        
+        if (email && password) {
+            submitButton.classList.add('active');
+            submitButton.disabled = false;
+        } else {
+            submitButton.classList.remove('active');
+            submitButton.disabled = true;
+        }
+    });
+
+    // Formular-Validierung für Register
+    document.getElementById('modalRegisterForm').addEventListener('input', function() {
+        const email = document.getElementById('modalRegisterEmail').value;
+        const password = document.getElementById('modalRegisterPassword').value;
+        const confirmPassword = document.getElementById('modalConfirmPassword').value;
+        const submitButton = this.querySelector('.submit-button');
+        
+        if (email && password && confirmPassword) {
+            submitButton.classList.add('active');
+            submitButton.disabled = false;
+        } else {
+            submitButton.classList.remove('active');
+            submitButton.disabled = true;
+        }
+    });
+
+    // Enter-Taste Handler für Login
+    document.getElementById('modalLoginForm').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const email = document.getElementById('modalEmail').value;
+            const password = document.getElementById('modalPassword').value;
+            if (!email || !password) {
+                e.preventDefault();
+            }
+        }
+    });
+
+    // Enter-Taste Handler für Register
+    document.getElementById('modalRegisterForm').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const email = document.getElementById('modalRegisterEmail').value;
+            const password = document.getElementById('modalRegisterPassword').value;
+            const confirmPassword = document.getElementById('modalConfirmPassword').value;
+            if (!email || !password || !confirmPassword) {
+                e.preventDefault();
+            }
+        }
+    });
+
+    // Initiale Validierung beim Laden
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('modalLoginForm');
+        const registerForm = document.getElementById('modalRegisterForm');
+        
+        if (loginForm) {
+            const email = document.getElementById('modalEmail').value;
+            const password = document.getElementById('modalPassword').value;
+            const submitButton = loginForm.querySelector('.submit-button');
+            
+            if (email && password) {
+                submitButton.classList.add('active');
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+        
+        if (registerForm) {
+            const email = document.getElementById('modalRegisterEmail').value;
+            const password = document.getElementById('modalRegisterPassword').value;
+            const confirmPassword = document.getElementById('modalConfirmPassword').value;
+            const submitButton = registerForm.querySelector('.submit-button');
+            
+            if (email && password && confirmPassword) {
+                submitButton.classList.add('active');
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
     });
 </script>
 </body>

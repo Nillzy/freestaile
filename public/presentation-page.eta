@@ -3,9 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
     <title>Presentation about <%= it.topic %> – FreestAIle</title>
 
-    <link rel="stylesheet" href="styles/pages/presentation.css">
+    <link rel="stylesheet" href="styles/presentation.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/white.min.css" id="theme-light">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/black.min.css" id="theme-dark" disabled>

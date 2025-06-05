@@ -35,7 +35,7 @@ export const authMiddleware = async (req, res, next) => {
 // Middleware für geschützte Routen
 export const requireAuth = (req, res, next) => {
     if (!req.user) {
-        return res.redirect('/login?error=unauthorized');
+        return res.redirect('/');
     }
     next();
 }; 

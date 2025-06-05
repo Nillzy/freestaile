@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
     <title>Präsentation wird generiert</title>
     <style>
         body {
@@ -359,7 +361,7 @@
                     viewButton.classList.add('show');
                 } else if (data.status === 'error') {
                     clearInterval(checkInterval);
-                    window.location.href = '/error?message=' + encodeURIComponent(data.message);
+                    window.location.href = '/error-page?message=' + encodeURIComponent(data.message);
                 }
             } catch (error) {
                 console.error('Fehler beim Überprüfen des Status:', error);

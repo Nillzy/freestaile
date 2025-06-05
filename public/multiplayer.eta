@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/pages/landing-page.css">
+    <link rel="stylesheet" href="styles/landing-page.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Basis-Styles für alle Buttons */
@@ -178,6 +178,15 @@
         .profile-circle:hover {
             background: #9bc8d7;
             transform: scale(1.05);
+        }
+
+        body.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-email {
+            color: #ffffff;
         }
 
         .auth-buttons {
