@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Lobby - <%= it.lobbyData.lobby.code %></title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .lobby-code {
+            font-size: 3rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            letter-spacing: 0.2em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .players-section, .chat-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .player-list {
+            list-style: none;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .player-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .player-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .host-badge {
+            background: #ffd93d;
+            color: #333;
+        }
+
+        .player-score {
+            background: #4ecdc4;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-message.system {
+            background: rgba(255, 193, 7, 0.3);
+            font-style: italic;
+        }
+
+        .chat-sender {
+            font-weight: bold;
+            color: #ffd93d;
+            margin-bottom: 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-send-btn {
+            padding: 12px 20px;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-btn:hover {
+            background: #45b7aa;
+            transform: scale(1.05);
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45b7aa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-waiting {
+            background: #ffd93d;
+        }
+
+        .status-playing {
+            background: #4ecdc4;
+        }
+
+        .status-finished {
+            background: #ff6b6b;
+        }
+
+        .lobby-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .qr-code {
+            margin: 20px 0;
+        }
+
+        .join-url {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .lobby-code {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Multiplayer Lobby</h1>
+            <div class="lobby-code"><%= it.lobbyData.lobby.code %></div>
+            <div class="lobby-info">
+                <p>
+                    <span class="status-indicator status-<%= it.lobbyData.lobby.status %>"></span>
+                    Status: <%= it.lobbyData.lobby.status === 'waiting' ? 'Warten auf Spieler' : 
+                               it.lobbyData.lobby.status === 'playing' ? 'Spiel läuft' : 'Beendet' %>
+                </p>
+                <% if (it.isHost) { %>
+                    <div class="qr-code">
+                        <p>QR-Code zum Beitreten:</p>
+                        <!-- QR-Code würde hier eingefügt werden -->
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Spieler-Sektion -->
+            <div class="players-section">
+                <h2 class="section-title">👥 Spieler (<span id="player-count"><%= it.lobbyData.players.length %></span>)</h2>
+                <ul class="player-list" id="player-list">
+                    <% it.lobbyData.players.forEach(player => { %>
+                        <li class="player-item" data-player-id="<%= player.id %>">
+                            <div>
+                                <div class="player-name"><%= player.name %></div>
+                                <% if (player.is_host) { %>
+                                    <span class="player-badge host-badge">👑 Host</span>
+                                <% } %>
+                            </div>
+                            <div class="player-score"><%= player.score || 0 %> Punkte</div>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+
+            <!-- Chat-Sektion -->
+            <div class="chat-section">
+                <h2 class="section-title">💬 Chat</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <% it.lobbyData.chat.forEach(message => { %>
+                            <div class="chat-message <%= message.message_type %>">
+                                <% if (message.message_type !== 'system') { %>
+                                    <div class="chat-sender"><%= message.player?.name || 'Unbekannt' %></div>
+                                <% } %>
+                                <div><%= message.message %></div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Nachricht eingeben..." maxlength="200">
+                        <button id="chat-send" class="chat-send-btn">Senden</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Steuerung -->
+        <div class="controls">
+            <% if (it.isHost) { %>
+                <% if (it.lobbyData.lobby.status === 'waiting') { %>
+                    <button id="start-game-btn" class="btn btn-primary" 
+                            <%= it.lobbyData.players.length < 1 ? 'disabled' : '' %>>
+                        🚀 Spiel starten
+                    </button>
+                <% } else if (it.lobbyData.lobby.status === 'playing') { %>
+                    <a href="/multiplayer-presentation/<%= it.lobbyData.lobby.id %>" class="btn btn-primary">
+                        📺 Zur Präsentation
+                    </a>
+                <% } %>
+                <button id="end-lobby-btn" class="btn btn-secondary">🚪 Lobby beenden</button>
+            <% } else { %>
+                <% if (it.lobbyData.lobby.status === 'playing') { %>
+                    <a href="/multiplayer-presentation/<%= it.lobbyData.lobby.id %>" class="btn btn-primary">
+                        📺 Zur Präsentation
+                    </a>
+                <% } %>
+                <button id="leave-lobby-btn" class="btn btn-secondary">🚪 Lobby verlassen</button>
+            <% } %>
+            <a href="/main" class="btn btn-secondary">🏠 Zurück zum Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Globale Variablen
+        const lobbyId = '<%= it.lobbyData.lobby.id %>';
+        const currentPlayerId = '<%= it.currentPlayer.id %>';
+        const isHost = <%= it.isHost %>;
+        
+        // Supabase Client initialisieren
+        const supabase = window.supabase.createClient(
+            'https://<%= process.env.SUPABASE_USER_ID %>.supabase.co',
+            '<%= process.env.SUPABASE_ANON_KEY %>'
+        );
+
+        // DOM-Elemente
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send');
+        const playerList = document.getElementById('player-list');
+        const playerCount = document.getElementById('player-count');
+        const startGameBtn = document.getElementById('start-game-btn');
+
+        // Chat-Funktionen
+        function scrollChatToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addChatMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${message.message_type || 'chat'}`;
+            
+            if (message.message_type !== 'system') {
+                messageDiv.innerHTML = `
+                    <div class="chat-sender">${message.player?.name || 'Unbekannt'}</div>
+                    <div>${message.message}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `<div>${message.message}</div>`;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            scrollChatToBottom();
+        }
+
+        function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            fetch(`/api/multiplayer/lobby/${lobbyId}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    playerId: currentPlayerId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    chatInput.value = '';
+                } else {
+                    alert('Fehler beim Senden der Nachricht');
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Senden der Chat-Nachricht:', error);
+                alert('Fehler beim Senden der Nachricht');
+            });
+        }
+
+        // Spieler-Liste aktualisieren
+        function updatePlayerList(players) {
+            playerList.innerHTML = '';
+            playerCount.textContent = players.length;
+            
+            players.forEach(player => {
+                const li = document.createElement('li');
+                li.className = 'player-item';
+                li.setAttribute('data-player-id', player.id);
+                
+                li.innerHTML = `
+                    <div>
+                        <div class="player-name">${player.name}</div>
+                        ${player.is_host ? '<span class="player-badge host-badge">👑 Host</span>' : ''}
+                    </div>
+                    <div class="player-score">${player.score || 0} Punkte</div>
+                `;
+                
+                playerList.appendChild(li);
+            });
+
+            // Start-Button aktivieren/deaktivieren
+            if (startGameBtn) {
+                startGameBtn.disabled = players.length < 1;
+            }
+        }
+
+        // Spiel starten
+        function startGame() {
+            if (!isHost) return;
+
+            fetch(`/api/multiplayer/lobby/${lobbyId}/start`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/multiplayer-presentation/${lobbyId}`;
+                } else {
+                    alert('Fehler beim Starten des Spiels: ' + (data.error || 'Unbekannter Fehler'));
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Starten des Spiels:', error);
+                alert('Fehler beim Starten des Spiels');
+            });
+        }
+
+        // Event-Listener
+        chatSendBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        if (startGameBtn) {
+            startGameBtn.addEventListener('click', startGame);
+        }
+
+        // Realtime-Subscriptions
+        let subscriptions = [];
+
+        // Spieler-Updates
+        const playersSubscription = supabase
+            .channel(`lobby-players-${lobbyId}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'LobbyPlayers',
+                filter: `lobby_id=eq.${lobbyId}`
+            }, (payload) => {
+                // Spieler-Liste neu laden
+                fetch(`/api/multiplayer/lobby/${lobbyId}/full`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.players) {
+                            updatePlayerList(data.players);
+                        }
+                    })
+                    .catch(error => console.error('Fehler beim Laden der Spieler:', error));
+            })
+            .subscribe();
+
+        // Chat-Updates
+        const chatSubscription = supabase
+            .channel(`lobby-chat-${lobbyId}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'chat_messages',
+                filter: `lobby_id=eq.${lobbyId}`
+            }, (payload) => {
+                // Neue Chat-Nachricht hinzufügen
+                if (payload.new) {
+                    // Player-Info laden und Nachricht hinzufügen
+                    fetch(`/api/multiplayer/lobby/${lobbyId}/chat?limit=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.messages && data.messages.length > 0) {
+                                const latestMessage = data.messages[data.messages.length - 1];
+                                addChatMessage(latestMessage);
+                            }
+                        })
+                        .catch(error => console.error('Fehler beim Laden der Chat-Nachricht:', error));
+                }
+            })
+            .subscribe();
+
+        // Lobby-Status-Updates
+        const lobbySubscription = supabase
+            .channel(`lobby-status-${lobbyId}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'Lobbys',
+                filter: `id=eq.${lobbyId}`
+            }, (payload) => {
+                if (payload.new && payload.new.status === 'playing') {
+                    // Spiel wurde gestartet - zur Präsentation weiterleiten
+                    window.location.href = `/multiplayer-presentation/${lobbyId}`;
+                }
+            })
+            .subscribe();
+
+        subscriptions.push(playersSubscription, chatSubscription, lobbySubscription);
+
+        // Cleanup beim Verlassen der Seite
+        window.addEventListener('beforeunload', () => {
+            subscriptions.forEach(sub => {
+                supabase.removeChannel(sub);
+            });
+        });
+
+        // Initial Chat nach unten scrollen
+        scrollChatToBottom();
+    </script>
+</body>
+</html> 

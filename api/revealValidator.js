@@ -135,7 +135,7 @@ export function validateRevealSlides(html) {
 }
 
 // Alternative Implementierung mit DOMParser (für Browser) oder JSDOM (für Node)
-function validateRevealSlidesWithDOM(html) {
+export function validateRevealSlidesWithDOM(html) {
   let parser;
   let doc;
 
@@ -181,14 +181,7 @@ function validateRevealSlidesWithDOM(html) {
   return true;
 }
 
-// Exportiere die Funktionen für die Verwendung in Node.js
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = {
-    validateRevealSlides,
-    validateRevealSlidesWithDOM,
-  };
-}
-
+// Entferne den CommonJS-Export, da wir bereits ES Module Export verwenden
 // Beispielverwendung:
 /*
 try {

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Präsentation - FreestAIle</title>
+    
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .lobby-info {
+            font-size: 14px;
+        }
+        
+        .participants-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        
+        .presentation-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .reveal-container {
+            flex: 1;
+            background: white;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .reveal {
+            height: 100% !important;
+        }
+        
+        .chat-container {
+            height: 300px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            max-height: 200px;
+        }
+        
+        .chat-message {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #f1f3f4;
+            font-size: 13px;
+        }
+        
+        .chat-message.own {
+            background: #e3f2fd;
+            margin-left: 20px;
+        }
+        
+        .chat-message.host {
+            background: #fff3e0;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .chat-message .sender {
+            font-weight: bold;
+            color: #1976d2;
+            margin-right: 5px;
+        }
+        
+        .chat-input-container {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background: #fafafa;
+        }
+        
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .chat-send-btn {
+            padding: 8px 16px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .chat-send-btn:hover {
+            background: #1565c0;
+        }
+        
+        .chat-send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status-bar {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 8px 15px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .status-bar.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 250px;
+            }
+            
+            .header {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="lobby-info">
+            <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 8) %>...
+            <% if (it.isHost) { %>
+                <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
+            <% } %>
+        </div>
+        <div class="participants-count" id="participants-count">
+            <span id="participant-number"><%= it.players?.length || 0 %></span> Teilnehmer
+        </div>
+    </div>
+    
+    <div class="status-bar" id="status-bar">
+        Verbunden mit Multiplayer-Session
+    </div>
+    
+    <div class="presentation-container">
+        <div class="reveal-container">
+            <div class="reveal">
+                <div class="slides">
+                    <!-- Demo Slides -->
+                    <section>
+                        <h1>Willkommen zur Präsentation!</h1>
+                        <p>Dies ist eine Demo-Präsentation mit Reveal.js</p>
+                        <p><small>Multiplayer-Modus aktiv</small></p>
+                    </section>
+                    
+                    <section>
+                        <h2>Folie 2</h2>
+                        <p>Hier könnte Ihr Inhalt stehen...</p>
+                        <ul>
+                            <li>Punkt 1</li>
+                            <li>Punkt 2</li>
+                            <li>Punkt 3</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h2>Interaktive Frage</h2>
+                        <p>Was ist die Hauptstadt von Deutschland?</p>
+                        <div style="margin-top: 30px;">
+                            <button style="margin: 5px; padding: 10px 20px; font-size: 16px;">A) München</button>
+                            <button style="margin: 5px; padding: 10px 20px; font-size: 16px;">B) Berlin</button>
+                            <button style="margin: 5px; padding: 10px 20px; font-size: 16px;">C) Hamburg</button>
+                            <button style="margin: 5px; padding: 10px 20px; font-size: 16px;">D) Köln</button>
+                        </div>
+                    </section>
+                    
+                    <section>
+                        <h2>Letzte Folie</h2>
+                        <p>Vielen Dank für Ihre Aufmerksamkeit!</p>
+                        <p><small>Chat unten verfügbar für Fragen</small></p>
+                    </section>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                💬 Live Chat
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-message">
+                    <span class="sender">System:</span>
+                    Willkommen im Live-Chat! Stellen Sie hier Ihre Fragen.
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <form class="chat-input-form" id="chat-form">
+                    <input type="text" class="chat-input" id="chat-input" 
+                           placeholder="Nachricht eingeben..." maxlength="500">
+                    <button type="submit" class="chat-send-btn" id="chat-send-btn">
+                        Senden
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reveal.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    
+    <script>
+        // Template-Daten
+        const matchData = {
+            lobbyId: '<%= it.lobbyId %>',
+            userId: '<%= it.userId %>',
+            userName: '<%= it.userName %>',
+            isHost: <%= it.isHost ? 'true' : 'false' %>,
+            players: []
+        };
+        
+        // Sichere JSON-Übertragung der Spielerdaten
+        try {
+            const playersData = `<%- JSON.stringify(it.players || []) %>`;
+            if (playersData && playersData !== 'null' && playersData !== 'undefined') {
+                matchData.players = JSON.parse(playersData);
+            }
+        } catch (e) {
+            console.warn('Fehler beim Parsen der Spielerdaten:', e);
+            matchData.players = [];
+        }
+        
+        console.log('Match-Daten:', matchData);
+        
+        // Reveal.js initialisieren
+        Reveal.initialize({
+            hash: true,
+            controls: matchData.isHost, // Nur Host kann navigieren
+            keyboard: matchData.isHost,
+            touch: matchData.isHost,
+            progress: true,
+            center: true,
+            transition: 'slide'
+        });
+        
+        // Socket.IO für Multiplayer
+        let socket = null;
+        
+        // Chat-Funktionalität
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+        const statusBar = document.getElementById('status-bar');
+        
+        function updateStatus(message, isError = false) {
+            statusBar.textContent = message;
+            statusBar.className = isError ? 'status-bar error' : 'status-bar';
+        }
+        
+        function addChatMessage(sender, message, isOwn = false, isHost = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+            if (isOwn) messageDiv.className += ' own';
+            if (isHost) messageDiv.className += ' host';
+            
+            messageDiv.innerHTML = `
+                <span class="sender">${sender}:</span>
+                ${message}
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function updateParticipantCount(count) {
+            document.getElementById('participant-number').textContent = count;
+        }
+        
+        // Socket.IO Verbindung
+        function connectToMatch() {
+            socket = io('/lobby');
+            
+            socket.on('connect', () => {
+                console.log('Mit Match-Server verbunden');
+                updateStatus('Verbunden mit Multiplayer-Session');
+                
+                // Wieder mit Lobby verbinden
+                socket.emit('reconnectToLobby', {
+                    lobbyId: matchData.lobbyId,
+                    userId: matchData.userId,
+                    userName: matchData.userName
+                });
+            });
+            
+            socket.on('disconnect', () => {
+                updateStatus('Verbindung getrennt', true);
+            });
+            
+            socket.on('lobbyUpdate', (data) => {
+                console.log('Lobby-Update:', data);
+                if (data.players) {
+                    updateParticipantCount(data.players.length);
+                }
+            });
+            
+            socket.on('chatMessage', (data) => {
+                const isOwn = data.userId === matchData.userId;
+                const isHost = data.isHost || false;
+                addChatMessage(data.userName, data.message, isOwn, isHost);
+            });
+            
+            socket.on('slideChanged', (data) => {
+                if (!matchData.isHost) {
+                    console.log('Folie geändert zu:', data.slideIndex);
+                    Reveal.slide(data.slideIndex);
+                }
+            });
+            
+            socket.on('presentationEnded', () => {
+                updateStatus('Präsentation beendet');
+                setTimeout(() => {
+                    window.location.href = '/main';
+                }, 3000);
+            });
+        }
+        
+        // Chat-Form Handler
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const message = chatInput.value.trim();
+            if (!message || !socket) return;
+            
+            // Nachricht senden
+            socket.emit('chatMessage', {
+                lobbyId: matchData.lobbyId,
+                userId: matchData.userId,
+                userName: matchData.userName,
+                message: message,
+                isHost: matchData.isHost
+            });
+            
+            chatInput.value = '';
+        });
+        
+        // Reveal.js Slide-Change Handler (nur für Host)
+        if (matchData.isHost) {
+            Reveal.on('slidechanged', (event) => {
+                console.log('Host ändert Folie zu:', event.indexh);
+                if (socket) {
+                    socket.emit('slideChange', {
+                        lobbyId: matchData.lobbyId,
+                        slideIndex: event.indexh
+                    });
+                }
+            });
+        }
+        
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Match-Seite geladen');
+            
+            // Zeige initiale Teilnehmer
+            if (matchData.players) {
+                updateParticipantCount(matchData.players.length);
+            }
+            
+            // Verbinde mit Socket.IO
+            connectToMatch();
+            
+            // Willkommensnachricht im Chat
+            setTimeout(() => {
+                addChatMessage('System', `${matchData.userName} ist der Präsentation beigetreten`);
+            }, 1000);
+        });
+        
+        // Cleanup beim Verlassen der Seite
+        window.addEventListener('beforeunload', () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        });
+    </script>
+</body>
+</html> 
