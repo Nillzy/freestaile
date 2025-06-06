@@ -75,8 +75,6 @@ const supabase = createClient(
   process.env.SUPABASE_API_KEY
 );
 
-//jrtjrzjtjrtz
-
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -1482,7 +1480,7 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+/*const PORT = process.env.PORT || 8080;
 
 // Funktion zur Serverstart mit Port-Fallback
 function startServer(port) {
@@ -1500,7 +1498,7 @@ function startServer(port) {
       console.error("Serverfehler:", error);
     }
   }
-}
+}*/
 
 // Starte den HTTP-Server mit automatischer Port-Fallback-Funktion
 startServer(PORT);
