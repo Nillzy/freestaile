@@ -1480,6 +1480,8 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
   }
 });
 
+//debfje
+
 /*const PORT = process.env.PORT || 8080;
 
 // Funktion zur Serverstart mit Port-Fallback
