@@ -293,6 +293,10 @@ app.post("/initiateGeneration", async (req, res) => {
         res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
     }, 500);
 
+    setInterval( () => {
+        console.log("Still alive...");
+    }, 1000);
+
     //Background process:
     for (let i = 0; i < presentations.length; i++) {
         try {
