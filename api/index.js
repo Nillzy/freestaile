@@ -230,6 +230,7 @@ app.get("/howLongIsThisProcessAlive", async (req, res) => {
     setInterval(() => {
         console.log("Still alive...");
     }, 5000);
+    console.log("hier?");
     await sleep(1000 * 60 * 60);
 });
 
