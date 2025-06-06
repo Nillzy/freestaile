@@ -229,7 +229,8 @@ app.get("/howLongIsThisProcessAlive", async (req, res) => {
     res.send("Hello World");
     setInterval(() => {
         console.log("Still alive...");
-    }, 5000)
+    }, 5000);
+    await sleep(1000 * 60 * 60);
 });
 
 app.post("/initiateGeneration", async (req, res) => {
