@@ -287,14 +287,14 @@ app.post("/initiateGeneration", async (req, res) => {
         }
     }
 
+    console.log("Sleeping for a minute...")
+    await sleep(60000);
+
     console.log(presentationIDs);
     console.log(roundID);
     setTimeout( () => {
         res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
     }, 500);
-
-    console.log("Sleeping for a minute...")
-    await sleep(60000);
 
     //Background process:
     for (let i = 0; i < presentations.length; i++) {
