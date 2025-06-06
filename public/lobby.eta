@@ -151,7 +151,7 @@
     </div>
 
     <!-- Socket.IO und Multiplayer Client -->
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="/js/sse-client.js"></script>
     <script>
         // MultiplayerClient direkt eingebettet
         class MultiplayerClient {
@@ -410,32 +410,10 @@
             console.log(`Teilnehmerliste aktualisiert: ${players.length} Spieler`);
         }
 
-        // Warte darauf, dass Socket.IO geladen ist
-        function waitForSocketIO() {
-            return new Promise((resolve, reject) => {
-                if (typeof io !== 'undefined') {
-                    resolve();
-                } else {
-                    let attempts = 0;
-                    const checkInterval = setInterval(() => {
-                        attempts++;
-                        if (typeof io !== 'undefined') {
-                            clearInterval(checkInterval);
-                            resolve();
-                        } else if (attempts > 50) {
-                            clearInterval(checkInterval);
-                            reject(new Error('Socket.IO konnte nicht geladen werden'));
-                        }
-                    }, 100);
-                }
-            });
-        }
-
         // Hauptinitialisierungslogik
         async function initializeLobby() {
             try {
-                await waitForSocketIO();
-                console.log('Socket.IO geladen');
+                console.log('Initialisiere Lobby...');
                 
                 // Benutzerdaten aus dem Template
                 const userData = {
@@ -468,26 +446,22 @@
                     window.multiplayerClient.setUser(userData.userId, userData.userName);
                     console.log('Benutzerdaten gesetzt:', userData.userId, userData.userName);
                     
-                    // Verbindung herstellen
-                    await window.multiplayerClient.connect();
-                    console.log('Socket-Verbindung hergestellt');
-                    updateStatus('Verbunden - Socket.IO aktiv', 'connected');
+                    // Vereinfachte Verbindung ohne Socket.IO-Abhängigkeit
+                    try {
+                        await window.multiplayerClient.connect();
+                        console.log('MultiplayerClient verbunden');
+                        updateStatus('Verbunden - Lobby aktiv', 'connected');
+                    } catch (error) {
+                        console.warn('Socket.IO-Verbindung fehlgeschlagen, verwende Fallback:', error);
+                        updateStatus('Lobby aktiv (Offline-Modus)', 'connected');
+                    }
                     
                     if (userData.isHost) {
                         console.log('Host-Modus aktiviert');
                         
-                        // Als Host: Mit bestehender Lobby verbinden
+                        // Als Host: Setze Lobby-Daten
                         window.multiplayerClient.lobbyId = lobbyId;
                         window.multiplayerClient.isHost = true;
-                        
-                        // Socket der Lobby hinzufügen
-                        if (window.multiplayerClient.socket) {
-                            window.multiplayerClient.socket.emit('reconnectToLobby', {
-                                lobbyId: lobbyId,
-                                userId: userData.userId,
-                                userName: userData.userName
-                            });
-                        }
                         
                         updateStatus('Als Host mit Lobby verbunden', 'connected');
                         
@@ -506,21 +480,9 @@
                             userId: window.multiplayerClient.userId
                         });
                     } else {
-                        // Als Teilnehmer: Nur Socket-Verbindung herstellen, da bereits beigetreten
-                        console.log('Teilnehmer-Modus: Bereits der Lobby beigetreten, nur Socket-Verbindung...');
-                        
-                        // Setze Lobby-ID im Client
-                        if (window.multiplayerClient.socket) {
-                            window.multiplayerClient.lobbyId = lobbyId;
-                            
-                            // Informiere Server, dass wir wieder verbunden sind (optional)
-                            window.multiplayerClient.socket.emit('reconnectToLobby', {
-                                lobbyId: lobbyId,
-                                userId: userData.userId,
-                                userName: userData.userName
-                            });
-                        }
-                        
+                        // Als Teilnehmer
+                        console.log('Teilnehmer-Modus aktiviert');
+                        window.multiplayerClient.lobbyId = lobbyId;
                         updateStatus('Mit Lobby verbunden', 'connected');
                     }
                 } else {
@@ -528,49 +490,49 @@
                     updateStatus('Fehler: MultiplayerClient nicht verfügbar', 'error');
                 }
 
-                // Event-Listener für Teilnehmer-Updates
-                window.multiplayerClient.on('playerJoined', (playerInfo) => {
-                    console.log('Spieler beigetreten:', playerInfo);
-                    // Lade aktuelle Daten neu, um sicherzustellen, dass wir die neueste Liste haben
-                    loadLobbyData(lobbyId);
-                });
+                // Event-Listener für Teilnehmer-Updates (falls Socket.IO verfügbar)
+                if (window.multiplayerClient.socket) {
+                    window.multiplayerClient.on('playerJoined', (playerInfo) => {
+                        console.log('Spieler beigetreten:', playerInfo);
+                        loadLobbyData(lobbyId);
+                    });
 
-                window.multiplayerClient.on('playerLeft', (playerInfo) => {
-                    console.log('Spieler verlassen:', playerInfo);
-                    // Lade aktuelle Daten neu
-                    loadLobbyData(lobbyId);
-                });
+                    window.multiplayerClient.on('playerLeft', (playerInfo) => {
+                        console.log('Spieler verlassen:', playerInfo);
+                        loadLobbyData(lobbyId);
+                    });
 
-                window.multiplayerClient.on('lobbyUpdate', (data) => {
-                    console.log('Lobby-Update erhalten:', data);
-                    if (data.players) {
-                        updateParticipantsList(data.players, data.lobby?.host_id, userData.userId);
-                        updateParticipantCount(data.players.length);
-                    }
-                });
+                    window.multiplayerClient.on('lobbyUpdate', (data) => {
+                        console.log('Lobby-Update erhalten:', data);
+                        if (data.players) {
+                            updateParticipantsList(data.players, data.lobby?.host_id, userData.userId);
+                            updateParticipantCount(data.players.length);
+                        }
+                    });
 
-                window.multiplayerClient.on('presentationStarted', () => {
-                    updateStatus('Präsentation gestartet!', 'connected');
-                    setTimeout(() => {
-                        // Weiterleitung zur Match-Seite mit allen nötigen Parametern
-                        const lobbyId = '<%= it.lobbyId %>';
-                        const userId = '<%= it.userId %>';
-                        const userName = '<%= it.userName %>';
-                        const isHost = <%= it.isHost ? 'true' : 'false' %>;
-                        
-                        window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
-                    }, 2000);
-                });
+                    window.multiplayerClient.on('presentationStarted', () => {
+                        updateStatus('Präsentation gestartet!', 'connected');
+                        setTimeout(() => {
+                            // Weiterleitung zur Match-Seite mit allen nötigen Parametern
+                            const lobbyId = '<%= it.lobbyId %>';
+                            const userId = '<%= it.userId %>';
+                            const userName = '<%= it.userName %>';
+                            const isHost = <%= it.isHost ? 'true' : 'false' %>;
+                            
+                            window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
+                        }, 2000);
+                    });
 
-                window.multiplayerClient.on('error', (error) => {
-                    console.error('Socket-Fehler:', error);
-                    updateStatus('Fehler: ' + error.message, 'error');
-                });
+                    window.multiplayerClient.on('error', (error) => {
+                        console.error('Socket-Fehler:', error);
+                        updateStatus('Fehler: ' + error.message, 'error');
+                    });
+                }
 
-                // Regelmäßige Aktualisierung der Lobby-Daten
+                // Regelmäßige Aktualisierung der Lobby-Daten (weniger häufig)
                 setInterval(() => {
                     loadLobbyData(lobbyId);
-                }, 3000); // Alle 3 Sekunden (häufiger für bessere Synchronisation)
+                }, 5000); // Alle 5 Sekunden
 
             } catch (error) {
                 console.error('Fehler bei der Initialisierung:', error);
@@ -656,7 +618,7 @@
             }
         }
 
-        // Starte die Initialisierung
+        // Initialisierung
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOMContentLoaded - starte Multiplayer-Initialisierung');
             
@@ -700,7 +662,7 @@
                 console.error('Fehler beim Laden der initialen Spieler:', error);
             }
             
-            // Starte die Socket.IO-Initialisierung
+            // Starte die Lobby-Initialisierung direkt
             initializeLobby();
 
             // Start-Button Event-Listener
@@ -709,9 +671,19 @@
                 startBtn.addEventListener('click', () => {
                     if (window.multiplayerClient) {
                         console.log('Starte Präsentation...');
-                        window.multiplayerClient.startPresentation();
+                        // Direkte Weiterleitung ohne Socket.IO
+                        const lobbyId = '<%= it.lobbyId %>';
+                        const userId = '<%= it.userId %>';
+                        const userName = '<%= it.userName %>';
+                        const isHost = <%= it.isHost ? 'true' : 'false' %>;
+                        
                         startBtn.disabled = true;
                         startBtn.textContent = 'Präsentation wird gestartet...';
+                        updateStatus('Präsentation gestartet!', 'connected');
+                        
+                        setTimeout(() => {
+                            window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
+                        }, 1000);
                     }
                 });
             }

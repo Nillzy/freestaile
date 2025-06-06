@@ -141,9 +141,36 @@
     </div>
 
     <!-- Socket.IO und Multiplayer Client -->
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="/js/sse-client.js"></script>
+
     <script>
-        // MultiplayerClient-Klasse direkt hier definieren
+        // Daten aus dem Template
+        const lobbyData = {
+            lobbyId: '<%= it.lobbyId %>',
+            userId: '<%= it.userId %>',
+            userName: '<%= it.userName %>'
+        };
+
+        console.log('Template-Daten:', lobbyData);
+
+        // Status-Updates
+        function updateStatus(message, type = 'waiting') {
+            const statusEl = document.getElementById('connection-status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            console.log('Status Update:', message, type);
+        }
+
+        function updateParticipantCount() {
+            const count = window.multiplayerClient ? window.multiplayerClient.players.length : 0;
+            document.getElementById('participant-count').textContent = count;
+        }
+
+        function showParticipantsSection() {
+            document.getElementById('participants-section').style.display = 'block';
+        }
+
+        // MultiplayerClient-Klasse für SSE-Kompatibilität
         class MultiplayerClient {
             constructor() {
                 this.socket = null;
@@ -166,12 +193,12 @@
                         this.socket = io('/lobby');
                         
                         this.socket.on('connect', () => {
-                            console.log('Socket verbunden');
+                            console.log('SSE-Verbindung hergestellt');
                             resolve();
                         });
 
                         this.socket.on('connect_error', (error) => {
-                            console.error('Socket-Verbindungsfehler:', error);
+                            console.error('SSE-Verbindungsfehler:', error);
                             reject(new Error('Verbindung fehlgeschlagen'));
                         });
 
@@ -197,7 +224,7 @@
                         });
 
                         this.socket.on('error', (error) => {
-                            console.error('Socket-Fehler:', error);
+                            console.error('SSE-Fehler:', error);
                             this.emit('error', error);
                         });
 
@@ -231,10 +258,10 @@
                         console.log('joinLobby Response erhalten:', response);
                         
                         if (response && response.success) {
-                            this.players = response.lobby?.players || [];
-                            this.isHost = response.lobby?.hostId === this.userId;
+                            this.players = response.players || [];
+                            this.isHost = false; // Join-Seite ist nie Host
                             console.log('Erfolgreich beigetreten, Spieler:', this.players);
-                            resolve(response.lobby);
+                            resolve({ players: this.players });
                         } else {
                             const errorMsg = response?.error || 'Unbekannter Fehler beim Beitreten';
                             console.error('Fehler beim Beitreten:', errorMsg);
@@ -272,34 +299,6 @@
 
         // Globale Instanz erstellen
         window.multiplayerClient = new MultiplayerClient();
-    </script>
-
-    <script>
-        // Daten aus dem Template
-        const lobbyData = {
-            lobbyId: '<%= it.lobbyId %>',
-            userId: '<%= it.userId %>',
-            userName: '<%= it.userName %>'
-        };
-
-        console.log('Template-Daten:', lobbyData);
-
-        // Status-Updates
-        function updateStatus(message, type = 'waiting') {
-            const statusEl = document.getElementById('connection-status');
-            statusEl.textContent = message;
-            statusEl.className = `status ${type}`;
-            console.log('Status Update:', message, type);
-        }
-
-        function updateParticipantCount() {
-            const count = window.multiplayerClient ? window.multiplayerClient.players.length : 0;
-            document.getElementById('participant-count').textContent = count;
-        }
-
-        function showParticipantsSection() {
-            document.getElementById('participants-section').style.display = 'block';
-        }
 
         // Initialisierung
         document.addEventListener('DOMContentLoaded', () => {
@@ -319,7 +318,7 @@
 
             console.log('Finale userId:', userId);
 
-            joinForm.addEventListener('submit', (e) => {
+            joinForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const playerName = playerNameInput.value.trim();
@@ -338,80 +337,42 @@
                 joinButton.textContent = 'Verbinde...';
                 updateStatus('Verbindung wird hergestellt...', 'waiting');
 
-                // Setze Benutzerdaten im MultiplayerClient
-                if (window.multiplayerClient) {
-                    window.multiplayerClient.setUser(userId, playerName);
-                    
-                    // Verbindung herstellen
-                    window.multiplayerClient.connect()
-                        .then(() => {
-                            console.log('Socket verbunden, trete Lobby bei...');
-                            updateStatus('Verbunden - Trete Lobby bei...', 'waiting');
-                            
-                            // Lobby beitreten
-                            return window.multiplayerClient.joinLobby(lobbyData.lobbyId, playerName);
+                try {
+                    // Direkt über API der Lobby beitreten
+                    const response = await fetch(`/api/lobby/${lobbyData.lobbyId}/action`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action: 'joinLobby',
+                            data: {
+                                userId: userId,
+                                userName: playerName
+                            }
                         })
-                        .then((lobbyInfo) => {
-                            console.log('Erfolgreich beigetreten:', lobbyInfo);
-                            updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
-                            joinButton.textContent = 'Beigetreten!';
-                            
-                            // Weiterleitung zur Lobby-Seite nach kurzer Verzögerung
-                            setTimeout(() => {
-                                const lobbyUrl = `/lobby?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
-                                console.log('Weiterleitung zu:', lobbyUrl);
-                                
-                                // Versuche die Weiterleitung
-                                try {
-                                    window.location.href = lobbyUrl;
-                                } catch (redirectError) {
-                                    console.error('Fehler bei der Weiterleitung:', redirectError);
-                                    // Fallback: Manuelle Weiterleitung
-                                    window.location.replace(lobbyUrl);
-                                }
-                            }, 1500);
-                        })
-                        .catch((error) => {
-                            console.error('Detaillierter Fehler beim Beitreten:', error);
-                            updateStatus('Fehler: ' + error.message, 'error');
-                            joinButton.disabled = false;
-                            joinButton.textContent = 'Lobby beitreten';
-                        });
-
-                    // Event-Listener für Lobby-Events
-                    window.multiplayerClient.on('playerJoined', (data) => {
-                        console.log('Spieler beigetreten:', data);
-                        updateParticipantCount();
                     });
 
-                    window.multiplayerClient.on('playerLeft', (data) => {
-                        console.log('Spieler verlassen:', data);
-                        updateParticipantCount();
-                    });
+                    const result = await response.json();
+                    console.log('API Join Response:', result);
 
-                    window.multiplayerClient.on('presentationStarted', () => {
-                        updateStatus('Präsentation gestartet!', 'connected');
-                        // Hier könnten Sie zur Präsentationsseite weiterleiten
+                    if (result.success) {
+                        console.log('Erfolgreich beigetreten:', result);
+                        updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
+                        joinButton.textContent = 'Beigetreten!';
+                        
+                        // Weiterleitung zur Lobby-Seite nach kurzer Verzögerung
                         setTimeout(() => {
-                            window.location.href = '/present'; // oder zur entsprechenden Präsentationsseite
-                        }, 2000);
-                    });
-
-                    window.multiplayerClient.on('hostDisconnected', (data) => {
-                        updateStatus('Host hat die Verbindung getrennt', 'error');
-                        setTimeout(() => {
-                            window.location.href = '/main';
-                        }, 3000);
-                    });
-
-                    window.multiplayerClient.on('error', (error) => {
-                        console.error('MultiplayerClient Fehler:', error);
-                        updateStatus('Verbindungsfehler: ' + error.message, 'error');
-                    });
-
-                } else {
-                    console.error('MultiplayerClient nicht verfügbar');
-                    updateStatus('Fehler: MultiplayerClient nicht verfügbar', 'error');
+                            const lobbyUrl = `/lobby?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
+                            console.log('Weiterleitung zu:', lobbyUrl);
+                            window.location.href = lobbyUrl;
+                        }, 1500);
+                    } else {
+                        throw new Error(result.error || 'Unbekannter Fehler beim Beitreten');
+                    }
+                } catch (error) {
+                    console.error('Detaillierter Fehler beim Beitreten:', error);
+                    updateStatus('Fehler: ' + error.message, 'error');
                     joinButton.disabled = false;
                     joinButton.textContent = 'Lobby beitreten';
                 }

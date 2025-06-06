@@ -74,6 +74,16 @@ const io = new SocketIOServer(httpServer, {
     origin: "*", // Für Entwicklung, später anpassen!
     methods: ["GET", "POST"],
   },
+  // Spezielle Konfiguration für Vercel/serverless
+  transports: ["polling", "websocket"],
+  allowEIO3: true,
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  upgradeTimeout: 30000,
+  maxHttpBufferSize: 1e6,
+  // Fallback auf Polling für serverless
+  allowUpgrades: true,
+  cookie: false,
 });
 
 // Namespace für Lobby
@@ -703,116 +713,72 @@ app.get("/create-lobby", async (req, res) => {
     return res.redirect("/");
   }
 
-  console.log("User creating/joining lobby:", req.user);
-
-  // Prüfe, ob eine bestehende Lobby-ID übergeben wurde
-  const existingLobbyId = req.query.id;
-  const playerName = req.query.name || req.user.email.split("@")[0];
+  console.log("User creating lobby:", req.user);
 
   try {
-    // Generiere QR-Code und Join-URL
-    const lobbyId = existingLobbyId || v4();
+    // Erstelle IMMER eine neue Lobby (keine bestehende Lobby-ID)
+    const lobbyId = v4();
+    const playerName = req.query.name || req.user.email.split("@")[0];
     const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
     const joinUrl = `${baseUrl}/join?id=${lobbyId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(joinUrl);
-
-    // Generiere eine unique ID für den Benutzer, falls keine vorhanden
     const userId = req.user.id || req.user.email || v4();
 
-    console.log("Creating/joining lobby with userId:", userId);
+    console.log("Creating new lobby with userId:", userId);
     console.log("Lobby ID:", lobbyId);
     console.log("Player name:", playerName);
 
-    // Wenn eine bestehende Lobby-ID übergeben wurde, versuche der Lobby beizutreten
-    if (existingLobbyId) {
-      console.log("Joining existing lobby:", existingLobbyId);
-      const joinResult = await joinLobby(lobbyId, userId, playerName);
+    // Erstelle eine neue Lobby
+    const lobbyResult = await createLobby(lobbyId, userId, playerName);
 
-      if (!joinResult) {
-        console.error("Failed to join lobby");
-        return res.redirect(
-          `/error-page?message=Die Lobby existiert nicht oder ist bereits geschlossen.`
-        );
-      }
-
-      console.log("Join result:", joinResult);
-
-      // Hole die Spielerliste und Lobby-Details
-      const players = await getLobbyPlayers(lobbyId);
-      const lobbyDetails = await getLobbyDetails(lobbyId);
-
-      console.log("Lobby players:", players);
-      console.log("Lobby details:", lobbyDetails);
-
-      // Rendere die Lobby-Seite
-      res.send(
-        eta.render("lobby", {
-          user: req.user,
-          userId: userId,
-          userName: playerName,
-          lobbyId: lobbyId,
-          qrCode: qrCodeDataUrl,
-          joinUrl: joinUrl,
-          isHost: false,
-          playerName: playerName,
-          players: players || [],
-          lobbyDetails: lobbyDetails || {},
-        })
-      );
-    } else {
-      console.log("Creating new lobby");
-      // Erstelle eine neue Lobby
-      const lobbyResult = await createLobby(lobbyId, userId, playerName);
-
-      if (!lobbyResult) {
-        console.error("Failed to create lobby");
-        return res.redirect(
-          `/error-page?message=Fehler beim Erstellen der Lobby.`
-        );
-      }
-
-      console.log("Create lobby result:", lobbyResult);
-
-      // Hole die Spielerliste (sollte nur den Host enthalten)
-      const players = await getLobbyPlayers(lobbyId);
-
-      console.log("Lobby players after creation:", players);
-
-      // Wenn keine Spieler gefunden wurden, erstelle manuell einen Host-Spieler
-      const playersList =
-        players && players.length > 0
-          ? players
-          : [
-              {
-                id: "host-manual",
-                lobby_id: lobbyId,
-                user_id: userId,
-                name: playerName,
-                joined_at: new Date(),
-                is_host: true,
-              },
-            ];
-
-      console.log("Final players list:", playersList);
-
-      // Rendere die Lobby-Seite
-      res.send(
-        eta.render("lobby", {
-          user: req.user,
-          userId: userId,
-          userName: playerName,
-          lobbyId: lobbyId,
-          qrCode: qrCodeDataUrl,
-          joinUrl: joinUrl,
-          isHost: true,
-          playerName: playerName,
-          players: playersList,
-          lobbyDetails: lobbyResult || {},
-        })
+    if (!lobbyResult) {
+      console.error("Failed to create lobby");
+      return res.redirect(
+        `/error-page?message=Fehler beim Erstellen der Lobby.`
       );
     }
+
+    console.log("Create lobby result:", lobbyResult);
+
+    // Hole die Spielerliste (sollte nur den Host enthalten)
+    const players = await getLobbyPlayers(lobbyId);
+
+    console.log("Lobby players after creation:", players);
+
+    // Wenn keine Spieler gefunden wurden, erstelle manuell einen Host-Spieler
+    const playersList =
+      players && players.length > 0
+        ? players
+        : [
+            {
+              id: "host-manual",
+              lobby_id: lobbyId,
+              user_id: userId,
+              name: playerName,
+              joined_at: new Date(),
+              is_host: true,
+            },
+          ];
+
+    console.log("Final players list:", playersList);
+
+    // Rendere die Lobby-Seite als HOST
+    res.send(
+      eta.render("lobby", {
+        user: req.user,
+        userId: userId,
+        userName: playerName,
+        lobbyId: lobbyId,
+        qrCode: qrCodeDataUrl,
+        joinUrl: joinUrl,
+        isHost: true, // IMMER Host bei create-lobby
+        playerName: playerName,
+        players: playersList,
+        lobbyDetails: lobbyResult || {},
+      })
+    );
   } catch (error) {
-    console.error("Fehler beim Erstellen/Beitreten der Lobby:", error);
+    console.error("Fehler beim Erstellen der Lobby:", error);
     res.redirect(
       "/error-page?message=Fehler bei der Lobby-Erstellung: " + error.message
     );
@@ -1737,6 +1703,166 @@ app.get("/multiplayer-presentation/:lobbyId", async (req, res) => {
   } catch (error) {
     console.error("Fehler beim Laden der Multiplayer-Präsentation:", error);
     res.redirect("/error-page?message=Fehler beim Laden der Präsentation");
+  }
+});
+
+// Alternative zu Socket.IO für Vercel - Server-Sent Events
+const lobbyConnections = new Map(); // Speichere SSE-Verbindungen
+
+// SSE-Endpunkt für Lobby-Updates
+app.get("/api/lobby/:lobbyId/events", (req, res) => {
+  const { lobbyId } = req.params;
+
+  // SSE-Headers setzen
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Cache-Control",
+  });
+
+  // Verbindung zur Lobby hinzufügen
+  if (!lobbyConnections.has(lobbyId)) {
+    lobbyConnections.set(lobbyId, new Set());
+  }
+  lobbyConnections.get(lobbyId).add(res);
+
+  // Heartbeat senden
+  const heartbeat = setInterval(() => {
+    res.write('data: {"type":"heartbeat"}\n\n');
+  }, 30000);
+
+  // Cleanup bei Verbindungsabbruch
+  req.on("close", () => {
+    clearInterval(heartbeat);
+    if (lobbyConnections.has(lobbyId)) {
+      lobbyConnections.get(lobbyId).delete(res);
+      if (lobbyConnections.get(lobbyId).size === 0) {
+        lobbyConnections.delete(lobbyId);
+      }
+    }
+  });
+
+  // Initiale Verbindungsbestätigung
+  res.write('data: {"type":"connected"}\n\n');
+});
+
+// Funktion zum Senden von Updates an alle Lobby-Teilnehmer
+function broadcastToLobby(lobbyId, data) {
+  if (lobbyConnections.has(lobbyId)) {
+    const connections = lobbyConnections.get(lobbyId);
+    const message = `data: ${JSON.stringify(data)}\n\n`;
+
+    connections.forEach((res) => {
+      try {
+        res.write(message);
+      } catch (error) {
+        console.error("Fehler beim Senden der SSE-Nachricht:", error);
+        connections.delete(res);
+      }
+    });
+  }
+}
+
+// API-Endpunkt für Lobby-Aktionen (ersetzt Socket.IO Events)
+app.post("/api/lobby/:lobbyId/action", async (req, res) => {
+  try {
+    const { lobbyId } = req.params;
+    const { action, data } = req.body;
+
+    switch (action) {
+      case "joinLobby":
+        const { userId, userName } = data;
+        console.log(
+          `API: User ${userId} (${userName}) trying to join lobby ${lobbyId}`
+        );
+
+        const joinResult = await joinLobby(lobbyId, userId, userName);
+        console.log("API: Join result:", joinResult);
+
+        if (joinResult && joinResult.success) {
+          const players = await getLobbyPlayers(lobbyId);
+          console.log("API: Players after join:", players);
+
+          broadcastToLobby(lobbyId, {
+            type: "playerJoined",
+            player: { user_id: userId, name: userName },
+            players: players,
+          });
+
+          res.json({ success: true, players, player: joinResult.player });
+        } else {
+          const errorMsg =
+            joinResult?.error || "Unbekannter Fehler beim Beitreten";
+          console.error("API: Join failed:", errorMsg);
+          res.status(400).json({ success: false, error: errorMsg });
+        }
+        break;
+
+      case "chatMessage":
+        const { message, playerId, playerName, isHost } = data;
+        const chatData = {
+          userId: playerId,
+          userName: playerName,
+          message: message.trim(),
+          isHost: isHost || false,
+          timestamp: new Date().toISOString(),
+        };
+
+        broadcastToLobby(lobbyId, {
+          type: "chatMessage",
+          ...chatData,
+        });
+
+        res.json({ success: true });
+        break;
+
+      case "slideChange":
+        if (req.user) {
+          const lobbyDetails = await getLobbyDetails(lobbyId);
+          if (lobbyDetails && lobbyDetails.host_id === req.user.id) {
+            const { slideIndex } = data;
+            broadcastToLobby(lobbyId, {
+              type: "slideChanged",
+              slideIndex: slideIndex,
+              timestamp: new Date().toISOString(),
+            });
+            res.json({ success: true });
+          } else {
+            res.status(403).json({ error: "Nur der Host kann Slides ändern" });
+          }
+        } else {
+          res.status(401).json({ error: "Nicht authentifiziert" });
+        }
+        break;
+
+      case "startPresentation":
+        if (req.user) {
+          const lobbyDetails = await getLobbyDetails(lobbyId);
+          if (lobbyDetails && lobbyDetails.host_id === req.user.id) {
+            broadcastToLobby(lobbyId, {
+              type: "presentationStarted",
+              lobbyId: lobbyId,
+              message: "Die Präsentation wurde gestartet!",
+            });
+            res.json({ success: true });
+          } else {
+            res
+              .status(403)
+              .json({ error: "Nur der Host kann die Präsentation starten" });
+          }
+        } else {
+          res.status(401).json({ error: "Nicht authentifiziert" });
+        }
+        break;
+
+      default:
+        res.status(400).json({ error: "Unbekannte Aktion" });
+    }
+  } catch (error) {
+    console.error("Fehler bei Lobby-Aktion:", error);
+    res.status(500).json({ error: "Serverfehler" });
   }
 });
 
