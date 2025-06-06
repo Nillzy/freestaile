@@ -225,6 +225,13 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
     }
 });
 
+app.get("/howLongIsThisProcessAlive", async (req, res) => {
+    res.send("Hello World");
+    setInterval(() => {
+        console.log("Still alive...");
+    }, 5000)
+});
+
 app.post("/initiateGeneration", async (req, res) => {
     const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
     const accountID = req.user.id;
