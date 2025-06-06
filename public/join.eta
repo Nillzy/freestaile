@@ -140,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Socket.IO und Multiplayer Client -->
+    <!-- SSE-Client für Vercel-Kompatibilität -->
     <script src="/js/sse-client.js"></script>
 
     <script>
@@ -162,143 +162,17 @@
         }
 
         function updateParticipantCount() {
-            const count = window.multiplayerClient ? window.multiplayerClient.players.length : 0;
-            document.getElementById('participant-count').textContent = count;
+            // Participant count wird über API-Updates verwaltet
+            console.log('Participant count update - wird über API verwaltet');
         }
 
         function showParticipantsSection() {
             document.getElementById('participants-section').style.display = 'block';
         }
 
-        // MultiplayerClient-Klasse für SSE-Kompatibilität
-        class MultiplayerClient {
-            constructor() {
-                this.socket = null;
-                this.lobbyId = null;
-                this.userId = null;
-                this.userName = null;
-                this.players = [];
-                this.isHost = false;
-                this.eventHandlers = {};
-            }
-
-            setUser(userId, userName) {
-                this.userId = userId;
-                this.userName = userName;
-            }
-
-            async connect() {
-                return new Promise((resolve, reject) => {
-                    try {
-                        this.socket = io('/lobby');
-                        
-                        this.socket.on('connect', () => {
-                            console.log('SSE-Verbindung hergestellt');
-                            resolve();
-                        });
-
-                        this.socket.on('connect_error', (error) => {
-                            console.error('SSE-Verbindungsfehler:', error);
-                            reject(new Error('Verbindung fehlgeschlagen'));
-                        });
-
-                        this.socket.on('lobbyUpdate', (data) => {
-                            this.players = data.players || [];
-                            this.emit('lobbyUpdate', data);
-                        });
-
-                        this.socket.on('playerJoined', (data) => {
-                            this.emit('playerJoined', data);
-                        });
-
-                        this.socket.on('playerLeft', (data) => {
-                            this.emit('playerLeft', data);
-                        });
-
-                        this.socket.on('presentationStarted', (data) => {
-                            this.emit('presentationStarted', data);
-                        });
-
-                        this.socket.on('hostDisconnected', (data) => {
-                            this.emit('hostDisconnected', data);
-                        });
-
-                        this.socket.on('error', (error) => {
-                            console.error('SSE-Fehler:', error);
-                            this.emit('error', error);
-                        });
-
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
-            }
-
-            async joinLobby(lobbyId, playerName) {
-                return new Promise((resolve, reject) => {
-                    if (!this.socket) {
-                        reject(new Error('Nicht verbunden'));
-                        return;
-                    }
-
-                    this.lobbyId = lobbyId;
-                    this.userName = playerName;
-
-                    console.log('Sende joinLobby Event:', {
-                        lobbyId: lobbyId,
-                        userId: this.userId,
-                        userName: playerName
-                    });
-
-                    this.socket.emit('joinLobby', {
-                        lobbyId: lobbyId,
-                        userId: this.userId,
-                        userName: playerName
-                    }, (response) => {
-                        console.log('joinLobby Response erhalten:', response);
-                        
-                        if (response && response.success) {
-                            this.players = response.players || [];
-                            this.isHost = false; // Join-Seite ist nie Host
-                            console.log('Erfolgreich beigetreten, Spieler:', this.players);
-                            resolve({ players: this.players });
-                        } else {
-                            const errorMsg = response?.error || 'Unbekannter Fehler beim Beitreten';
-                            console.error('Fehler beim Beitreten:', errorMsg);
-                            reject(new Error(errorMsg));
-                        }
-                    });
-
-                    // Timeout für den Fall, dass keine Antwort kommt
-                    setTimeout(() => {
-                        reject(new Error('Timeout beim Beitreten der Lobby'));
-                    }, 10000);
-                });
-            }
-
-            on(event, handler) {
-                if (!this.eventHandlers[event]) {
-                    this.eventHandlers[event] = [];
-                }
-                this.eventHandlers[event].push(handler);
-            }
-
-            emit(event, data) {
-                if (this.eventHandlers[event]) {
-                    this.eventHandlers[event].forEach(handler => handler(data));
-                }
-            }
-
-            disconnect() {
-                if (this.socket) {
-                    this.socket.disconnect();
-                    this.socket = null;
-                }
-            }
-        }
-
-        // Globale Instanz erstellen
-        window.multiplayerClient = new MultiplayerClient();
+        // Globale Variablen für Lobby-Daten
+        let currentUserId = null;
+        let currentUserName = null;
 
         // Initialisierung
         document.addEventListener('DOMContentLoaded', () => {

@@ -150,7 +150,7 @@
         </div>
     </div>
 
-    <!-- Socket.IO und Multiplayer Client -->
+    <!-- SSE-Client für Vercel-Kompatibilität -->
     <script src="/js/sse-client.js"></script>
     <script>
         // UI-Logik für Teilnehmerliste
@@ -280,7 +280,8 @@
                 console.log('Lobby-Daten erhalten:', data);
                 
                 if (data.players) {
-                    updateParticipantsList(data.players, data.lobby?.host_id, window.multiplayerClient?.userId);
+                    const currentUserId = '<%= it.userId || "" %>';
+                    updateParticipantsList(data.players, data.lobby?.host_id, currentUserId);
                     updateParticipantCount(data.players.length);
                 }
                 

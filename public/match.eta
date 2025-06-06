@@ -6,8 +6,8 @@
     <title>Multiplayer Präsentation - FreestAIle</title>
     
     <!-- Reveal.js CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
     
     <style>
         body {
@@ -251,10 +251,7 @@
     </div>
 
     <!-- Reveal.js JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
-    
-    <!-- Socket.IO -->
-    <script src="/js/sse-client.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
     
     <script>
         // Template-Daten
@@ -290,9 +287,6 @@
             transition: 'slide'
         });
         
-        // Socket.IO für Multiplayer
-        let socket = null;
-        
         // Chat-Funktionalität
         const chatMessages = document.getElementById('chat-messages');
         const chatForm = document.getElementById('chat-form');
@@ -324,83 +318,67 @@
             document.getElementById('participant-number').textContent = count;
         }
         
-        // Socket.IO Verbindung
-        function connectToMatch() {
-            socket = io('/lobby');
-            
-            socket.on('connect', () => {
-                console.log('Mit Match-Server verbunden');
-                updateStatus('Verbunden mit Multiplayer-Session');
-                
-                // Wieder mit Lobby verbinden
-                socket.emit('reconnectToLobby', {
-                    lobbyId: matchData.lobbyId,
-                    userId: matchData.userId,
-                    userName: matchData.userName
-                });
-            });
-            
-            socket.on('disconnect', () => {
-                updateStatus('Verbindung getrennt', true);
-            });
-            
-            socket.on('lobbyUpdate', (data) => {
-                console.log('Lobby-Update:', data);
-                if (data.players) {
-                    updateParticipantCount(data.players.length);
-                }
-            });
-            
-            socket.on('chatMessage', (data) => {
-                const isOwn = data.userId === matchData.userId;
-                const isHost = data.isHost || false;
-                addChatMessage(data.userName, data.message, isOwn, isHost);
-            });
-            
-            socket.on('slideChanged', (data) => {
-                if (!matchData.isHost) {
-                    console.log('Folie geändert zu:', data.slideIndex);
-                    Reveal.slide(data.slideIndex);
-                }
-            });
-            
-            socket.on('presentationEnded', () => {
-                updateStatus('Präsentation beendet');
-                setTimeout(() => {
-                    window.location.href = '/main';
-                }, 3000);
-            });
-        }
-        
         // Chat-Form Handler
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
             const message = chatInput.value.trim();
-            if (!message || !socket) return;
+            if (!message) return;
             
             // Nachricht senden
-            socket.emit('chatMessage', {
-                lobbyId: matchData.lobbyId,
-                userId: matchData.userId,
-                userName: matchData.userName,
-                message: message,
-                isHost: matchData.isHost
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    lobbyId: matchData.lobbyId,
+                    userId: matchData.userId,
+                    userName: matchData.userName,
+                    message: message,
+                    isHost: matchData.isHost
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    chatInput.value = '';
+                    addChatMessage(matchData.userName, message, true, matchData.isHost);
+                } else {
+                    updateStatus('Fehler beim Senden der Nachricht', true);
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Senden der Nachricht:', error);
+                updateStatus('Fehler beim Senden der Nachricht', true);
             });
-            
-            chatInput.value = '';
         });
         
         // Reveal.js Slide-Change Handler (nur für Host)
         if (matchData.isHost) {
             Reveal.on('slidechanged', (event) => {
                 console.log('Host ändert Folie zu:', event.indexh);
-                if (socket) {
-                    socket.emit('slideChange', {
+                fetch('/api/slideChange', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
                         lobbyId: matchData.lobbyId,
                         slideIndex: event.indexh
-                    });
-                }
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Reveal.slide(event.indexh);
+                    } else {
+                        console.error('Fehler beim Ändern der Folie');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fehler beim Ändern der Folie:', error);
+                });
             });
         }
         
@@ -413,20 +391,10 @@
                 updateParticipantCount(matchData.players.length);
             }
             
-            // Verbinde mit Socket.IO
-            connectToMatch();
-            
             // Willkommensnachricht im Chat
             setTimeout(() => {
                 addChatMessage('System', `${matchData.userName} ist der Präsentation beigetreten`);
             }, 1000);
-        });
-        
-        // Cleanup beim Verlassen der Seite
-        window.addEventListener('beforeunload', () => {
-            if (socket) {
-                socket.disconnect();
-            }
         });
     </script>
 </body>
