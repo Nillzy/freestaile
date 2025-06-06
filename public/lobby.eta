@@ -153,212 +153,6 @@
     <!-- Socket.IO und Multiplayer Client -->
     <script src="/js/sse-client.js"></script>
     <script>
-        // MultiplayerClient direkt eingebettet
-        class MultiplayerClient {
-            constructor() {
-                this.socket = null;
-                this.lobbyId = null;
-                this.isHost = false;
-                this.players = [];
-                this.eventHandlers = {};
-                this.userId = null;
-                this.userName = null;
-                this.hostId = null;
-            }
-
-            setUser(userId, userName) {
-                this.userId = userId;
-                this.userName = userName;
-                console.log(`Benutzer gesetzt: userId=${userId}, userName=${userName}`);
-            }
-
-            connect() {
-                return new Promise((resolve, reject) => {
-                    if (!this.userId || !this.userName) {
-                        return reject(new Error("Benutzerdaten (userId, userName) müssen zuerst mit setUser() gesetzt werden."));
-                    }
-                    try {
-                        if (typeof io === "undefined") {
-                            reject(new Error("Socket.IO ist nicht geladen"));
-                            return;
-                        }
-                        this._initializeSocket(resolve, reject);
-                    } catch (err) {
-                        reject(err);
-                    }
-                });
-            }
-
-            _initializeSocket(resolve, reject) {
-                this.socket = io("/lobby", {
-                    auth: {
-                        userId: this.userId,
-                        userName: this.userName,
-                    },
-                });
-
-                this.socket.on("connect", () => {
-                    console.log("Verbunden mit Socket.io-Server. Eigene Socket-ID:", this.socket.id);
-                    resolve();
-                });
-
-                this.socket.on("connect_error", (err) => {
-                    console.error("Verbindungsfehler:", err);
-                    this._triggerEvent("error", { message: "Verbindungsfehler", error: err });
-                    reject(err);
-                });
-
-                this.socket.on("playerJoined", (playerInfo) => {
-                    console.log("Socket Event: playerJoined", playerInfo);
-                    // Füge den Spieler zur lokalen Liste hinzu, falls er noch nicht existiert
-                    const existingPlayerIndex = this.players.findIndex(p => p.user_id === playerInfo.user_id);
-                    if (existingPlayerIndex !== -1) {
-                        this.players[existingPlayerIndex] = { ...this.players[existingPlayerIndex], ...playerInfo };
-                    } else {
-                        this.players.push(playerInfo);
-                    }
-                    if (playerInfo.is_host && !this.hostId) {
-                        this.hostId = playerInfo.user_id;
-                    }
-                    this._triggerEvent("playerJoined", playerInfo);
-                });
-
-                this.socket.on("playerLeft", (playerInfo) => {
-                    console.log("Socket Event: playerLeft", playerInfo);
-                    this.players = this.players.filter(p => p.user_id !== playerInfo.user_id);
-                    this._triggerEvent("playerLeft", playerInfo);
-                });
-
-                this.socket.on("lobbyUpdate", (data) => {
-                    console.log("Socket Event: lobbyUpdate", data);
-                    if (data.players) {
-                        this.players = data.players;
-                    }
-                    if (data.lobby && data.lobby.host_id) {
-                        this.hostId = data.lobby.host_id;
-                    }
-                    this._triggerEvent("lobbyUpdate", data);
-                });
-
-                this.socket.on("hostDisconnected", (data) => {
-                    console.log("Socket Event: hostDisconnected", data);
-                    this._triggerEvent("hostDisconnected", data);
-                });
-
-                this.socket.on("presentationStarted", () => {
-                    this._triggerEvent("presentationStarted");
-                });
-
-                this.socket.on("newChatMessage", (message) => {
-                    this._triggerEvent("newChatMessage", message);
-                });
-
-                this.socket.on("lobbyEnded", (reason) => {
-                    this._triggerEvent("lobbyEnded", reason);
-                });
-            }
-
-            createLobby() {
-                return new Promise((resolve, reject) => {
-                    if (!this.socket) return reject(new Error("Keine Verbindung zum Server"));
-                    if (!this.userId || !this.userName) return reject(new Error("Benutzerdaten nicht gesetzt"));
-
-                    this.socket.emit("createLobby", { userId: this.userId, userName: this.userName }, (response) => {
-                        if (response.success) {
-                            this.lobbyId = response.lobbyId;
-                            this.isHost = true;
-                            this.hostId = response.hostId;
-                            this.players = response.initialPlayers || [];
-                            console.log("Lobby erstellt Client: lobbyId=", this.lobbyId, "hostId=", this.hostId, "players=", this.players);
-                            resolve(response);
-                        } else {
-                            reject(new Error(response.error || "Fehler beim Erstellen der Lobby"));
-                        }
-                    });
-                });
-            }
-
-            joinLobby(lobbyId, userNameForLobby) {
-                return new Promise((resolve, reject) => {
-                    if (!this.socket) return reject(new Error("Keine Verbindung zum Server"));
-                    if (!this.userId) return reject(new Error("UserId nicht gesetzt"));
-                    const nameToSend = userNameForLobby || this.userName;
-
-                    this.socket.emit("joinLobby", { lobbyId, userName: nameToSend, userId: this.userId }, (response) => {
-                        if (response.success) {
-                            this.lobbyId = lobbyId;
-                            this.isHost = (response.lobby.hostId === this.userId);
-                            this.players = response.lobby.players || [];
-                            this.hostId = response.lobby.hostId;
-                            console.log("Lobby beigetreten Client: lobbyId=", this.lobbyId, "hostId=", this.hostId, "players=", this.players);
-                            resolve(response.lobby);
-                        } else {
-                            reject(new Error(response.error || "Fehler beim Beitreten der Lobby"));
-                        }
-                    });
-                });
-            }
-
-            startPresentation() {
-                console.log("startPresentation aufgerufen. Client-Status:", {
-                    socket: !!this.socket,
-                    socketConnected: this.socket?.connected,
-                    lobbyId: this.lobbyId,
-                    isHost: this.isHost,
-                    userId: this.userId
-                });
-                
-                if (!this.socket || !this.lobbyId) {
-                    console.error("Nicht mit einer Lobby verbunden oder Socket nicht bereit.");
-                    console.error("Socket:", !!this.socket, "LobbyId:", this.lobbyId);
-                    return;
-                }
-                
-                if (!this.socket.connected) {
-                    console.error("Socket ist nicht verbunden!");
-                    return;
-                }
-                
-                console.log("Versuche Präsentation zu starten als User:", this.userId, "Socket-ID:", this.socket.id);
-                this.socket.emit("startPresentation");
-            }
-
-            sendChatMessage(message) {
-                if (!this.socket || !this.lobbyId) {
-                    console.error("Nicht mit einer Lobby verbunden");
-                    return;
-                }
-                this.socket.emit("chatMessage", message);
-            }
-
-            on(event, callback) {
-                if (!this.eventHandlers[event]) {
-                    this.eventHandlers[event] = [];
-                }
-                this.eventHandlers[event].push(callback);
-            }
-
-            _triggerEvent(event, data) {
-                if (this.eventHandlers[event]) {
-                    this.eventHandlers[event].forEach((callback) => callback(data));
-                }
-            }
-
-            disconnect() {
-                if (this.socket) {
-                    this.socket.disconnect();
-                    this.socket = null;
-                    this.lobbyId = null;
-                    this.isHost = false;
-                    this.players = [];
-                    this.hostId = null;
-                }
-            }
-        }
-
-        // Globale Instanz erstellen
-        window.multiplayerClient = new MultiplayerClient();
-
         // UI-Logik für Teilnehmerliste
         function updateParticipantsList(players, hostId, currentUserId) {
             console.log('Aktualisiere Teilnehmerliste:', { players, hostId, currentUserId });
@@ -441,98 +235,30 @@
                     return;
                 }
 
-                // Setze Benutzerdaten im MultiplayerClient
-                if (window.multiplayerClient) {
-                    window.multiplayerClient.setUser(userData.userId, userData.userName);
-                    console.log('Benutzerdaten gesetzt:', userData.userId, userData.userName);
+                // Direkte Lobby-Initialisierung ohne Socket.IO
+                console.log('Initialisiere Lobby ohne Socket.IO für Vercel-Kompatibilität');
+                updateStatus('Lobby aktiv (Vercel-Modus)', 'connected');
+                
+                if (userData.isHost) {
+                    console.log('Host-Modus aktiviert');
+                    updateStatus('Als Host mit Lobby verbunden', 'connected');
                     
-                    // Vereinfachte Verbindung ohne Socket.IO-Abhängigkeit
-                    try {
-                        await window.multiplayerClient.connect();
-                        console.log('MultiplayerClient verbunden');
-                        updateStatus('Verbunden - Lobby aktiv', 'connected');
-                    } catch (error) {
-                        console.warn('Socket.IO-Verbindung fehlgeschlagen, verwende Fallback:', error);
-                        updateStatus('Lobby aktiv (Offline-Modus)', 'connected');
-                    }
-                    
-                    if (userData.isHost) {
-                        console.log('Host-Modus aktiviert');
-                        
-                        // Als Host: Setze Lobby-Daten
-                        window.multiplayerClient.lobbyId = lobbyId;
-                        window.multiplayerClient.isHost = true;
-                        
-                        updateStatus('Als Host mit Lobby verbunden', 'connected');
-                        
-                        // Start-Button aktivieren
-                        const startBtn = document.getElementById('start-presentation');
-                        if (startBtn) {
-                            startBtn.disabled = false;
-                            console.log('Start-Button aktiviert für Host. LobbyId:', window.multiplayerClient.lobbyId);
-                        }
-                        
-                        // Debug: Prüfe MultiplayerClient-Status
-                        console.log('MultiplayerClient Status:', {
-                            socket: !!window.multiplayerClient.socket,
-                            lobbyId: window.multiplayerClient.lobbyId,
-                            isHost: window.multiplayerClient.isHost,
-                            userId: window.multiplayerClient.userId
-                        });
-                    } else {
-                        // Als Teilnehmer
-                        console.log('Teilnehmer-Modus aktiviert');
-                        window.multiplayerClient.lobbyId = lobbyId;
-                        updateStatus('Mit Lobby verbunden', 'connected');
+                    // Start-Button aktivieren
+                    const startBtn = document.getElementById('start-presentation');
+                    if (startBtn) {
+                        startBtn.disabled = false;
+                        console.log('Start-Button aktiviert für Host');
                     }
                 } else {
-                    console.error('MultiplayerClient nicht verfügbar');
-                    updateStatus('Fehler: MultiplayerClient nicht verfügbar', 'error');
+                    // Als Teilnehmer
+                    console.log('Teilnehmer-Modus aktiviert');
+                    updateStatus('Mit Lobby verbunden', 'connected');
                 }
 
-                // Event-Listener für Teilnehmer-Updates (falls Socket.IO verfügbar)
-                if (window.multiplayerClient.socket) {
-                    window.multiplayerClient.on('playerJoined', (playerInfo) => {
-                        console.log('Spieler beigetreten:', playerInfo);
-                        loadLobbyData(lobbyId);
-                    });
-
-                    window.multiplayerClient.on('playerLeft', (playerInfo) => {
-                        console.log('Spieler verlassen:', playerInfo);
-                        loadLobbyData(lobbyId);
-                    });
-
-                    window.multiplayerClient.on('lobbyUpdate', (data) => {
-                        console.log('Lobby-Update erhalten:', data);
-                        if (data.players) {
-                            updateParticipantsList(data.players, data.lobby?.host_id, userData.userId);
-                            updateParticipantCount(data.players.length);
-                        }
-                    });
-
-                    window.multiplayerClient.on('presentationStarted', () => {
-                        updateStatus('Präsentation gestartet!', 'connected');
-                        setTimeout(() => {
-                            // Weiterleitung zur Match-Seite mit allen nötigen Parametern
-                            const lobbyId = '<%= it.lobbyId %>';
-                            const userId = '<%= it.userId %>';
-                            const userName = '<%= it.userName %>';
-                            const isHost = <%= it.isHost ? 'true' : 'false' %>;
-                            
-                            window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
-                        }, 2000);
-                    });
-
-                    window.multiplayerClient.on('error', (error) => {
-                        console.error('Socket-Fehler:', error);
-                        updateStatus('Fehler: ' + error.message, 'error');
-                    });
-                }
-
-                // Regelmäßige Aktualisierung der Lobby-Daten (weniger häufig)
+                // Regelmäßige Aktualisierung der Lobby-Daten (für Live-Updates)
                 setInterval(() => {
                     loadLobbyData(lobbyId);
-                }, 5000); // Alle 5 Sekunden
+                }, 3000); // Alle 3 Sekunden
 
             } catch (error) {
                 console.error('Fehler bei der Initialisierung:', error);
@@ -668,23 +394,40 @@
             // Start-Button Event-Listener
             const startBtn = document.getElementById('start-presentation');
             if (startBtn) {
-                startBtn.addEventListener('click', () => {
-                    if (window.multiplayerClient) {
-                        console.log('Starte Präsentation...');
-                        // Direkte Weiterleitung ohne Socket.IO
-                        const lobbyId = '<%= it.lobbyId %>';
-                        const userId = '<%= it.userId %>';
-                        const userName = '<%= it.userName %>';
-                        const isHost = <%= it.isHost ? 'true' : 'false' %>;
+                startBtn.addEventListener('click', async () => {
+                    console.log('Starte Präsentation...');
+                    const lobbyId = '<%= it.lobbyId %>';
+                    const userId = '<%= it.userId %>';
+                    const userName = '<%= it.userName %>';
+                    const isHost = <%= it.isHost ? 'true' : 'false' %>;
+                    
+                    startBtn.disabled = true;
+                    startBtn.textContent = 'Präsentation wird gestartet...';
+                    updateStatus('Präsentation gestartet!', 'connected');
+                    
+                    // Versuche über API die Präsentation zu starten (optional)
+                    try {
+                        const response = await fetch(`/api/lobby/${lobbyId}/action`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                action: 'startPresentation',
+                                data: {}
+                            })
+                        });
                         
-                        startBtn.disabled = true;
-                        startBtn.textContent = 'Präsentation wird gestartet...';
-                        updateStatus('Präsentation gestartet!', 'connected');
-                        
-                        setTimeout(() => {
-                            window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
-                        }, 1000);
+                        const result = await response.json();
+                        console.log('Start Presentation API Response:', result);
+                    } catch (error) {
+                        console.warn('API-Aufruf fehlgeschlagen, fahre trotzdem fort:', error);
                     }
+                    
+                    // Direkte Weiterleitung nach kurzer Verzögerung
+                    setTimeout(() => {
+                        window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
+                    }, 1000);
                 });
             }
         });
