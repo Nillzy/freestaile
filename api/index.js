@@ -287,9 +287,6 @@ app.post("/initiateGeneration", async (req, res) => {
         }
     }
 
-    console.log("Sleeping for a minute...")
-    await sleep(60000);
-
     console.log(presentationIDs);
     console.log(roundID);
     setTimeout( () => {
