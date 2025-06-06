@@ -253,6 +253,12 @@
     <!-- Reveal.js JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
     
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase Realtime Client -->
+    <script src="/js/sse-client.js"></script>
+    
     <script>
         // Template-Daten
         const matchData = {
@@ -275,6 +281,9 @@
         }
         
         console.log('Match-Daten:', matchData);
+        
+        // Globale Variablen
+        let realtimeClient = null;
         
         // Reveal.js initialisieren
         Reveal.initialize({
@@ -319,76 +328,104 @@
         }
         
         // Chat-Form Handler
-        chatForm.addEventListener('submit', (e) => {
+        chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const message = chatInput.value.trim();
             if (!message) return;
             
-            // Nachricht senden
-            fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    lobbyId: matchData.lobbyId,
-                    userId: matchData.userId,
-                    userName: matchData.userName,
-                    message: message,
-                    isHost: matchData.isHost
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    chatInput.value = '';
-                    addChatMessage(matchData.userName, message, true, matchData.isHost);
+            try {
+                if (realtimeClient && realtimeClient.isConnected()) {
+                    const result = await realtimeClient.sendChatMessage(message);
+                    
+                    if (result.success) {
+                        chatInput.value = '';
+                        addChatMessage(matchData.userName, message, true, matchData.isHost);
+                    } else {
+                        updateStatus('Fehler beim Senden der Nachricht', true);
+                    }
                 } else {
-                    updateStatus('Fehler beim Senden der Nachricht', true);
+                    updateStatus('Nicht mit Realtime verbunden', true);
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Fehler beim Senden der Nachricht:', error);
                 updateStatus('Fehler beim Senden der Nachricht', true);
-            });
+            }
         });
         
         // Reveal.js Slide-Change Handler (nur für Host)
         if (matchData.isHost) {
-            Reveal.on('slidechanged', (event) => {
+            Reveal.on('slidechanged', async (event) => {
                 console.log('Host ändert Folie zu:', event.indexh);
-                fetch('/api/slideChange', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        lobbyId: matchData.lobbyId,
-                        slideIndex: event.indexh
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Reveal.slide(event.indexh);
-                    } else {
-                        console.error('Fehler beim Ändern der Folie');
+                
+                try {
+                    if (realtimeClient && realtimeClient.isConnected()) {
+                        const result = await realtimeClient.changeSlide(event.indexh);
+                        
+                        if (!result.success) {
+                            console.error('Fehler beim Ändern der Folie:', result.error);
+                        }
                     }
-                })
-                .catch(error => {
+                } catch (error) {
                     console.error('Fehler beim Ändern der Folie:', error);
-                });
+                }
             });
         }
         
         // Initialisierung
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('Match-Seite geladen');
             
             // Zeige initiale Teilnehmer
             if (matchData.players) {
                 updateParticipantCount(matchData.players.length);
+            }
+            
+            try {
+                // Supabase Realtime Client erstellen und verbinden
+                realtimeClient = new SupabaseRealtimeClient();
+                
+                // Event-Listener für Realtime-Events
+                realtimeClient.on('connect', () => {
+                    console.log('Supabase Realtime verbunden in Match');
+                    updateStatus('Verbunden mit Multiplayer-Session (Realtime)', false);
+                });
+
+                realtimeClient.on('connect_error', (error) => {
+                    console.error('Supabase Realtime Verbindungsfehler:', error);
+                    updateStatus('Verbindungsfehler: ' + error.message, true);
+                });
+
+                realtimeClient.on('chatMessage', (data) => {
+                    console.log('Chat-Nachricht erhalten:', data);
+                    if (data.userId !== matchData.userId) { // Nicht eigene Nachrichten anzeigen
+                        addChatMessage(data.userName, data.message, false, data.isHost);
+                    }
+                });
+
+                realtimeClient.on('slideChanged', (data) => {
+                    console.log('Slide-Änderung erhalten:', data);
+                    if (!matchData.isHost) { // Nur Teilnehmer folgen Slide-Änderungen
+                        Reveal.slide(data.slideIndex);
+                    }
+                });
+
+                realtimeClient.on('playerJoined', (player) => {
+                    console.log('Spieler beigetreten:', player);
+                    addChatMessage('System', `${player.name} ist der Präsentation beigetreten`);
+                });
+
+                realtimeClient.on('playerLeft', (player) => {
+                    console.log('Spieler verlassen:', player);
+                    addChatMessage('System', `${player.name} hat die Präsentation verlassen`);
+                });
+
+                // Verbindung zur Lobby herstellen
+                await realtimeClient.connect(matchData.lobbyId, matchData.userId, matchData.userName, matchData.isHost);
+                
+            } catch (error) {
+                console.error('Fehler beim Initialisieren von Realtime:', error);
+                updateStatus('Fehler beim Verbinden mit Realtime', true);
             }
             
             // Willkommensnachricht im Chat

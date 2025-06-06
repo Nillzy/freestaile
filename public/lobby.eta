@@ -150,9 +150,18 @@
         </div>
     </div>
 
-    <!-- SSE-Client für Vercel-Kompatibilität -->
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase Realtime Client für Vercel-Kompatibilität -->
     <script src="/js/sse-client.js"></script>
+    
     <script>
+        // Globale Variablen
+        let realtimeClient = null;
+        let currentLobbyId = null;
+        let joinUrl = null;
+
         // UI-Logik für Teilnehmerliste
         function updateParticipantsList(players, hostId, currentUserId) {
             console.log('Aktualisiere Teilnehmerliste:', { players, hostId, currentUserId });
@@ -207,7 +216,7 @@
         // Hauptinitialisierungslogik
         async function initializeLobby() {
             try {
-                console.log('Initialisiere Lobby...');
+                console.log('Initialisiere Lobby mit Supabase Realtime...');
                 
                 // Benutzerdaten aus dem Template
                 const userData = {
@@ -235,30 +244,87 @@
                     return;
                 }
 
-                // Direkte Lobby-Initialisierung ohne Socket.IO
-                console.log('Initialisiere Lobby ohne Socket.IO für Vercel-Kompatibilität');
-                updateStatus('Lobby aktiv (Vercel-Modus)', 'connected');
+                // Supabase Realtime Client erstellen
+                realtimeClient = new SupabaseRealtimeClient();
                 
-                if (userData.isHost) {
-                    console.log('Host-Modus aktiviert');
-                    updateStatus('Als Host mit Lobby verbunden', 'connected');
+                // Event-Listener für Realtime-Events
+                realtimeClient.on('connect', () => {
+                    console.log('Supabase Realtime verbunden');
+                    updateStatus('Mit Lobby verbunden (Supabase Realtime)', 'connected');
                     
-                    // Start-Button aktivieren
-                    const startBtn = document.getElementById('start-presentation');
-                    if (startBtn) {
-                        startBtn.disabled = false;
-                        console.log('Start-Button aktiviert für Host');
+                    if (userData.isHost) {
+                        console.log('Host-Modus aktiviert');
+                        updateStatus('Als Host mit Lobby verbunden', 'connected');
+                        
+                        // Start-Button aktivieren
+                        const startBtn = document.getElementById('start-presentation');
+                        if (startBtn) {
+                            startBtn.disabled = false;
+                            console.log('Start-Button aktiviert für Host');
+                        }
                     }
-                } else {
-                    // Als Teilnehmer
-                    console.log('Teilnehmer-Modus aktiviert');
-                    updateStatus('Mit Lobby verbunden', 'connected');
-                }
+                });
 
-                // Regelmäßige Aktualisierung der Lobby-Daten (für Live-Updates)
+                realtimeClient.on('connect_error', (error) => {
+                    console.error('Supabase Realtime Verbindungsfehler:', error);
+                    updateStatus('Verbindungsfehler: ' + error.message, 'error');
+                });
+
+                realtimeClient.on('playerJoined', (player) => {
+                    console.log('Spieler beigetreten:', player);
+                    // Aktualisiere die Teilnehmerliste
+                    loadLobbyData(lobbyId);
+                });
+
+                realtimeClient.on('playerLeft', (player) => {
+                    console.log('Spieler verlassen:', player);
+                    // Aktualisiere die Teilnehmerliste
+                    loadLobbyData(lobbyId);
+                });
+
+                realtimeClient.on('lobbyUpdate', (data) => {
+                    console.log('Lobby-Update erhalten:', data);
+                    if (data.players) {
+                        const currentUserId = userData.userId;
+                        updateParticipantsList(data.players, data.lobby?.host_id, currentUserId);
+                        updateParticipantCount(data.players.length);
+                    }
+                });
+
+                realtimeClient.on('presenceUpdate', (presenceState) => {
+                    console.log('Presence Update:', presenceState);
+                    // Konvertiere Presence-Daten zu Spielerliste
+                    const players = Object.values(presenceState).flat().map(presence => ({
+                        user_id: presence.user_id,
+                        name: presence.user_name,
+                        is_host: presence.is_host,
+                        online_at: presence.online_at
+                    }));
+                    
+                    if (players.length > 0) {
+                        const currentUserId = userData.userId;
+                        updateParticipantsList(players, null, currentUserId);
+                        updateParticipantCount(players.length);
+                    }
+                });
+
+                realtimeClient.on('presentationStarted', (data) => {
+                    console.log('Präsentation gestartet:', data);
+                    updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
+                    
+                    // Weiterleitung zur Match-Seite
+                    setTimeout(() => {
+                        window.location.href = `/match?id=${lobbyId}&userId=${userData.userId}&userName=${encodeURIComponent(userData.userName)}&isHost=${userData.isHost}`;
+                    }, 1500);
+                });
+
+                // Verbindung zur Lobby herstellen
+                await realtimeClient.connect(lobbyId, userData.userId, userData.userName, userData.isHost);
+
+                // Regelmäßige Aktualisierung der Lobby-Daten (als Fallback)
                 setInterval(() => {
                     loadLobbyData(lobbyId);
-                }, 3000); // Alle 3 Sekunden
+                }, 10000); // Alle 10 Sekunden
 
             } catch (error) {
                 console.error('Fehler bei der Initialisierung:', error);
@@ -291,9 +357,6 @@
                 return null;
             }
         }
-
-        let currentLobbyId = null;
-        let joinUrl = null;
 
         // Status-Updates
         function updateStatus(message, type = 'waiting') {
@@ -404,31 +467,33 @@
                     
                     startBtn.disabled = true;
                     startBtn.textContent = 'Präsentation wird gestartet...';
-                    updateStatus('Präsentation gestartet!', 'connected');
+                    updateStatus('Präsentation wird gestartet...', 'waiting');
                     
-                    // Versuche über API die Präsentation zu starten (optional)
                     try {
-                        const response = await fetch(`/api/lobby/${lobbyId}/action`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                action: 'startPresentation',
-                                data: {}
-                            })
-                        });
-                        
-                        const result = await response.json();
-                        console.log('Start Presentation API Response:', result);
+                        // Über Supabase Realtime die Präsentation starten
+                        if (realtimeClient && realtimeClient.isConnected()) {
+                            const result = await realtimeClient.startPresentation();
+                            
+                            if (result.success) {
+                                console.log('Präsentation erfolgreich gestartet');
+                                updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
+                                
+                                // Direkte Weiterleitung nach kurzer Verzögerung
+                                setTimeout(() => {
+                                    window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
+                                }, 1000);
+                            } else {
+                                throw new Error(result.error || 'Unbekannter Fehler');
+                            }
+                        } else {
+                            throw new Error('Nicht mit Realtime verbunden');
+                        }
                     } catch (error) {
-                        console.warn('API-Aufruf fehlgeschlagen, fahre trotzdem fort:', error);
+                        console.error('Fehler beim Starten der Präsentation:', error);
+                        updateStatus('Fehler beim Starten: ' + error.message, 'error');
+                        startBtn.disabled = false;
+                        startBtn.textContent = 'Präsentation starten';
                     }
-                    
-                    // Direkte Weiterleitung nach kurzer Verzögerung
-                    setTimeout(() => {
-                        window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
-                    }, 1000);
                 });
             }
         });

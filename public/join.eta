@@ -140,7 +140,10 @@
         </div>
     </div>
 
-    <!-- SSE-Client für Vercel-Kompatibilität -->
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase Realtime Client für Vercel-Kompatibilität -->
     <script src="/js/sse-client.js"></script>
 
     <script>
@@ -152,6 +155,9 @@
         };
 
         console.log('Template-Daten:', lobbyData);
+
+        // Globale Variablen
+        let realtimeClient = null;
 
         // Status-Updates
         function updateStatus(message, type = 'waiting') {
@@ -212,26 +218,12 @@
                 updateStatus('Verbindung wird hergestellt...', 'waiting');
 
                 try {
-                    // Direkt über API der Lobby beitreten
-                    const response = await fetch(`/api/lobby/${lobbyData.lobbyId}/action`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            action: 'joinLobby',
-                            data: {
-                                userId: userId,
-                                userName: playerName
-                            }
-                        })
-                    });
-
-                    const result = await response.json();
-                    console.log('API Join Response:', result);
-
-                    if (result.success) {
-                        console.log('Erfolgreich beigetreten:', result);
+                    // Supabase Realtime Client erstellen
+                    realtimeClient = new SupabaseRealtimeClient();
+                    
+                    // Event-Listener für erfolgreiche Verbindung
+                    realtimeClient.on('connect', () => {
+                        console.log('Supabase Realtime verbunden');
                         updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
                         joinButton.textContent = 'Beigetreten!';
                         
@@ -241,9 +233,27 @@
                             console.log('Weiterleitung zu:', lobbyUrl);
                             window.location.href = lobbyUrl;
                         }, 1500);
-                    } else {
-                        throw new Error(result.error || 'Unbekannter Fehler beim Beitreten');
+                    });
+
+                    realtimeClient.on('connect_error', (error) => {
+                        console.error('Supabase Realtime Verbindungsfehler:', error);
+                        updateStatus('Verbindungsfehler: ' + error.message, 'error');
+                        joinButton.disabled = false;
+                        joinButton.textContent = 'Lobby beitreten';
+                    });
+
+                    // Verbindung zur Lobby herstellen
+                    await realtimeClient.connect(lobbyData.lobbyId, userId, playerName, false);
+
+                    // Lobby beitreten über Realtime Client
+                    const joinResult = await realtimeClient.joinLobby();
+                    
+                    if (!joinResult.success) {
+                        throw new Error(joinResult.error || 'Unbekannter Fehler beim Beitreten');
                     }
+
+                    console.log('Erfolgreich beigetreten:', joinResult);
+
                 } catch (error) {
                     console.error('Detaillierter Fehler beim Beitreten:', error);
                     updateStatus('Fehler: ' + error.message, 'error');

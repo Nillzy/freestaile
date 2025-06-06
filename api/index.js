@@ -1397,66 +1397,52 @@ app.get("/multiplayer-presentation/:lobbyId", async (req, res) => {
   }
 });
 
-// Alternative zu Socket.IO für Vercel - Server-Sent Events
-const lobbyConnections = new Map(); // Speichere SSE-Verbindungen
-
-// SSE-Endpunkt für Lobby-Updates
-app.get("/api/lobby/:lobbyId/events", (req, res) => {
-  const { lobbyId } = req.params;
-
-  // SSE-Headers setzen
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Cache-Control",
+// Supabase-Konfiguration für Client bereitstellen
+app.get("/api/supabase-config", (req, res) => {
+  res.json({
+    url: `https://${process.env.SUPABASE_USER_ID}.supabase.co`,
+    anonKey: process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_API_KEY,
   });
-
-  // Verbindung zur Lobby hinzufügen
-  if (!lobbyConnections.has(lobbyId)) {
-    lobbyConnections.set(lobbyId, new Set());
-  }
-  lobbyConnections.get(lobbyId).add(res);
-
-  // Heartbeat senden
-  const heartbeat = setInterval(() => {
-    res.write('data: {"type":"heartbeat"}\n\n');
-  }, 30000);
-
-  // Cleanup bei Verbindungsabbruch
-  req.on("close", () => {
-    clearInterval(heartbeat);
-    if (lobbyConnections.has(lobbyId)) {
-      lobbyConnections.get(lobbyId).delete(res);
-      if (lobbyConnections.get(lobbyId).size === 0) {
-        lobbyConnections.delete(lobbyId);
-      }
-    }
-  });
-
-  // Initiale Verbindungsbestätigung
-  res.write('data: {"type":"connected"}\n\n');
 });
 
-// Funktion zum Senden von Updates an alle Lobby-Teilnehmer
-function broadcastToLobby(lobbyId, data) {
-  if (lobbyConnections.has(lobbyId)) {
-    const connections = lobbyConnections.get(lobbyId);
-    const message = `data: ${JSON.stringify(data)}\n\n`;
+// Chat-API für Fallback (optional, da Realtime das übernimmt)
+app.post("/api/chat", async (req, res) => {
+  try {
+    const { lobbyId, userId, userName, message, isHost } = req.body;
 
-    connections.forEach((res) => {
-      try {
-        res.write(message);
-      } catch (error) {
-        console.error("Fehler beim Senden der SSE-Nachricht:", error);
-        connections.delete(res);
-      }
-    });
+    if (!lobbyId || !userId || !userName || !message) {
+      return res.status(400).json({ error: "Fehlende Parameter" });
+    }
+
+    // Optional: Chat-Nachricht in Datenbank speichern
+    // const result = await sendChatMessage(lobbyId, userId, message);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Fehler beim Verarbeiten der Chat-Nachricht:", error);
+    res.status(500).json({ error: "Serverfehler" });
   }
-}
+});
 
-// API-Endpunkt für Lobby-Aktionen (ersetzt Socket.IO Events)
+// Slide-Change API für Fallback (optional, da Realtime das übernimmt)
+app.post("/api/slideChange", async (req, res) => {
+  try {
+    const { lobbyId, slideIndex } = req.body;
+
+    if (!lobbyId || typeof slideIndex !== "number") {
+      return res.status(400).json({ error: "Ungültige Parameter" });
+    }
+
+    // Optional: Slide-Index in Datenbank speichern
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Fehler beim Verarbeiten der Slide-Änderung:", error);
+    res.status(500).json({ error: "Serverfehler" });
+  }
+});
+
+// API-Endpunkt für Lobby-Aktionen (für Beitreten zur Lobby)
 app.post("/api/lobby/:lobbyId/action", async (req, res) => {
   try {
     const { lobbyId } = req.params;
@@ -1476,75 +1462,12 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
           const players = await getLobbyPlayers(lobbyId);
           console.log("API: Players after join:", players);
 
-          broadcastToLobby(lobbyId, {
-            type: "playerJoined",
-            player: { user_id: userId, name: userName },
-            players: players,
-          });
-
           res.json({ success: true, players, player: joinResult.player });
         } else {
           const errorMsg =
             joinResult?.error || "Unbekannter Fehler beim Beitreten";
           console.error("API: Join failed:", errorMsg);
           res.status(400).json({ success: false, error: errorMsg });
-        }
-        break;
-
-      case "chatMessage":
-        const { message, playerId, playerName, isHost } = data;
-        const chatData = {
-          userId: playerId,
-          userName: playerName,
-          message: message.trim(),
-          isHost: isHost || false,
-          timestamp: new Date().toISOString(),
-        };
-
-        broadcastToLobby(lobbyId, {
-          type: "chatMessage",
-          ...chatData,
-        });
-
-        res.json({ success: true });
-        break;
-
-      case "slideChange":
-        if (req.user) {
-          const lobbyDetails = await getLobbyDetails(lobbyId);
-          if (lobbyDetails && lobbyDetails.host_id === req.user.id) {
-            const { slideIndex } = data;
-            broadcastToLobby(lobbyId, {
-              type: "slideChanged",
-              slideIndex: slideIndex,
-              timestamp: new Date().toISOString(),
-            });
-            res.json({ success: true });
-          } else {
-            res.status(403).json({ error: "Nur der Host kann Slides ändern" });
-          }
-        } else {
-          res.status(401).json({ error: "Nicht authentifiziert" });
-        }
-        break;
-
-      case "startPresentation":
-        if (req.user) {
-          const lobbyDetails = await getLobbyDetails(lobbyId);
-          if (lobbyDetails && lobbyDetails.host_id === req.user.id) {
-            broadcastToLobby(lobbyId, {
-              type: "presentationStarted",
-              lobbyId: lobbyId,
-              message: "Die Präsentation wurde gestartet!",
-            });
-            res.json({ success: true });
-          } else {
-            res
-              .status(403)
-              .json({ error: "Nur der Host kann die Präsentation starten" });
-          }
-        } else {
-          res.status(401).json({ error: "Nicht authentifiziert" });
         }
         break;
 
