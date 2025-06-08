@@ -1481,27 +1481,9 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
 });
 
 /*const PORT = process.env.PORT || 8080;
-
-// Funktion zur Serverstart mit Port-Fallback
-function startServer(port) {
-  try {
-    app.listen(port, () => {
-      console.log(`Server running at http://localhost:${port}/`);
-    });
-  } catch (error) {
-    if (error.code === "EADDRINUSE") {
-      console.warn(
-        `Port ${port} bereits in Verwendung, versuche Port ${port + 1}`
-      );
-      startServer(port + 1);
-    } else {
-      console.error("Serverfehler:", error);
-    }
-  }
-}*/
-
-// Starte den HTTP-Server mit automatischer Port-Fallback-Funktion
-startServer(PORT);
+app.listen(PORT, () => {
+  console.log(`Listening at http://localhost:${PORT}`);
+});*/
 
 // Exportiere den Express-Handler für Vercel
 export default app;
