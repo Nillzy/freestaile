@@ -225,15 +225,6 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
     }
 });
 
-app.get("/howLongIsThisProcessAlive", async (req, res) => {
-    res.send("Hello World");
-    setInterval(() => {
-        console.log("Still alive...");
-    }, 5000);
-    console.log("hier?");
-    await sleep(1000 * 60 * 60);
-});
-
 app.post("/initiateGeneration", async (req, res) => {
     const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
     const accountID = req.user.id;
@@ -555,8 +546,3 @@ function getRandomTopic() {
 
 // Express handler for Vercel:
 export default app;
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
-
