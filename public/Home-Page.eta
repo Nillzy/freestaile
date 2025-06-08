@@ -74,12 +74,16 @@
         <div class="feature">
             <i class="fas fa-users"></i>
             <h3>Für wen ist FreestAIle?</h3>
-            <p>Hier kannst du eine Zielgruppenbeschreibung einfügen.</p>
+            <p>FreestAIle ist für jedermann! Egal ob Du grad voll auf Ernst angelehnt Deine Vortragsskills verbessern oder einfach nur lustig mit Freunden Karaoke machen willst, FreestAIle ist DAS Tool für Dich!</p>
         </div>
         <div class="feature">
             <i class="fa-solid fa-gears"></i>
             <h2>So funktioniert FreestAIle</h2>
-            <p>Hier deine Beschreibung...</p>
+        <ol class="feature-list">
+          <li>Entscheide, ob du alleine oder mit Freunden spielen möchtest.</li>
+          <li>Wähle ein Präsentationsthema – entweder zufällig oder ein eigenes.</li>
+          <li>Lege los mit deiner Präsentation und habe Spaß dabei!</li>
+        </ol>
         </div>
     </div>
 </div>
