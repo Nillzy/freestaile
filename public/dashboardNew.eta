@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreestAIle - AI-Powered Presentation Karaoke</title>
+    <title>FreestAIle - PowerPoint Karaoke mit KI</title>
     <!-- Dark mode initialization script - must be at the top to prevent flicker -->
     <script src="darkmode-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -80,12 +80,12 @@
     <div class="container">
         <div class="header">
             <h1 class="logo"><b>QUICK</b>mode</h1>
-            <p class="tagline">Transform any topic into an AI-powered presentation adventure</p>
+            <p class="tagline">Verwandle jedes Thema in ein KI-gestütztes Präsentationsabenteuer</p>
         </div>
 
         <form class="main-form" action="/present" method="get" id="quickModeForm">
             <div class="input-group">
-                <label for="topic">What should your presentation be about?</label>
+                <label for="topic">Worüber soll deine Präsentation gehen?</label>
                 <div class="input-wrapper">
                     <input type="text" name="topic" id="topic" autocomplete="off">
                     <div class="typing-placeholder"></div>
@@ -95,10 +95,10 @@
                         <div class="input-hint-icon">
                             <i class="fas fa-lightbulb"></i>
                         </div>
-                        <span>Tab to use recommendation</span>
+                        <span>Tab für Vorschlag</span>
                     </div>
                 </div>
-                <label for="presentationLanguage">Select presentation language</label>
+                <label for="presentationLanguage">Sprache der Präsentation wählen</label>
                 <div class="input-wrapper">
                     <select name="presentationLanguage" id="presentationLanguage">
                         <option value="en">🇬🇧 English</option>
@@ -118,7 +118,7 @@
                 <label class="custom-checkbox-label">
                   <input type="checkbox" id="randomTopicCheckbox" class="custom-checkbox" />
                   <span class="custom-checkbox-box"></span>
-                  Give me a random presentation topic
+                  Gib mir ein zufälliges Präsentationsthema
                 </label>
                 <div class="wheel-and-hamster" id="loadingAnimation" role="img" aria-label="Orange and tan hamster running in a metal wheel">
                     <div class="wheel"></div>
@@ -146,24 +146,24 @@
         <div class="header">
             <div class="multiplayer-section" style="position: relative; <%= !it.user ? 'opacity: 0.5; filter: grayscale(100%);' : '' %>">
                 <h1 class="logo"><b>MULTI</b>player-Mode</h1>
-                <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+                <p class="tagline">Genieße Zeit mit deinen Freunden beim PowerPoint-Karaoke <b>GEMEINSAM!</b></p>
                 <% if (it.user) { %>
                     <form class="main-form" action="/multi" method="get">
                         <div class="input-group">
-                            <button type="submit">Play together!</button>
+                            <button type="submit">Gemeinsam spielen!</button>
                         </div>
                     </form>
                 <% } else { %>
                     <form class="main-form" style="pointer-events: none;">
                         <div class="input-group">
-                            <button type="button" disabled style="cursor: not-allowed;">Play together!</button>
+                            <button type="button" disabled style="cursor: not-allowed;">Gemeinsam spielen!</button>
                         </div>
                     </form>
                 <% } %>
             </div>
             <% if (!it.user) { %>
                 <div class="restricted-container">
-                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">MULTIplayer-Mode ist only available for registered users</p>
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">MULTIplayer-Mode ist nur für registrierte Nutzer verfügbar</p>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
                         <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
                             <span>Anmelden</span>
@@ -189,27 +189,27 @@
 <div class="container features-container">
     <div class="header">
         <h1 class="logo">Features</h1>
-        <p class="tagline">Discover what makes FreestAIle special</p>
+        <p class="tagline">Entdecke, was FreestAIle besonders macht</p>
     </div>
     <div class="features">
         <div class="feature">
             <i class="fas fa-bolt"></i>
-            <h3>Instant Creation</h3>
-            <p>Get a full presentation in seconds, no preparation needed</p>
+            <h3>Sofortige Erstellung</h3>
+            <p>Erhalte in Sekunden eine komplette Präsentation, ganz ohne Vorbereitung</p>
         </div>
         <div class="feature">
             <i class="fa-solid fa-face-laugh-squint"></i>
-            <h3>Unpredictable Fun</h3>
-            <p>Challenge yourself with surprising slides and content</p>
+            <h3>Unvorhersehbarer Spaß</h3>
+            <p>Fordere dich selbst mit überraschenden Folien und Inhalten heraus</p>
         </div>
         <div class="feature">
             <i class="fas fa-users"></i>
-            <h3>Perfect for Groups</h3>
-            <p>Ideal for team building and improv exercises</p>
+            <h3>Perfekt für Gruppen</h3>
+            <p>Ideal für Teambuilding und Improvisationsübungen</p>
         </div>
     </div>
     <footer>
-        © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
+        © 2025 FreestAIle | Das ultimative KI-gestützte Präsentations-Karaoke
     </footer>
 </div>
 
