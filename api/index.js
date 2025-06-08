@@ -410,7 +410,7 @@ app.get("/create-lobby", async (req, res) => {
     // Erstelle IMMER eine neue Lobby (keine bestehende Lobby-ID)
     const lobbyId = v4();
     const playerName = req.query.name || req.user.email.split("@")[0];
-    const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+    const baseUrl = req.headers.host;
     const joinUrl = `${baseUrl}/join?id=${lobbyId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(joinUrl);
     const userId = req.user.id || req.user.email || v4();
@@ -1480,10 +1480,12 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
   }
 });
 
-/*const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Listening at http://localhost:${PORT}`);
-});*/
+if (process.env.IS_LOCAL) {
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, () => {
+    console.log(`Listening at http://localhost:${PORT}`);
+  });
+}
 
 // Exportiere den Express-Handler für Vercel
 export default app;
