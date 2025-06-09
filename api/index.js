@@ -531,10 +531,12 @@ app.post("/verifyUserRoundRelation", async (req, res) => {
     return true;
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}/`);
-});
+if (process.env.IS_LOCAL) {
+    const PORT = process.env.PORT || 8080;
+    app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}/`);
+    });
+}
 
 function getRandomTopic() {
     const topicsPath = path.join(__dirname, 'topics.json');
