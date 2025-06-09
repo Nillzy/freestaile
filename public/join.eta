@@ -229,7 +229,7 @@
                         
                         // Weiterleitung zur Lobby-Seite nach kurzer Verzögerung
                         setTimeout(() => {
-                            const lobbyUrl = `/lobby?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
+                            const lobbyUrl = `/lobby-multidevicemode?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
                             console.log('Weiterleitung zu:', lobbyUrl);
                             window.location.href = lobbyUrl;
                         }, 1500);

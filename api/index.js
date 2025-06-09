@@ -555,7 +555,7 @@ app.get("/join", (req, res) => {
   const lobbyId = req.query.id;
 
   if (!lobbyId) {
-    return res.redirect("/main");
+    return res.redirect("/");
   }
 
   // Generiere userId und userName
@@ -574,8 +574,8 @@ app.get("/join", (req, res) => {
 });
 
 // Neue Lobby-Route für Teilnehmer
-// TODO: Wird das hier verwendet? /lobby gibt es schon
-/*app.get("/lobby", async (req, res) => {
+
+app.get("/lobby-multidevicemode", async (req, res) => {
   const lobbyId = req.query.id;
   const userId = req.query.userId;
   const userName = req.query.userName;
@@ -625,7 +625,7 @@ app.get("/join", (req, res) => {
     console.error("Fehler beim Laden der Lobby-Seite:", error);
     return res.redirect(`/error-page?message=Fehler beim Laden der Lobby`);
   }
-});*/
+});
 
 // Error Page Route (aktualisiert)
 app.get("/error-page", (req, res) => {
