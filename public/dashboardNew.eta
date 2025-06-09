@@ -148,7 +148,7 @@
                 <h1 class="logo"><b>MULTI</b>player-Mode</h1>
                 <p class="tagline">Genieße Zeit mit deinen Freunden beim PowerPoint-Karaoke <b>GEMEINSAM!</b></p>
                 <% if (it.user) { %>
-                    <form class="main-form" action="/multi" method="get">
+                    <form class="main-form" action="/create-lobby" method="get">
                         <div class="input-group">
                             <button type="submit">Gemeinsam spielen!</button>
                         </div>
