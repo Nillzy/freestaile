@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { Eta } from "eta";
 import { JSDOM } from "jsdom";
-import dotenv from "dotenv";
+import {} from 'dotenv/config'
 import favicon from "serve-favicon";
 //import { validateRevealSlides } from "./revealValidator.js";
 //import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
@@ -16,15 +16,17 @@ import { authMiddleware, requireAuth } from "./middleware/auth.js";
 import { validateRevealSlides } from "./revealValidator.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
 import {
+  fetchPresentation,
+  saveSlides,
   getPresentationIDsFromRoundID,
   createRound,
   setPresentationIDsAndPlayersFromRoundID,
   fetchPlayerName,
   getRoundsFromAccountID,
+  checkGenerationStatus,
+  setGenerationStatus
 } from "./SupabaseService.js";
 import {
-  fetchPresentation,
-  saveSlides,
   createLobby,
   joinLobby,
   getLobbyPlayers,
@@ -47,14 +49,12 @@ import {
   generateJoinCode,
   createLobbyWithCode,
   joinLobbyByCode,
-} from "../services/SupabaseService.js";
+} from "./SupabaseServiceMultiDeviceMode.js";
 import QRCode from "qrcode";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// .env Datei aus dem api/ Verzeichnis laden
-dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const eta = new Eta({ views: path.join(__dirname, "../public") });
@@ -197,98 +197,92 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-app.post("/api/auth/delete-account", requireAuth, async (req, res) => {
+app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
+  const accountID = req.user.id;
   try {
+
+    const { error: generationStatesError } = await supabase
+        .from('GenerationStates')
+        .delete()
+        .eq('a_id', accountID);
+
+    if (generationStatesError) {
+      console.error('Fehler beim Löschen der Generation States:', generationStatesError);
+      return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
+    }
+
     const { error: presentationsInRoundError } = await supabase
-      .from("Presentations_in_Round")
-      .delete()
-      .eq("a_id", req.user.id);
+        .from('Presentations_in_Round')
+        .delete()
+        .eq('a_id', accountID);
 
     if (presentationsInRoundError) {
-      console.error(
-        "Fehler beim Löschen der Präsentationen:",
-        presentationsInRoundError
-      );
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Löschen der Benutzerdaten" });
+      console.error('Fehler beim Löschen der Präsentationen:', presentationsInRoundError);
+      return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
     }
 
     const { error: presentationsError } = await supabase
-      .from("Presentations")
-      .delete()
-      .eq("a_id", req.user.id);
+        .from('Presentations')
+        .delete()
+        .eq('a_id', accountID);
 
     if (presentationsError) {
-      console.error(
-        "Fehler beim Löschen der Präsentationen:",
-        presentationsError
-      );
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Löschen der Benutzerdaten" });
+      console.error('Fehler beim Löschen der Präsentationen:', presentationsError);
+      return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
     }
 
     // Lösche zuerst alle abhängigen Daten
     const { error: roundsError } = await supabase
-      .from("Rounds")
-      .delete()
-      .eq("a_id", req.user.id);
+        .from('Rounds')
+        .delete()
+        .eq('a_id', accountID);
 
     if (roundsError) {
-      console.error("Fehler beim Löschen der Runden:", roundsError);
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Löschen der Benutzerdaten" });
+      console.error('Fehler beim Löschen der Runden:', roundsError);
+      return res.status(500).json({ error: 'Fehler beim Löschen der Benutzerdaten' });
     }
 
     // Lösche den Benutzer bei Supabase
-    const { error: deleteUserError } = await supabase.auth.admin.deleteUser(
-      req.user.id
-    );
+    const { error: deleteUserError } = await supabase.auth.admin.deleteUser(accountID);
 
     if (deleteUserError) {
-      console.error(
-        "Fehler beim Löschen des Supabase-Accounts:",
-        deleteUserError
-      );
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Löschen des Accounts" });
+      console.error('Fehler beim Löschen des Supabase-Accounts:', deleteUserError);
+      return res.status(500).json({ error: 'Fehler beim Löschen des Accounts' });
     }
 
     // Lösche den Session-Cookie
-    res.clearCookie("session");
+    res.clearCookie('session');
 
-    res.status(200).json({ message: "Account erfolgreich gelöscht" });
+    res.status(200).json({ message: 'Account erfolgreich gelöscht' });
   } catch (error) {
-    console.error("Fehler beim Löschen des Accounts:", error);
-    res.status(500).json({ error: "Interner Serverfehler" });
+    console.error('Fehler beim Löschen des Accounts:', error);
+    res.status(500).json({ error: 'Interner Serverfehler' });
   }
 });
 
 app.post("/initiateGeneration", async (req, res) => {
-  const presentationLanguage = /*req.body.presentationLanguage*/ "en";
+  const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
   const accountID = req.user.id;
   const presentations = req.body.presentations;
   console.log(presentations);
 
   if (presentations === undefined || presentations.length === 0) {
-    return res
-      .status(500)
-      .json({
-        message: "Request not valid",
-      })
-      .send();
+    return res.status(500).json({
+      message: "Request not valid"
+    }).send();
   }
 
   let playersAndTopics = [];
 
   for (let i = 0; i < presentations.length; i++) {
-    const playerAndTopic = {
-      player: presentations[i].player,
-      topic: presentations[i].topic,
-    };
+    if (presentations[i].topic.length < 3 || presentations[i].topic.length > 50) {
+      return res.status(500).json({
+        message: "Request not valid"
+      }).send();
+    } else if (presentations[i].topic === "//RANDOM//") {
+      presentations[i].topic = getRandomTopic();
+    }
+    const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
     playersAndTopics.push(playerAndTopic);
   }
 
@@ -297,12 +291,9 @@ app.post("/initiateGeneration", async (req, res) => {
   const roundCreated = await createRound(roundID, req.user.id);
 
   if (!roundCreated) {
-    return res
-      .status(500)
-      .json({
-        message: "Round could not be created",
-      })
-      .send();
+    return res.status(500).json({
+      message: "Round could not be created"
+    }).send();
   }
 
   let presentationIDs = [];
@@ -310,68 +301,69 @@ app.post("/initiateGeneration", async (req, res) => {
   for (const presentation of presentations) {
     const presentationID = v4();
     presentationIDs.push(presentationID);
-    presentationStatus.set(presentationID, {
-      status: "processing",
-      timestamp: Date.now(),
-    });
   }
 
-  const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(
-    presentationIDs,
-    playersAndTopics,
-    roundID,
-    accountID
-  );
+  const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID);
 
   if (!presentationIDsWritten) {
     if (!roundCreated) {
-      return res
-        .status(500)
-        .json({
-          message: "Presentation ID could not be written for round ID",
-        })
-        .send();
+      return res.status(500).json({
+        message: "Presentation ID could not be written for round ID"
+      }).send();
+    }
+  }
+
+  for (const presentationID of presentationIDs) {
+    const success = await setGenerationStatus(presentationID, 'processing', req.user.id);
+    if (!success) {
+      return res.status(500).json({
+        message: "Generation status could not be written."
+      }).send();
     }
   }
 
   console.log(presentationIDs);
-  console.log(presentationStatus);
   console.log(roundID);
-  res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+  setTimeout( () => {
+    res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+  }, 500);
 
   //Background process:
-  try {
-    for (let i = 0; i < presentations.length; i++) {
+  for (let i = 0; i < presentations.length; i++) {
+    try {
       const presentationID = presentationIDs[i];
       const topic = presentations[i].topic;
-      const contentWithoutImages = await fetchSlides(
-        topic,
-        presentationLanguage
-      );
+      const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
       const content = await insertImages(contentWithoutImages);
-      const successful = await saveSlides(presentationID, content, topic);
+      const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
 
       if (!successful) {
-        presentationStatus.set(presentationID, {
-          status: "error",
-          message: "Fehler beim Speichern der Präsentation",
-          timestamp: Date.now(),
-        });
+        const success = await setGenerationStatus(presentationID, 'error', req.user.id);
+        if (!success) {
+          return res.status(500).json({
+            message: "Generation status could not be written."
+          }).send();
+        }
       }
 
-      presentationStatus.set(presentationID, {
-        status: "completed",
-        timestamp: Date.now(),
-      });
-    }
-  } catch (error) {
-    console.error("Error while fetching and saving slides:", error);
-    if (presentationID) {
-      presentationStatus.set(presentationID, {
-        status: "error",
-        message: "Fehler beim Generieren der Präsentation",
-        timestamp: Date.now(),
-      });
+      setTimeout(async () => {
+        const success = await setGenerationStatus(presentationID, 'completed', req.user.id);
+        if (!success) {
+          return res.status(500).json({
+            message: "Generation status could not be written."
+          }).send();
+        }
+      }, 500);
+    } catch (error) {
+      const presentationID = presentationIDs[i];
+      console.error("Error while fetching and saving slides:", error);
+
+      const success = await setGenerationStatus(presentationID, 'error', req.user.id);
+      if (!success) {
+        return res.status(500).json({
+          message: "Generation status could not be written."
+        }).send();
+      }
     }
   }
 });
@@ -399,7 +391,7 @@ app.get("/1-device-mode", requireAuth, (req, res) => {
   res.send(eta.render("1devicemode", { user: req.user }));
 });
 
-app.get("/create-lobby", async (req, res) => {
+app.get("/multi-device-mode", async (req, res) => {
   if (!req.user) {
     return res.redirect("/");
   }
@@ -462,7 +454,7 @@ app.get("/create-lobby", async (req, res) => {
         lobbyId: lobbyId,
         qrCode: qrCodeDataUrl,
         joinUrl: joinUrl,
-        isHost: true, // IMMER Host bei create-lobby
+        isHost: true, // IMMER Host bei /multi-device-mode
         playerName: playerName,
         players: playersList,
         lobbyDetails: lobbyResult || {},
@@ -563,7 +555,7 @@ app.get("/join", (req, res) => {
   const lobbyId = req.query.id;
 
   if (!lobbyId) {
-    return res.redirect("/main");
+    return res.redirect("/");
   }
 
   // Generiere userId und userName
@@ -582,7 +574,8 @@ app.get("/join", (req, res) => {
 });
 
 // Neue Lobby-Route für Teilnehmer
-app.get("/lobby", async (req, res) => {
+
+app.get("/lobby-multidevicemode", async (req, res) => {
   const lobbyId = req.query.id;
   const userId = req.query.userId;
   const userName = req.query.userName;
@@ -644,37 +637,29 @@ app.get("/error-page", (req, res) => {
   );
 });
 
-// Beispiel für eine geschützte Route
-app.get("/dashboard", requireAuth, (req, res) => {
-  res.send(eta.render("dashboard", { user: req.user }));
-});
-
 app.get("/present", (req, res) => {
-  if (
-    req.query.topic !== undefined ||
-    req.query.presentationLanguage !== undefined
-  ) {
+  if (req.query.topic !== undefined && req.query.topic.length >= 3 && req.query.topic.length <= 50 && req.query.presentationLanguage !== undefined) {
     fetchSlides(req.query.topic, req.query.presentationLanguage)
-      .then((content) => insertImages(content))
-      .then((contentWithImages) => {
-        res.send(
-          eta.render("presentation-page", {
-            topic: req.query.topic,
-            presentationLanguage: req.query.presentationLanguage,
-            content: contentWithImages,
-          })
-        );
-      })
-      .catch((error) => {
-        console.error("Error fetching slides:", error);
-        res.status(500).send(
-          eta.render("error-page", {
-            message: "Fehler beim Abrufen der Präsentation",
-          })
-        );
-      });
+        .then((content) => insertImages(content))
+        .then((contentWithImages) => {
+          res.send(
+              eta.render("presentation-page", {
+                topic: req.query.topic,
+                presentationLanguage: req.query.presentationLanguage,
+                content: contentWithImages,
+              })
+          );
+        })
+        .catch((error) => {
+          console.error("Error fetching slides:", error);
+          return res.status(500).send(
+              eta.render("error-page", {
+                message: "Fehler beim Abrufen der Präsentation",
+              })
+          );
+        });
   } else {
-    res.redirect("/");
+    return res.redirect("/");
   }
 });
 
@@ -703,45 +688,32 @@ async function insertImages(content) {
 }
 
 app.get("/present2", async (req, res) => {
-  let presentationID = req.query.presentationID;
-  if (
-    presentationID === undefined ||
-    presentationID === "" ||
-    !validator.isUUID(presentationID)
-  ) {
-    res.redirect("/");
+  let presentationID = req.query.presentationID
+  if (presentationID === undefined || presentationID === "" || !validator.isUUID(presentationID)) {
+    res.redirect("/")
   } else {
     const data = await fetchPresentation(presentationID);
 
     if (!data) {
-      eta.render("error-page", {
-        message: "Fehler beim Abrufen und Speichern der Präsentation",
-      });
-      return;
-    }
-    if (!data) {
       console.log("Hier!!!!");
-      return res.send(
-        eta.render("error-page", {
-          message: "The presentation does not exist or is still generating.",
-        })
-      );
+      return res.send(eta.render("error-page", {
+        message: "The presentation does not exist or is still generating.",
+      }));
     }
 
     console.log(data);
 
     res.send(
-      eta.render("presentation-page", {
-        topic: data.topic,
-        content: data.content,
-      })
+        eta.render("presentation-page", {
+          topic: data.topic,
+          content: data.content,
+        })
     );
   }
 });
 
-const presentationStatuses = new Map();
-
-app.get("/initiateGeneration", requireAuth, async (req, res) => {
+// Nicht mehr benötigt
+/*app.get("/initiateGeneration", requireAuth, async (req, res) => {
   let topic = req.query.presentationID.toString;
   let presentationLanguage = req.query.presentationID.toString();
   if (
@@ -804,108 +776,71 @@ app.get("/initiateGeneration", requireAuth, async (req, res) => {
   } else {
     res.redirect("/");
   }
-});
+});*/
 
-app.post("/checkGenerationStatus", requireAuth, (req, res) => {
+app.post("/checkGenerationStatus", requireAuth, async (req, res) => {
   const presentationID = req.body.presentationID;
+
   if (!presentationID || !validator.isUUID(presentationID)) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "Ungültige Präsentations-ID(s)" });
+    return res.status(400).json({ status: 'error', message: 'Invalid request data' });
   }
 
-  const status = presentationStatus.get(presentationID);
-  if (!status) {
-    return res
-      .status(404)
-      .json({ status: "error", message: "Präsentation nicht gefunden" });
+  const generationStatus = await checkGenerationStatus(presentationID);
+
+  console.log(generationStatus);
+
+  if (!generationStatus || !generationStatus.status) {
+    return res.json({ status: "error", message: 'Error fetching generation status' });
   }
 
-  res.json(status);
+  return res.json(generationStatus);
 });
 
 app.get("/lobby", requireAuth, async (req, res) => {
+
   const gameMode = req.query.gameMode;
   const roundID = req.query.roundID;
 
-  console.log(gameMode, roundID);
+  console.log(gameMode, roundID)
 
   if (!gameMode || !roundID || !validator.isUUID(roundID)) {
-    return res.redirect("/");
+    return res.redirect('/');
   }
 
   // TODO: GameMode behandeln...
 
-  // TODO: Verifizieren, dass die Round zum User gehört
-
-  /*const verifyUserRoundRelation = await fetch ("/verifyUserRoundRelation", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            userID: req.user.id,
-            gameMode: gameMode,
-            roundID: roundID
-        })
-    });
-
-    if (!verifyUserRoundRelation || !verifyUserRoundRelation.ok) {
-        return res.status(500).send(
-            eta.render("error-page", {
-                message: "Fehler beim Abrufen der Präsentationen",
-            })
-        );
-    }*/
-
   const presentationIDs = await getPresentationIDsFromRoundID(roundID);
+
+  if (!presentationIDs) {
+    return res.status(500).send(
+        eta.render("error-page", {
+          message: "Datenbank-Fehler beim Abrufen der Runden-Informationen",
+        })
+    );
+  } else if (presentationIDs === "INVALID_ROUND") {
+    return res.status(500).send(
+        eta.render("error-page", {
+          message: "Ungültige Rundeninformationen",
+        })
+    );
+  }
   let players = [];
   for (const presentationID of presentationIDs) {
-    const player = await fetchPlayerName(presentationID);
+    const player = await fetchPlayerName(presentationID)
     players.push(player);
   }
 
+
   if (!presentationIDs || !Array.isArray(presentationIDs)) {
     return res.status(500).send(
-      eta.render("error-page", {
-        message: "Fehler beim Abrufen der Präsentationen",
-      })
+        eta.render("error-page", {
+          message: "Fehler beim Abrufen der Präsentationen",
+        })
     );
   }
 
   console.log(players);
-  return res.send(
-    eta.render("generation-status-multiplayer", {
-      presentationIDs: presentationIDs,
-      players: players,
-    })
-  );
-});
-
-app.post("/verifyUserRoundRelation", async (req, res) => {
-  //...
-  return true;
-});
-
-// Cleanup alte Status-Einträge alle 30 Minuten
-setInterval(() => {
-  const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
-  for (const [id, status] of presentationStatus.entries()) {
-    if (status.timestamp && status.timestamp < thirtyMinutesAgo) {
-      presentationStatus.delete(id);
-    }
-  }
-}, 30 * 60 * 1000);
-
-// Testroute für Supabase-Verbindung
-app.get("/api/test-connection", async (req, res) => {
-  try {
-    const result = await testSupabaseConnection();
-    res.json(result);
-  } catch (error) {
-    console.error("Fehler beim Testen der Verbindung:", error);
-    res.status(500).json({ error: error.message });
-  }
+  return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
 });
 
 // ===== NEUE MULTIPLAYER-API-ENDPUNKTE =====
@@ -1479,6 +1414,14 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
     res.status(500).json({ error: "Serverfehler" });
   }
 });
+
+function getRandomTopic() {
+  const topicsPath = path.join(__dirname, 'topics.json');
+  const topicsData = JSON.parse(fs.readFileSync(topicsPath, 'utf8'));
+  const topics = topicsData.powerpoint_karaoke_topics;
+  const randomIndex = Math.floor(Math.random() * topics.length);
+  return topics[randomIndex];
+}
 
 if (process.env.IS_LOCAL) {
   const PORT = process.env.PORT || 8080;
