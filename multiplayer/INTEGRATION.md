@@ -7,7 +7,7 @@ Um die Multiplayer-Funktionalität in die FreestAIle-Anwendung zu integrieren, f
 Suchen Sie in der `homepage.eta`-Datei nach dem Abschnitt, der die Hauptaktionen oder Buttons enthält, und fügen Sie den folgenden HTML-Code ein:
 
 ```html
-<a href="/create-lobby" class="action-button multiplayer-button">
+<a href="/multi-device-mode" class="action-button multiplayer-button">
   <i class="fas fa-users"></i> Multiplayer starten
 </a>
 ```
@@ -45,4 +45,4 @@ Nach dem Hinzufügen des Buttons:
 
 ## Hinweis
 
-Die Route `/create-lobby` ist bereits in der `main.js`-Datei implementiert und leitet den Benutzer zur Lobby-Seite mit einer neu generierten Lobby-ID weiter.
+Die Route `/multi-device-mode` ist bereits in der `index.js`-Datei implementiert und leitet den Benutzer zur Lobby-Seite mit einer neu generierten Lobby-ID weiter.

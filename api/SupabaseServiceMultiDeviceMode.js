@@ -774,48 +774,6 @@ async function joinLobbyByCode(code, userId, playerName) {
   }
 }
 
-// Präsentation abrufen (bestehende Funktion)
-async function fetchPresentation(presentationID) {
-  try {
-    const { data, error } = await supabase
-      .from("presentations")
-      .select("*")
-      .eq("id", presentationID)
-      .single();
-
-    if (error) {
-      console.error("Fehler beim Abrufen der Präsentation:", error);
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Präsentation:", error);
-    return null;
-  }
-}
-
-// Folien speichern (bestehende Funktion)
-async function saveSlides(presentationData) {
-  try {
-    const { data, error } = await supabase
-      .from("presentations")
-      .insert([presentationData])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Fehler beim Speichern der Präsentation:", error);
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Fehler beim Speichern der Präsentation:", error);
-    return null;
-  }
-}
-
 // Supabase-Verbindung testen
 async function testSupabaseConnection() {
   try {
@@ -843,8 +801,6 @@ export {
   joinLobby,
   createLobby,
   updateLobbyStatus,
-  fetchPresentation,
-  saveSlides,
   testSupabaseConnection,
 
   // Neue Multiplayer-Funktionen

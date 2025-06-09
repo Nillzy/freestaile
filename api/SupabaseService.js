@@ -7,29 +7,193 @@ const supabase = createClient(
 
 export async function fetchPresentation(presentationID) {
   const { data, error } = await supabase
-    .from("Presentations")
-    .select("topic, content")
-    .eq("id", presentationID)
-    .single();
+      .from('Presentations')
+      .select('topic, content')
+      .eq('p_id', presentationID)
+      .single();
 
-  if (error || !data || !data.content) {
+  if (error || !data || !data.topic || !data.content) {
     return false;
   } else {
     return { topic: data.topic, content: data.content };
   }
 }
 
-export async function saveSlides(presentationID, content, topic) {
+export async function checkGenerationStatus(presentationID) {
   const { data, error } = await supabase
-    .from("Presentations")
-    .insert([{ id: presentationID, content: content, topic: topic }])
-    .select();
+      .from('GenerationStates')
+      .select('state')
+      .eq('p_id', presentationID)
+      .single();
+
+  if (error || !data || data.state === undefined) {
+    return { status: "error", message: 'Error fetching generation status' };
+  } else {
+    switch (data.state) {
+      case 0:
+        return { status: "processing" };
+      case 1:
+        return { status: "completed" };
+      default:
+        return { status: "error", message: 'Error during generation' };
+    }
+  }
+}
+
+export async function setGenerationStatus(presentationID, state, accountID) {
+
+  let stateNum;
+  switch (state) {
+    case 'processing':
+      stateNum = 0;
+      break;
+    case 'completed':
+      stateNum = 1;
+      break;
+    case 'error':
+      stateNum = 2;
+      break;
+    default:
+      return;
+  }
+
+  const { data, error } = await supabase
+      .from('GenerationStates')
+      .upsert([
+        { p_id: presentationID, state: stateNum, a_id: accountID },
+      ])
+      .select();
+
+
+  if (!error) {
+    return true;
+  } else {
+    console.error("Presentation status could not be saved. Reason: " + error.message);
+    return false;
+  }
+}
+
+export async function saveSlides(presentationID, content, topic, roundID, accountID) {
+  const { data, error } = await supabase
+      .from('Presentations')
+      .insert([
+        { p_id: presentationID, content: content, topic: topic, r_id: roundID, a_id: accountID },
+      ])
+      .select()
 
   if (!error) {
     return true;
   } else {
     console.error("Presentation could not be saved. Reason: " + error.message);
     return false;
+  }
+}
+
+export async function getPresentationIDsFromRoundID(roundID) {
+  const { data, error } = await supabase
+      .from('Presentations_in_Round')
+      .select('p_id')
+      .eq('r_id', roundID);
+
+  if (!error) {
+    console.log(data);
+    let presentationIDs = [];
+    for (const i of data) {
+      presentationIDs.push(i.p_id);
+    }
+    if (presentationIDs.length === 0) {
+      return "INVALID_ROUND"
+    }
+    return presentationIDs;
+  } else {
+    console.error("Presentation IDs could not be fetched. Reason: " + error.message);
+    return false
+  }
+}
+
+export async function getRoundsFromAccountID(accountID) {
+  const { data, error } = await supabase
+      .from('Presentations_in_Round')
+      .select('r_id, p_id, player, topic, created_at')
+      .eq('a_id', accountID)
+      .order('created_at', { ascending: false });
+
+  if (!error) {
+    // Gruppiere die Daten nach r_id
+    const roundsMap = new Map();
+
+    data.forEach(item => {
+      if (!roundsMap.has(item.r_id)) {
+        roundsMap.set(item.r_id, {
+          roundId: item.r_id,
+          createdAt: item.created_at,
+          presentations: []
+        });
+      }
+      roundsMap.get(item.r_id).presentations.push({
+        presentationId: item.p_id,
+        player: item.player,
+        topic: item.topic
+      });
+    });
+
+    // Konvertiere Map zu Array
+    const rounds = Array.from(roundsMap.values());
+    console.log(rounds);
+    return rounds;
+  } else {
+    console.error("Data could not be fetched. Reason: " + error.message);
+    return false;
+  }
+}
+
+export async function setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID) {
+
+  for (let i = 0; i < presentationIDs.length; i++) {
+    const { data, error } = await supabase
+        .from('Presentations_in_Round')
+        .insert({ p_id: presentationIDs[i], player: playersAndTopics[i].player, topic: playersAndTopics[i].topic, r_id: roundID, a_id: accountID })
+        .select();
+
+    if (error) {
+      console.error("Presentation IDs could not be written to Presentations_in_Round. Reason: " + error.message);
+      return false
+    }
+  }
+
+  for (const presentationID of presentationIDs) {
+
+  }
+  return true;
+}
+
+export async function createRound(roundID, accountID) {
+  const { data, error } = await supabase
+      .from('Rounds')
+      .insert([
+        { r_id: roundID, a_id: accountID },
+      ])
+      .select()
+
+  if (!error) {
+    return true;
+  } else {
+    console.error("Round could not be created. Reason: " + error.message);
+    return false;
+  }
+}
+
+export async function fetchPlayerName(presentationID) {
+  const { data, error } = await supabase
+      .from('Presentations_in_Round')
+      .select('player')
+      .eq('p_id', presentationID) //TODO: Check if user ID matches
+      .single();
+
+  if (error || !data || !data.player) {
+    return false;
+  } else {
+    return { player: data.player };
   }
 }
 
@@ -292,150 +456,5 @@ export async function testSupabaseConnection() {
   } catch (error) {
     result.errors.push({ general: error.message });
     return result;
-  }
-}
-
-/**
- * Erstellt eine neue Runde in der Datenbank
- * @param {string} roundID - Die eindeutige ID der Runde
- * @param {string} accountID - Die ID des Benutzerkontos
- * @returns {Promise<boolean>} - true bei Erfolg, false bei Fehler
- */
-export async function createRound(roundID, accountID) {
-  try {
-    const { error } = await supabase
-      .from("Rounds")
-      .insert([{ id: roundID, a_id: accountID }]);
-
-    if (error) {
-      console.error("Fehler beim Erstellen der Runde:", error);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Unerwarteter Fehler beim Erstellen der Runde:", error);
-    return false;
-  }
-}
-
-/**
- * Speichert Präsentations-IDs und Spieler für eine bestimmte Runde
- * @param {Array<string>} presentationIDs - Array mit Präsentations-IDs
- * @param {Array<Object>} playersAndTopics - Array mit Spielern und Themen
- * @param {string} roundID - Die ID der Runde
- * @param {string} accountID - Die ID des Benutzerkontos
- * @returns {Promise<boolean>} - true bei Erfolg, false bei Fehler
- */
-export async function setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID) {
-  try {
-    // Präsentationen erstellen
-    for (let i = 0; i < presentationIDs.length; i++) {
-      const { error: presentationError } = await supabase
-        .from("Presentations")
-        .insert([{
-          id: presentationIDs[i],
-          topic: playersAndTopics[i].topic,
-          player: playersAndTopics[i].player,
-          a_id: accountID
-        }]);
-
-      if (presentationError) {
-        console.error("Fehler beim Erstellen der Präsentation:", presentationError);
-        return false;
-      }
-
-      // Verknüpfung zwischen Präsentation und Runde erstellen
-      const { error: linkError } = await supabase
-        .from("Presentations_in_Round")
-        .insert([{
-          r_id: roundID,
-          p_id: presentationIDs[i],
-          a_id: accountID
-        }]);
-
-      if (linkError) {
-        console.error("Fehler beim Verknüpfen der Präsentation mit der Runde:", linkError);
-        return false;
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Unerwarteter Fehler beim Speichern der Präsentations-IDs:", error);
-    return false;
-  }
-}
-
-/**
- * Ruft alle Präsentations-IDs für eine bestimmte Runde ab
- * @param {string} roundID - Die ID der Runde
- * @returns {Promise<Array<string>|boolean>} - Array mit Präsentations-IDs bei Erfolg, false bei Fehler
- */
-export async function getPresentationIDsFromRoundID(roundID) {
-  try {
-    const { data, error } = await supabase
-      .from("Presentations_in_Round")
-      .select("p_id")
-      .eq("r_id", roundID);
-
-    if (error) {
-      console.error("Fehler beim Abrufen der Präsentations-IDs:", error);
-      return false;
-    }
-
-    return data.map(item => item.p_id);
-  } catch (error) {
-    console.error("Unerwarteter Fehler beim Abrufen der Präsentations-IDs:", error);
-    return false;
-  }
-}
-
-/**
- * Ruft den Spielernamen für eine bestimmte Präsentation ab
- * @param {string} presentationID - Die ID der Präsentation
- * @returns {Promise<string|boolean>} - Spielername bei Erfolg, false bei Fehler
- */
-export async function fetchPlayerName(presentationID) {
-  try {
-    const { data, error } = await supabase
-      .from("Presentations")
-      .select("player")
-      .eq("id", presentationID)
-      .single();
-
-    if (error) {
-      console.error("Fehler beim Abrufen des Spielernamens:", error);
-      return false;
-    }
-
-    return data.player;
-  } catch (error) {
-    console.error("Unerwarteter Fehler beim Abrufen des Spielernamens:", error);
-    return false;
-  }
-}
-
-/**
- * Ruft alle Runden für ein bestimmtes Benutzerkonto ab
- * @param {string} accountID - Die ID des Benutzerkontos
- * @returns {Promise<Array<Object>|boolean>} - Array mit Runden bei Erfolg, false bei Fehler
- */
-export async function getRoundsFromAccountID(accountID) {
-  try {
-    const { data, error } = await supabase
-      .from("Rounds")
-      .select("*")
-      .eq("a_id", accountID);
-
-    if (error) {
-      console.error("Fehler beim Abrufen der Runden:", error);
-      return false;
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Unerwarteter Fehler beim Abrufen der Runden:", error);
-    return false;
   }
 }

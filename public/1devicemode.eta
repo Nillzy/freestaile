@@ -169,7 +169,7 @@
             transition: all 0.3s ease;
             flex-shrink: 0;
         }
-        
+
         /* Apply dark mode styles to profile circle immediately with class on html element */
         html.darkmode .profile-circle {
             background: #3d3d3d;
@@ -182,7 +182,7 @@
             color: #234567;
             white-space: nowrap;
         }
-        
+
         html.darkmode .profile-email {
             color: #ffffff;
         }
@@ -816,7 +816,7 @@
 
         .player-input input.error {
             border-color: #e53e3e;
-            animation: shake 0.5s ease-in-out;
+            /* animation: shake 0.5s ease-in-out; entfernt */
         }
 
         body.darkmode .player-input input.error {
@@ -831,11 +831,55 @@
 
         .player-input input.duplicate-error {
             border-color: #e53e3e;
-            animation: duplicate-shake 0.8s ease-in-out;
+            /* animation: duplicate-shake 0.8s ease-in-out; entfernt */
         }
 
         body.darkmode .player-input input.duplicate-error {
             border-color: #fc8181;
+        }
+
+        /* Füge die shake-Animation für .shake hinzu */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .player-input input.shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* CSS für den Switch */
+        .random-switch-label {
+            user-select: none;
+        }
+        .random-switch {
+            width: 32px;
+            height: 18px;
+            appearance: none;
+            background: #b1dae7;
+            outline: none;
+            border-radius: 18px;
+            position: relative;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        .random-switch:checked {
+            background: #b1e7c8;
+        }
+        .random-switch::before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        .random-switch:checked::before {
+            transform: translateX(14px);
         }
     </style>
 </head>
@@ -847,40 +891,40 @@
         </a>
         <div class="flex items-center space-x-4">
             <% if (it.user) { %>
-                <!-- Eingeloggter Benutzer -->
-                <div class="profile-container">
-                    <a href="/user" style="text-decoration: none;">
-                        <div class="profile-circle">
-                            <%= it.user.email.charAt(0).toUpperCase() %>
-                        </div>
-                    </a>
-                    <div class="profile-email"><%= it.user.email %></div>
-                    <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
-                        <span>Abmelden</span>
-                        <svg width="15px" height="10px" viewBox="0 0 13 10">
-                            <path d="M1,5 L11,5"></path>
-                            <polyline points="8 1 12 5 8 9"></polyline>
-                        </svg>
-                    </a>
-                </div>
+            <!-- Eingeloggter Benutzer -->
+            <div class="profile-container">
+                <a href="/user" style="text-decoration: none;">
+                    <div class="profile-circle">
+                        <%= it.user.email.charAt(0).toUpperCase() %>
+                    </div>
+                </a>
+                <div class="profile-email"><%= it.user.email %></div>
+                <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
+                    <span>Abmelden</span>
+                    <svg width="15px" height="10px" viewBox="0 0 13 10">
+                        <path d="M1,5 L11,5"></path>
+                        <polyline points="8 1 12 5 8 9"></polyline>
+                    </svg>
+                </a>
+            </div>
             <% } else { %>
-                <!-- Nicht eingeloggter Benutzer -->
-                <div class="auth-buttons">
-                    <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
-                        <span>Anmelden</span>
-                        <svg width="15px" height="10px" viewBox="0 0 13 10">
-                            <path d="M1,5 L11,5"></path>
-                            <polyline points="8 1 12 5 8 9"></polyline>
-                        </svg>
-                    </a>
-                    <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
-                        <span>Registrieren</span>
-                        <svg width="15px" height="10px" viewBox="0 0 13 10">
-                            <path d="M1,5 L11,5"></path>
-                            <polyline points="8 1 12 5 8 9"></polyline>
-                        </svg>
-                    </a>
-                </div>
+            <!-- Nicht eingeloggter Benutzer -->
+            <div class="auth-buttons">
+                <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
+                    <span>Anmelden</span>
+                    <svg width="15px" height="10px" viewBox="0 0 13 10">
+                        <path d="M1,5 L11,5"></path>
+                        <polyline points="8 1 12 5 8 9"></polyline>
+                    </svg>
+                </a>
+                <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
+                    <span>Registrieren</span>
+                    <svg width="15px" height="10px" viewBox="0 0 13 10">
+                        <path d="M1,5 L11,5"></path>
+                        <polyline points="8 1 12 5 8 9"></polyline>
+                    </svg>
+                </a>
+            </div>
             <% } %>
             <label class="switch">
                 <input id="darkmode-toggle" type="checkbox" />
@@ -890,9 +934,9 @@
                     <div class="star star_3"></div>
                     <svg viewBox="0 0 16 16" class="cloud_1 cloud">
                         <path
-                            transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                            fill="#fff"
-                            d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                                fill="#fff"
+                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
                         ></path>
                     </svg>
                 </span>
@@ -966,13 +1010,13 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const toggle = document.getElementById('darkmode-toggle');
-        
+
         // Get current dark mode status (already set by darkmode-init.js)
         const isDark = document.documentElement.classList.contains('darkmode');
-        
+
         // Set toggle position based on current dark mode status
         toggle.checked = !isDark;
-        
+
         // Ensure body also has the class for backward compatibility
         document.body.classList.toggle('darkmode', isDark);
 
@@ -1010,17 +1054,15 @@
                     </div>
                 </div>
             </div>
-            <div class="player-input">
-                <input type="text" placeholder="Präsentationsthema eingeben" required>
+            <div class="player-input player-topic-row" style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="text" placeholder="Präsentationsthema eingeben" required class="topic-input" maxlength="50">
+                <label class="random-switch-label" style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                    <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
+                    <span style="font-size: 13px; font-family: Ubuntu, sans-serif;">Random Topic</span>
+                </label>
             </div>
+            <div class="error-message topic-error" style="display:none;"></div>
             <div class="player-actions">
-                <button class="ready-button" onclick="toggleReady(this)">
-                    <span>OK</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </button>
                 <button class="delete-button" onclick="removePlayer(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 69 14" class="svgIcon bin-top">
                         <g clip-path="url(#clip0_35_24)">
@@ -1067,87 +1109,10 @@
         updateAddPlayerCard();
     }
 
-    function toggleReady(button) {
-        const playerCard = button.closest('.player-card');
-        const topicInput = playerCard.querySelector('.player-input input[placeholder="Präsentationsthema eingeben"]');
-        const nameInput = playerCard.querySelector('.player-name-input');
-        
-        if (button.classList.contains('ready')) {
-            button.classList.remove('ready');
-            topicInput.disabled = false;
-            nameInput.disabled = false;
-            topicInput.classList.remove('error', 'duplicate-error');
-            nameInput.classList.remove('error', 'duplicate-error');
-        } else {
-            let hasError = false;
-            
-            // Prüfe auf leere Felder
-            if (!topicInput.value.trim()) {
-                topicInput.classList.add('error');
-                hasError = true;
-            } else {
-                topicInput.classList.remove('error');
-            }
-            
-            if (!nameInput.value.trim()) {
-                nameInput.classList.add('error');
-                hasError = true;
-            } else {
-                nameInput.classList.remove('error');
-            }
-
-            // Prüfe auf doppelte Namen
-            const allNameInputs = document.querySelectorAll('.player-name-input');
-            const currentName = nameInput.value.trim();
-            let duplicateNameFound = false;
-
-            allNameInputs.forEach(input => {
-                if (input !== nameInput && input.value.trim() === currentName) {
-                    duplicateNameFound = true;
-                    input.classList.add('duplicate-error');
-                }
-            });
-
-            if (duplicateNameFound) {
-                nameInput.classList.add('duplicate-error');
-                hasError = true;
-            }
-
-            // Prüfe auf doppelte Themen
-            const allTopicInputs = document.querySelectorAll('.player-input input[placeholder="Präsentationsthema eingeben"]');
-            const currentTopic = topicInput.value.trim();
-            let duplicateTopicFound = false;
-
-            allTopicInputs.forEach(input => {
-                if (input !== topicInput && input.value.trim() === currentTopic) {
-                    duplicateTopicFound = true;
-                    input.classList.add('duplicate-error');
-                }
-            });
-
-            if (duplicateTopicFound) {
-                topicInput.classList.add('duplicate-error');
-                hasError = true;
-            }
-            
-            if (hasError) {
-                return;
-            }
-            
-            button.classList.add('ready');
-            topicInput.disabled = true;
-            nameInput.disabled = true;
-        }
-        
-        updateStartButton();
-    }
-
     function updateStartButton() {
         const startButton = document.getElementById('startGameButton');
-        const readyPlayers = document.querySelectorAll('.ready-button.ready').length;
-        
-        // Button aktivieren, wenn mindestens ein Spieler bereit ist und alle Spieler bereit sind
-        startButton.disabled = readyPlayers < minPlayers || readyPlayers !== playerCount;
+        // Button ist nur deaktiviert, wenn keine Spieler vorhanden sind
+        startButton.disabled = playerCount < minPlayers;
     }
 
     function updateAddPlayerCard() {
@@ -1161,31 +1126,94 @@
 
     // Event Listener für den Start-Button
     document.getElementById('startGameButton').addEventListener('click', async function() {
+        let hasError = false;
+        const allNameInputs = document.querySelectorAll('.player-name-input');
+        const allTopicRows = document.querySelectorAll('.player-topic-row');
+        let names = [];
+        let topics = [];
+
+        allNameInputs.forEach(input => {
+            const value = input.value.trim();
+            if (!value) {
+                input.classList.remove('shake');
+                void input.offsetWidth;
+                input.classList.add('error', 'shake');
+                hasError = true;
+            } else {
+                input.classList.remove('error');
+            }
+            names.push(value);
+        });
+        allTopicRows.forEach(row => {
+            const topicInput = row.querySelector('.topic-input');
+            const randomSwitch = row.querySelector('.random-switch');
+            const errorDiv = row.parentElement.querySelector('.topic-error');
+            if (!randomSwitch.checked) {
+                const value = topicInput.value.trim();
+                if (value.length < 3 || value.length > 50) {
+                    topicInput.classList.remove('shake');
+                    void topicInput.offsetWidth;
+                    topicInput.classList.add('error', 'shake');
+                    errorDiv.textContent = 'Topic must be between 3 and 50 characters.';
+                    errorDiv.style.display = 'block';
+                    hasError = true;
+                } else {
+                    topicInput.classList.remove('error');
+                    errorDiv.style.display = 'none';
+                }
+                topics.push(value);
+            } else {
+                topicInput.classList.remove('error');
+                if (errorDiv) errorDiv.style.display = 'none';
+                topics.push('//RANDOM//');
+            }
+        });
+        // Prüfe auf doppelte Namen
+        const nameCount = {};
+        names.forEach(name => {
+            if (name) {
+                nameCount[name] = (nameCount[name] || 0) + 1;
+            }
+        });
+        names.forEach((name, idx) => {
+            if (name && nameCount[name] > 1) {
+                allNameInputs[idx].classList.remove('shake');
+                void allNameInputs[idx].offsetWidth;
+                allNameInputs[idx].classList.add('duplicate-error', 'shake');
+                hasError = true;
+            } else {
+                allNameInputs[idx].classList.remove('duplicate-error');
+            }
+        });
+        setTimeout(() => {
+            document.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
+        }, 600);
+        if (hasError) {
+            return;
+        }
+        // Präsentationen zusammenstellen:
         const presentations = Array.from(document.querySelectorAll('.player-card')).map(card => {
-            const topicInput = card.querySelector('input[placeholder="Präsentationsthema eingeben"]');
             const nameInput = card.querySelector('.player-name-input');
+            const topicRow = card.querySelector('.player-topic-row');
+            const topicInput = topicRow.querySelector('.topic-input');
+            const randomSwitch = topicRow.querySelector('.random-switch');
             return {
                 player: nameInput.value,
-                topic: topicInput.value
+                topic: randomSwitch.checked ? '//RANDOM//' : topicInput.value
             };
         });
-
         try {
             const response = await fetch('/initiateGeneration', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     presentations,
                     user: { id: '<%= it.user.id %>' }
                 })
             });
-
             const data = await response.json();
-
-            console.log(data.url);
-
             if (response.ok && data && data.url) {
                 window.location.href = data.url;
             } else {
@@ -1218,10 +1246,10 @@
     function switchTab(tab) {
         const tabs = document.querySelectorAll('.modal-tab');
         const forms = document.querySelectorAll('.modal-form');
-        
+
         tabs.forEach(t => t.classList.remove('active'));
         forms.forEach(f => f.classList.remove('active'));
-        
+
         document.querySelector(`.modal-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
         document.getElementById(`${tab}Form`).classList.add('active');
     }
@@ -1231,14 +1259,14 @@
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
         const errorElement = document.getElementById('loginError');
-        
+
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            
+
             if (response.ok) {
                 window.location.reload();
             } else {
@@ -1258,20 +1286,20 @@
         const password = document.getElementById('registerPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const errorElement = document.getElementById('registerError');
-        
+
         if (password !== confirmPassword) {
             errorElement.textContent = 'Die Passwörter stimmen nicht überein';
             errorElement.classList.add('active');
             return;
         }
-        
+
         try {
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            
+
             if (response.ok) {
                 // Nach erfolgreicher Registrierung zum Login-Tab wechseln
                 switchTab('login');
@@ -1304,9 +1332,26 @@
 
     // Event Listener für Input-Felder, um Fehler-Status zu entfernen
     document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('player-name-input') || (e.target.closest('.player-input') && e.target.placeholder === 'Präsentationsthema eingeben')) {
+            updateStartButton();
+        }
+        if (e.target.classList.contains('topic-input')) {
+            const row = e.target.closest('.player-topic-row');
+            const randomSwitch = row.querySelector('.random-switch');
+            const errorDiv = row.parentElement.querySelector('.topic-error');
+            if (!randomSwitch.checked) {
+                const value = e.target.value.trim();
+                if (value.length >= 3 && value.length <= 50) {
+                    errorDiv.style.display = 'none';
+                    e.target.classList.remove('error');
+                }
+            } else {
+                errorDiv.style.display = 'none';
+                e.target.classList.remove('error');
+            }
+        }
         if (e.target.classList.contains('error') || e.target.classList.contains('duplicate-error')) {
             e.target.classList.remove('error', 'duplicate-error');
-            
             // Entferne auch die duplicate-error Klasse von anderen Feldern
             const allInputs = document.querySelectorAll('.player-input input');
             allInputs.forEach(input => {
@@ -1316,6 +1361,21 @@
             });
         }
     });
+
+    function toggleRandomTopic(checkbox) {
+        const playerInputRow = checkbox.closest('.player-topic-row');
+        const topicInput = playerInputRow.querySelector('.topic-input');
+        if (checkbox.checked) {
+            topicInput.disabled = true;
+            topicInput.value = '';
+            topicInput.placeholder = 'Random Topic';
+            topicInput.classList.remove('error', 'shake');
+        } else {
+            topicInput.disabled = false;
+            topicInput.placeholder = 'Präsentationsthema eingeben';
+        }
+        updateStartButton();
+    }
 </script>
 </body>
-</html> 
+</html>
