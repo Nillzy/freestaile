@@ -127,7 +127,7 @@ body {
     justify-content: center;
     padding: 2rem;
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    padding-top: 10rem; /* Platz für fixierten Header */
+    padding-top: 13rem; /* Platz für fixierten Header */
 }
 
 @keyframes fadeInUp {

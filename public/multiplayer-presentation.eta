@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreestAIle - Multiplayer Präsentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .presentation-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .slides-container {
+            flex: 7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .slide {
+            width: 100%;
+            max-width: 1024px;
+            aspect-ratio: 16 / 9;
+            background-color: #3498db;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .chat-container {
+            flex: 3;
+            background-color: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            min-height: 250px;
+        }
+        
+        .chat-header {
+            padding: 10px 20px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title {
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 700;
+            color: #234567;
+            margin: 0;
+        }
+        
+        .host-badge {
+            background-color: #b1dae7;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #234567;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #b1dae7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #234567;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            background-color: #f1f1f1;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+        
+        .message-sender {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #234567;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .message-sender-badge {
+            font-size: 0.7rem;
+            background-color: #b1dae7;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: #234567;
+        }
+        
+        .message-text {
+            color: #333;
+            word-wrap: break-word;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .message.self {
+            flex-direction: row-reverse;
+        }
+        
+        .message.self .message-avatar {
+            margin-right: 0;
+            margin-left: 10px;
+        }
+        
+        .message.self .message-content {
+            background-color: #b1e7c8;
+        }
+        
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input-field {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input-field:focus {
+            border-color: #b1dae7;
+        }
+        
+        .chat-send-btn {
+            background-color: #b1e7c8;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #234567;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .chat-send-btn:hover {
+            background-color: #9fd6b6;
+        }
+        
+        .chat-send-btn:disabled {
+            background-color: #ddd;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        /* Host-spezifischer Stil */
+        .host-message .message-content {
+            background-color: #b1dae7;
+        }
+        
+        .read-only-notice {
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f8f8;
+            color: #666;
+            font-style: italic;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slides-container">
+            <div class="slide">
+                <div>Power-Point-Karaoke<br>Präsentation läuft...</div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2 class="chat-title">Live-Chat</h2>
+                <div class="connection-status">
+                    <span id="playerCount">0</span> Teilnehmer
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <!-- Chat-Nachrichten werden hier dynamisch eingefügt -->
+            </div>
+            
+            <div id="chatInputContainer">
+                <!-- Wird dynamisch ersetzt (Host = read-only, Client = Input) -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/sse-client.js"></script>
+    <script>
+        // Lobby-Daten
+        const lobbyId = '<%= it.lobbyId %>';
+        let isHost = false; // Wird durch Socket.io-Verbindungsdaten festgelegt
+        
+        // UI-Elemente
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInputContainer = document.getElementById('chatInputContainer');
+        const playerCount = document.getElementById('playerCount');
+        
+        // Chat-Nachrichten anzeigen
+        function addChatMessage(message) {
+            const date = new Date(message.timestamp);
+            const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const initials = message.senderName.split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+            
+            const isSelf = message.senderId === window.multiplayerClient.socket.id;
+            const isHostMessage = message.isHost;
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${isSelf ? 'self' : ''} ${isHostMessage ? 'host-message' : ''}`;
+            
+            messageElement.innerHTML = `
+                <div class="message-avatar">${initials}</div>
+                <div class="message-content">
+                    <div class="message-sender">
+                        ${message.senderName}
+                        ${isHostMessage ? '<span class="message-sender-badge">Host</span>' : ''}
+                    </div>
+                    <div class="message-text">${message.text}</div>
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageElement);
+            
+            // Zum Ende scrollen
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Chat-Input-Bereich rendern (unterschiedlich für Host und Client)
+        function renderChatInput() {
+            if (isHost) {
+                // Read-only für Host
+                chatInputContainer.innerHTML = `
+                    <div class="read-only-notice">
+                        Als Host kannst du den Chat nur lesen.
+                    </div>
+                `;
+            } else {
+                // Chat-Input für Client
+                chatInputContainer.innerHTML = `
+                    <div class="chat-input">
+                        <input type="text" class="chat-input-field" id="chatInputField" placeholder="Schreibe eine Nachricht...">
+                        <button class="chat-send-btn" id="chatSendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Event-Listener für Chat-Input
+                const chatInputField = document.getElementById('chatInputField');
+                const chatSendBtn = document.getElementById('chatSendBtn');
+                
+                function sendMessage() {
+                    const message = chatInputField.value.trim();
+                    
+                    if (message) {
+                        window.multiplayerClient.sendChatMessage(message);
+                        chatInputField.value = '';
+                    }
+                }
+                
+                chatSendBtn.addEventListener('click', sendMessage);
+                chatInputField.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+        }
+        
+        // Multiplayer-Client initialisieren
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await window.multiplayerClient.connect();
+                
+                // Prüfen, ob dies der Host ist
+                isHost = window.multiplayerClient.isHost;
+                
+                // Chat-Input rendern
+                renderChatInput();
+                
+                // Event-Handler registrieren
+                window.multiplayerClient.on('playerJoined', (playerInfo) => {
+                    playerCount.textContent = window.multiplayerClient.players.length;
+                });
+                
+                window.multiplayerClient.on('playerLeft', (playerInfo) => {
+                    playerCount.textContent = window.multiplayerClient.players.length;
+                });
+                
+                window.multiplayerClient.on('newChatMessage', (message) => {
+                    addChatMessage(message);
+                });
+                
+                window.multiplayerClient.on('lobbyEnded', (reason) => {
+                    alert(`Die Lobby wurde geschlossen: ${reason.reason}`);
+                    window.location.href = '/';
+                });
+                
+                // Spielerzahl aktualisieren
+                playerCount.textContent = window.multiplayerClient.players.length;
+                
+            } catch (error) {
+                console.error('Fehler beim Initialisieren des Multiplayer-Clients:', error);
+                alert(`Fehler: ${error.message}`);
+            }
+        });
+        
+        // Beim Verlassen der Seite Verbindung trennen
+        window.addEventListener('beforeunload', () => {
+            window.multiplayerClient.disconnect();
+        });
+    </script>
+</body>
+</html> 

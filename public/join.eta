@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby beitreten - FreestAIle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .join-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .status.waiting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .participants-section {
+            margin: 30px 0;
+            display: none;
+        }
+        .participants-list {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .participant {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #e3f2fd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .participant.host {
+            background: #1976d2;
+            color: white;
+            font-weight: bold;
+        }
+        .participant.current-user {
+            background: #4caf50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="join-header">
+            <h1>Lobby beitreten</h1>
+            <p>Lobby-ID: <strong><%= it.lobbyId %></strong></p>
+        </div>
+
+        <div class="status waiting" id="connection-status">
+            Bereit zum Beitreten
+        </div>
+
+        <form id="join-form">
+            <div class="form-group">
+                <label for="player-name">Dein Name:</label>
+                <input type="text" id="player-name" name="playerName" 
+                       value="<%= it.userName %>" 
+                       placeholder="Gib deinen Namen ein" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="join-button">
+                Lobby beitreten
+            </button>
+        </form>
+
+        <div class="participants-section" id="participants-section">
+            <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
+            <div class="participants-list" id="participants-list">
+                <p>Warten auf Teilnehmer...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JavaScript Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase Realtime Client für Vercel-Kompatibilität -->
+    <script src="/js/sse-client.js"></script>
+
+    <script>
+        // Daten aus dem Template
+        const lobbyData = {
+            lobbyId: '<%= it.lobbyId %>',
+            userId: '<%= it.userId %>',
+            userName: '<%= it.userName %>'
+        };
+
+        console.log('Template-Daten:', lobbyData);
+
+        // Globale Variablen
+        let realtimeClient = null;
+
+        // Status-Updates
+        function updateStatus(message, type = 'waiting') {
+            const statusEl = document.getElementById('connection-status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            console.log('Status Update:', message, type);
+        }
+
+        function updateParticipantCount() {
+            // Participant count wird über API-Updates verwaltet
+            console.log('Participant count update - wird über API verwaltet');
+        }
+
+        function showParticipantsSection() {
+            document.getElementById('participants-section').style.display = 'block';
+        }
+
+        // Globale Variablen für Lobby-Daten
+        let currentUserId = null;
+        let currentUserName = null;
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', () => {
+            const joinForm = document.getElementById('join-form');
+            const joinButton = document.getElementById('join-button');
+            const playerNameInput = document.getElementById('player-name');
+
+            console.log('DOM geladen, initialisiere...');
+
+            // Fallback-UserId generieren, falls nicht eingeloggt
+            let userId = lobbyData.userId;
+            if (!userId || userId === 'undefined') {
+                userId = localStorage.getItem('tempUserId') || `guest_${Date.now()}`;
+                localStorage.setItem('tempUserId', userId);
+                console.log('Fallback userId generiert:', userId);
+            }
+
+            console.log('Finale userId:', userId);
+
+            joinForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const playerName = playerNameInput.value.trim();
+                if (!playerName) {
+                    alert('Bitte gib einen Namen ein!');
+                    return;
+                }
+
+                console.log('Versuche beizutreten mit:', {
+                    lobbyId: lobbyData.lobbyId,
+                    userId: userId,
+                    playerName: playerName
+                });
+
+                joinButton.disabled = true;
+                joinButton.textContent = 'Verbinde...';
+                updateStatus('Verbindung wird hergestellt...', 'waiting');
+
+                try {
+                    // Supabase Realtime Client erstellen
+                    realtimeClient = new SupabaseRealtimeClient();
+                    
+                    // Event-Listener für erfolgreiche Verbindung
+                    realtimeClient.on('connect', () => {
+                        console.log('Supabase Realtime verbunden');
+                        updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
+                        joinButton.textContent = 'Beigetreten!';
+                        
+                        // Weiterleitung zur Lobby-Seite nach kurzer Verzögerung
+                        setTimeout(() => {
+                            const lobbyUrl = `/lobby?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
+                            console.log('Weiterleitung zu:', lobbyUrl);
+                            window.location.href = lobbyUrl;
+                        }, 1500);
+                    });
+
+                    realtimeClient.on('connect_error', (error) => {
+                        console.error('Supabase Realtime Verbindungsfehler:', error);
+                        updateStatus('Verbindungsfehler: ' + error.message, 'error');
+                        joinButton.disabled = false;
+                        joinButton.textContent = 'Lobby beitreten';
+                    });
+
+                    // Verbindung zur Lobby herstellen
+                    await realtimeClient.connect(lobbyData.lobbyId, userId, playerName, false);
+
+                    // Lobby beitreten über Realtime Client
+                    const joinResult = await realtimeClient.joinLobby();
+                    
+                    if (!joinResult.success) {
+                        throw new Error(joinResult.error || 'Unbekannter Fehler beim Beitreten');
+                    }
+
+                    console.log('Erfolgreich beigetreten:', joinResult);
+
+                } catch (error) {
+                    console.error('Detaillierter Fehler beim Beitreten:', error);
+                    updateStatus('Fehler: ' + error.message, 'error');
+                    joinButton.disabled = false;
+                    joinButton.textContent = 'Lobby beitreten';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
