@@ -948,7 +948,7 @@
 
         <form class="main-form" action="/present" method="get" id="quickModeForm">
             <div class="input-group">
-                <label for="topic">What should your presentation be about?</label>
+                <label for="topic">Zu welchem Thema möchtest Du präsentieren?</label>
                 <div class="input-wrapper">
                     <input type="text" name="topic" id="topic" autocomplete="off">
                     <div class="typing-placeholder"></div>
@@ -958,10 +958,10 @@
                         <div class="input-hint-icon">
                             <i class="fas fa-lightbulb"></i>
                         </div>
-                        <span>Tab to use recommendation</span>
+                        <span>Drücke "Tab", um den Vorschlag anzunehmen</span>
                     </div>
                 </div>
-                <label for="presentationLanguage">Select presentation language</label>
+                <label for="presentationLanguage">Wähle die Sprache der Präsentation</label>
                 <div class="input-wrapper">
                     <select name="presentationLanguage" id="presentationLanguage">
                         <option value="en">🇬🇧 English</option>
@@ -1003,25 +1003,25 @@
     <div class="container">
         <div class="header">
             <div class="multiplayer-section" style="position: relative; <%= !it.user ? 'opacity: 0.5; filter: grayscale(100%);' : '' %>">
-                <h1 class="logo"><b>MULTI</b>player-Mode</h1>
-                <p class="tagline">Enjoy quality time with your buddies playing PowerPoint-Karaoke <b>TOGETHER!</b></p>
+                <h1 class="logo"><b>MULTI</b>player-Modus</h1>
+                <p class="tagline">Mach' was mit Deiner Freizeit und spiele <b>zusammen</b> mit Deinen Freunden!</p>
                 <% if (it.user) { %>
                     <form class="main-form" action="/multi" method="get">
                         <div class="input-group">
-                            <button type="submit">Play together!</button>
+                            <button type="submit">Zusammen spielen!</button>
                         </div>
                     </form>
                 <% } else { %>
                     <form class="main-form" style="pointer-events: none;">
                         <div class="input-group">
-                            <button type="button" disabled style="cursor: not-allowed;">Play together!</button>
+                            <button type="button" disabled style="cursor: not-allowed;">Zusammen spielen!</button>
                         </div>
                     </form>
                 <% } %>
             </div>
             <% if (!it.user) { %>
                 <div class="restricted-container">
-                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">MULTIplayer-Mode ist only available for registered users</p>
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 1.5rem;">Der MULTIplayer-Modus ist nur für registrierte Nutzer verfügbar</p>
                     <div style="display: flex; gap: 1rem; justify-content: center;">
                         <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
                             <span>Anmelden</span>
@@ -1047,27 +1047,27 @@
 <div class="container features-container">
     <div class="header">
         <h1 class="logo">Features</h1>
-        <p class="tagline">Discover what makes FreestAIle special</p>
+        <p class="tagline">Entdecken Sie, was FreestAIle so besonders macht</p>
     </div>
     <div class="features">
         <div class="feature">
             <i class="fas fa-bolt"></i>
-            <h3>Instant Creation</h3>
-            <p>Get a full presentation in seconds, no preparation needed</p>
+            <h3>Sofortige Erstellung</h3>
+            <p>Thema wählen, kurz warten und los geht's! Bekomme PowerPoint-Karaoke Präsentationen in Sekunden</p>
         </div>
         <div class="feature">
             <i class="fa-solid fa-face-laugh-squint"></i>
-            <h3>Unpredictable Fun</h3>
-            <p>Challenge yourself with surprising slides and content</p>
+            <h3>Spaß vorprogrammiert!</h3>
+            <p>Stelle Dich selbst neuen Herausforderungen mit zufällig generierten Slides für maximalen Spaß!</p>
         </div>
         <div class="feature">
             <i class="fas fa-users"></i>
-            <h3>Perfect for Groups</h3>
-            <p>Ideal for team building and improv exercises</p>
+            <h3>Bring' Deine Freunde mit!</h3>
+            <p>Werdet ein Team oder spielt gegeneinander für gemeinsame Zeit auf höchstem Level!</p>
         </div>
     </div>
     <footer>
-        © 2025 FreestAIle | The ultimate AI-powered presentation karaoke
+        © 2025 FreestAIle | Das ultimative Tool für PowerPpoint-Karaoke
     </footer>
 </div>
 
