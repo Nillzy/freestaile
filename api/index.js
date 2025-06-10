@@ -324,47 +324,69 @@ app.post("/initiateGeneration", async (req, res) => {
 
   console.log(presentationIDs);
   console.log(roundID);
-  setTimeout( () => {
-    res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
-  }, 500);
 
   //Background process:
   for (let i = 0; i < presentations.length; i++) {
-    try {
-      const presentationID = presentationIDs[i];
-      const topic = presentations[i].topic;
-      const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
-      const content = await insertImages(contentWithoutImages);
-      const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
 
-      if (!successful) {
-        const success = await setGenerationStatus(presentationID, 'error', req.user.id);
-        if (!success) {
-          return res.status(500).json({
-            message: "Generation status could not be written."
-          }).send();
-        }
-      }
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ presentationID: presentationIDs[i], topic: presentations[i].topic, roundID: roundID, accountID: accountID })
+    }
 
-      setTimeout(async () => {
-        const success = await setGenerationStatus(presentationID, 'completed', req.user.id);
-        if (!success) {
-          return res.status(500).json({
-            message: "Generation status could not be written."
-          }).send();
-        }
-      }, 500);
-    } catch (error) {
-      const presentationID = presentationIDs[i];
-      console.error("Error while fetching and saving slides:", error);
+    let protocol = process.env.IS_LOCAL ? 'http://' : 'https://';
+    fetch(`${protocol}${req.headers.host}/generate`, options);               // Absichtlich kein await!
 
-      const success = await setGenerationStatus(presentationID, 'error', req.user.id);
+  }
+
+  res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
+
+});
+
+app.post("/generate", async (req, res) => {
+  try {
+  //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
+    const presentationID = req.body.presentationID;
+    const topic = req.body.topic;
+    const presentationLanguage = /*req.body.presentationLanguage*/ "en";
+    const roundID = req.body.roundID;
+    const accountID = req.body.accountID;
+    const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
+    const content = await insertImages(contentWithoutImages);
+    const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
+
+    if (!successful) {
+      const success = await setGenerationStatus(presentationID, 'error', accountID);
       if (!success) {
         return res.status(500).json({
           message: "Generation status could not be written."
         }).send();
       }
     }
+
+    setTimeout(async () => {
+      const success = await setGenerationStatus(presentationID, 'completed', accountID);
+      if (!success) {
+        return res.status(500).json({
+          message: "Generation status could not be written."
+        }).send();
+      }
+    }, 500);
+
+    res.send(true);
+  } catch (error) {
+    const presentationID = req.body.presentationID;
+    console.error("Error while fetching and saving slides:", error);
+
+    const success = await setGenerationStatus(presentationID, 'error', accountID);
+    if (!success) {
+      return res.status(500).json({
+        message: "Generation status could not be written."
+      }).send();
+    }
+    res.send(false);
   }
 });
 
