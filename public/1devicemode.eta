@@ -929,9 +929,9 @@
             <label class="switch">
                 <input id="darkmode-toggle" type="checkbox" />
                 <span class="slider">
-                    <div class="star star_1"></div>
-                    <div class="star star_2"></div>
-                    <div class="star star_3"></div>
+                    <span class="star star_1"></span>
+                    <span class="star star_2"></span>
+                    <span class="star star_3"></span>
                     <svg viewBox="0 0 16 16" class="cloud_1 cloud">
                         <path
                                 transform="matrix(.77976 0 0 .78395-299.99-418.63)"
