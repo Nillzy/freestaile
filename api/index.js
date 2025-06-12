@@ -326,6 +326,113 @@ app.post("/initiateGeneration", async (req, res) => {
   console.log(presentationIDs);
   console.log(roundID);
 
+  if (gameMode === 1) {
+    res.send({
+      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
+    });
+  } else if (gameMode === 2) {
+    res.send({
+      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
+    });
+  } else {
+    res.send({
+      url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
+    })
+  }
+
+  //Background process:
+  for (let i = 0; i < presentations.length; i++) {
+    try {
+      //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
+      const presentationID = presentationIDs[i];
+      const topic = presentations[i].topic;
+      const roundID = req.body.roundID;
+      const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
+      const content = await insertImages(contentWithoutImages);
+      const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
+
+      if (!successful) {
+        await setGenerationStatus(presentationID, 'error', accountID);
+      }
+
+      setTimeout(async () => {
+        await setGenerationStatus(presentationID, 'completed', accountID);
+      }, 500);
+
+    } catch (error) {
+      const presentationID = presentationIDs[i];
+      console.error("Error while fetching and saving slides:", error);
+      await setGenerationStatus(presentationID, 'error', accountID);
+    }
+  }
+});
+
+/*app.post("/initiateGeneration", async (req, res) => {
+  const presentationLanguage = 'en';
+  const accountID = req.user.id;
+  const presentations = req.body.presentations;
+  const gameMode = parseInt(req.body.gameMode);
+  console.log(presentations);
+
+  if (presentations === undefined || presentations.length === 0) {
+    return res.status(500).json({
+      message: "Request not valid"
+    }).send();
+  }
+
+  let playersAndTopics = [];
+
+  for (let i = 0; i < presentations.length; i++) {
+    if (presentations[i].topic.length < 3 || presentations[i].topic.length > 50) {
+      return res.status(500).json({
+        message: "Request not valid"
+      }).send();
+    } else if (presentations[i].topic === "//RANDOM//") {
+      presentations[i].topic = getRandomTopic();
+    }
+    const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
+    playersAndTopics.push(playerAndTopic);
+  }
+
+  const roundID = v4();
+
+  const roundCreated = await createRound(roundID, req.user.id);
+
+  if (!roundCreated) {
+    return res.status(500).json({
+      message: "Round could not be created"
+    }).send();
+  }
+
+  let presentationIDs = [];
+
+  for (const presentation of presentations) {
+    const presentationID = v4();
+    presentationIDs.push(presentationID);
+  }
+
+  const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID);
+
+  if (!presentationIDsWritten) {
+    if (!roundCreated) {
+      return res.status(500).json({
+        message: "Presentation ID could not be written for round ID"
+      }).send();
+    }
+  }
+
+  for (const presentationID of presentationIDs) {
+    const success = await setGenerationStatus(presentationID, 'processing', req.user.id);
+    if (!success) {
+      return res.status(500).json({
+        message: "Generation status could not be written."
+      }).send();
+    }
+  }
+
+  console.log(presentationIDs);
+  console.log(roundID);
+
   //Background process:
   for (let i = 0; i < presentations.length; i++) {
 
@@ -355,9 +462,10 @@ app.post("/initiateGeneration", async (req, res) => {
     })
   }
 
-});
+});*/
 
-app.post("/generate", async (req, res) => {
+// Da Vercel API-Requests nicht aufrechterhält, bringt die Auslagerung nichts
+/*app.post("/generate", async (req, res) => {
   try {
   //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
     const presentationID = req.body.presentationID;
@@ -400,7 +508,7 @@ app.post("/generate", async (req, res) => {
     }
     res.send(false);
   }
-});
+});*/
 
 app.get("/user", requireAuth, async (req, res) => {
   const rounds = await getRoundsFromAccountID(req.user.id);
