@@ -48,245 +48,128 @@
 
         /* Lobby-spezifische Styles */
         .lobby-info {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 1.5rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-            flex-wrap: wrap;
+            background: #ffffff; border-radius: 10px; padding: 1.5rem 2rem;
+            margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 2rem; flex-wrap: wrap;
         }
-        body.darkmode .lobby-info {
-            background: #2d2d2d;
-        }
-
-        .lobby-details {
-            flex: 1;
-            min-width: 250px;
-        }
-
+        body.darkmode .lobby-info { background: #2d2d2d; }
+        .lobby-details { flex: 1; min-width: 250px; }
         .lobby-id-display {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 22px;
-            font-weight: 700;
-            color: #234567;
-            margin-bottom: 0.5rem;
+            font-family: "Ubuntu", sans-serif; font-size: 22px; font-weight: 700;
+            color: #234567; margin-bottom: 0.5rem;
         }
-        body.darkmode .lobby-id-display {
-            color: #ffffff;
-        }
-
-        .join-link-container {
-            display: flex;
-            align-items: center;
-            margin-top: 1rem;
-        }
-
+        body.darkmode .lobby-id-display { color: #ffffff; }
+        .join-link-container { display: flex; align-items: center; margin-top: 1rem; }
         .join-link-input {
-            flex-grow: 1;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-right: none;
-            border-radius: 8px 0 0 8px;
-            font-family: "Inter", sans-serif;
-            font-size: 14px;
-            background: #f8fafc;
-            color: #333;
+            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-right: none;
+            border-radius: 8px 0 0 8px; font-family: "Inter", sans-serif;
+            font-size: 14px; background: #f8fafc; color: #333;
         }
-        body.darkmode .join-link-input {
-            background: #3d3d3d;
-            border-color: #4d4d4d;
-            color: #e2e8f0;
-        }
-
-        /* --- ANPASSUNG START --- */
+        body.darkmode .join-link-input { background: #3d3d3d; border-color: #4d4d4d; color: #e2e8f0; }
         .copy-button {
-            padding: 0.75rem 0.75rem; /* Horizontale Polsterung reduziert */
-            border: 2px solid #b1e7c8;
-            background: #b1e7c8;
-            color: #234567;
-            border-radius: 0 8px 8px 0;
-            cursor: pointer;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 14px; /* Schriftgröße hinzugefügt für bessere Kontrolle */
-            font-weight: 600;
+            padding: 0.75rem 0.75rem; border: 2px solid #b1e7c8; background: #b1e7c8;
+            color: #234567; border-radius: 0 8px 8px 0; cursor: pointer;
+            font-family: "Ubuntu", sans-serif; font-size: 14px; font-weight: 600;
             transition: all 0.2s ease;
         }
-        /* --- ANPASSUNG ENDE --- */
-        .copy-button:hover {
-            background: #9bd7b8;
-            border-color: #9bd7b8;
-        }
-        body.darkmode .copy-button {
-            background: #2d5a3f;
-            border-color: #2d5a3f;
-            color: #ffffff;
-        }
-        body.darkmode .copy-button:hover {
-            background: #3d6a4f;
-            border-color: #3d6a4f;
-        }
-
-        .qr-code-container {
-            padding: 1rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        /* --- ANPASSUNG START --- */
-        .qr-code-container img {
-            display: block;
-            max-width: 150px; /* Vergrößert von 120px */
-            max-height: 150px; /* Vergrößert von 120px */
-        }
-        /* --- ANPASSUNG ENDE --- */
-
+        .copy-button:hover { background: #9bd7b8; border-color: #9bd7b8; }
+        body.darkmode .copy-button { background: #2d5a3f; border-color: #2d5a3f; color: #ffffff; }
+        body.darkmode .copy-button:hover { background: #3d6a4f; border-color: #3d6a4f; }
+        .qr-code-container { padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .qr-code-container img { display: block; max-width: 150px; max-height: 150px; }
         .player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Breite angepasst */
+            gap: 1.5rem; margin-top: 2rem;
         }
 
         /* Angepasste Spieler-Karte */
         .player-card {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid transparent;
+            background: #ffffff; border-radius: 10px; padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
+            position: relative; overflow: hidden; border: 2px solid transparent;
         }
-        .player-card.is-host {
-            border-color: #b1dae7;
-        }
-        .player-card.is-you {
-            border-color: #b1e7c8;
-        }
-        .player-card.is-host.is-you {
-            border-color: #b1e7c8; /* "You" hat Vorrang */
-        }
-        body.darkmode .player-card {
-            background: #2d2d2d;
-        }
-        body.darkmode .player-card.is-host {
-            border-color: #b1dae7;
-        }
-        body.darkmode .player-card.is-you {
-            border-color: #2d5a3f;
-        }
+        .player-card.is-host { border-color: #b1dae7; }
+        .player-card.is-you { border-color: #b1e7c8; }
+        .player-card.is-host.is-you { border-color: #b1e7c8; }
+        body.darkmode .player-card { background: #2d2d2d; }
+        body.darkmode .player-card.is-host { border-color: #b1dae7; }
+        body.darkmode .player-card.is-you { border-color: #2d5a3f; }
 
-        .player-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
+        .player-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         .player-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #b1dae7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #234567;
-            flex-shrink: 0;
+            width: 50px; height: 50px; border-radius: 50%; background: #b1dae7; display: flex;
+            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
+            font-size: 24px; font-weight: 700; color: #234567; flex-shrink: 0;
         }
-        body.darkmode .player-avatar {
-            background: #3d3d3d;
-            color: #ffffff;
-        }
-
+        body.darkmode .player-avatar { background: #3d3d3d; color: #ffffff; }
         .player-name {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: #234567;
-            margin: 0;
+            font-family: "Ubuntu", sans-serif; font-size: 18px; font-weight: 700;
+            color: #234567; margin: 0;
         }
-        body.darkmode .player-name {
-            color: #ffffff;
-        }
-
+        body.darkmode .player-name { color: #ffffff; }
         .player-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: "Inter", sans-serif;
+            position: absolute; top: 10px; right: 10px; padding: 4px 8px; border-radius: 12px;
+            font-size: 12px; font-weight: 600; font-family: "Inter", sans-serif;
         }
-        .player-badge.host-badge {
-            background-color: #b1dae7;
-            color: #234567;
-        }
-        .player-badge.you-badge {
-            background-color: #b1e7c8;
-            color: #234567;
-        }
-        body.darkmode .player-badge.host-badge {
-            background-color: #4a4a4a;
-            color: #e0e0e0;
-        }
-        body.darkmode .player-badge.you-badge {
-            background-color: #2d5a3f;
-            color: #ffffff;
-        }
+        .player-badge.host-badge { background-color: #b1dae7; color: #234567; }
+        .player-badge.you-badge { background-color: #b1e7c8; color: #234567; }
+        body.darkmode .player-badge.host-badge { background-color: #4a4a4a; color: #e0e0e0; }
+        body.darkmode .player-badge.you-badge { background-color: #2d5a3f; color: #ffffff; }
 
+        /* NEUE STYLES für Themeneingabe */
+        .player-topic-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+        .topic-input {
+            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 5px;
+            font-family: "Inter", sans-serif; font-size: 14px; transition: border-color 0.3s ease;
+        }
+        .topic-input:focus { outline: none; border-color: #b1dae7; }
+        .topic-input:disabled { background: #f0f0f0; cursor: not-allowed; }
+        body.darkmode .topic-input { background: #3d3d3d; border-color: #4d4d4d; color: #ffffff; }
+        body.darkmode .topic-input:focus { border-color: #b1dae7; }
+        body.darkmode .topic-input:disabled { background: #333; color: #888; }
+
+        .random-switch-label { user-select: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer; }
+        .random-switch {
+            width: 32px; height: 18px; appearance: none; background: #b1dae7; outline: none;
+            border-radius: 18px; position: relative; transition: background 0.3s; cursor: pointer;
+        }
+        .random-switch:checked { background: #b1e7c8; }
+        .random-switch::before {
+            content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px;
+            background: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        .random-switch:checked::before { transform: translateX(14px); }
+        .random-switch:disabled { cursor: not-allowed; background: #ccc; }
+        body.darkmode .random-switch:disabled { background: #555; }
+
+        .error-message { color: #e53e3e; font-family: "Inter", sans-serif; font-size: 12px; margin-top: 0.5rem; min-height: 1.2em; }
+        body.darkmode .error-message { color: #fc8181; }
+        .topic-input.error { border-color: #e53e3e; }
+        body.darkmode .topic-input.error { border-color: #fc8181; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.5s ease-in-out; }
+
+        /* Sonstige Styles */
         .placeholder-card {
-            border: 2px dashed #e2e8f0;
-            background: rgba(255, 255, 255, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #a0aec0;
-            font-family: "Inter", sans-serif;
-            min-height: 150px;
-            border-radius: 10px;
-            box-shadow: none;
+            border: 2px dashed #e2e8f0; background: rgba(255, 255, 255, 0.5); display: flex;
+            align-items: center; justify-content: center; text-align: center; color: #a0aec0;
+            font-family: "Inter", sans-serif; min-height: 150px; border-radius: 10px; box-shadow: none;
         }
-        body.darkmode .placeholder-card {
-            border-color: #4d4d4d;
-            background: #2d2d2d;
-            color: #718096;
-        }
+        body.darkmode .placeholder-card { border-color: #4d4d4d; background: #2d2d2d; color: #718096; }
 
         .start-game-button {
-            width: 100%;
-            padding: 1rem;
-            margin-top: 2rem;
-            background: #b1dae7;
-            color: #234567;
-            border: none;
-            border-radius: 5px;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            width: 100%; padding: 1rem; margin-top: 2rem; background: #b1dae7; color: #234567;
+            border: none; border-radius: 5px; font-family: "Ubuntu", sans-serif; font-size: 18px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
         .start-game-button:hover { background: #9bc8d7; }
-        .start-game-button:disabled {
-            background: #f0f0f0;
-            color: #999;
-            cursor: not-allowed;
-        }
-        body.darkmode .start-game-button:disabled {
-            background: #3d3d3d;
-            color: #666;
-        }
+        .start-game-button:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
+        body.darkmode .start-game-button:disabled { background: #3d3d3d; color: #666; }
 
         .status {
             margin-top: 1rem; padding: 10px; border-radius: 5px; text-align: center;
@@ -298,11 +181,10 @@
         body.darkmode .status.waiting { background: #4a4023; color: #ffeaa7; }
         body.darkmode .status.connected { background: #1c3c24; color: #c3e6cb; }
         body.darkmode .status.error { background: #4a2124; color: #f5c6cb; }
-
     </style>
 </head>
 
-<body>
+<body data-user-id="<%= it.userId || '' %>">
 <header class="main-header">
     <div class="header-content">
         <a href="/" style="text-decoration: none; color: inherit;">
@@ -320,9 +202,9 @@
             <label class="switch">
                 <input id="darkmode-toggle" type="checkbox" />
                 <span class="slider">
-                        <div class="star star_1"></div><div class="star star_2"></div><div class="star star_3"></div>
-                        <svg viewBox="0 0 16 16" class="cloud_1 cloud"><path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff" d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"></path></svg>
-                    </span>
+                    <div class="star star_1"></div><div class="star star_2"></div><div class="star star_3"></div>
+                    <svg viewBox="0 0 16 16" class="cloud_1 cloud"><path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff" d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"></path></svg>
+                </span>
             </label>
         </div>
     </div>
@@ -337,9 +219,7 @@
 
         <div class="lobby-info">
             <div class="lobby-details">
-                <div class="lobby-id-display" id="lobby-id-display">
-                    Lade deine Mitspieler ein!
-                </div>
+                <div class="lobby-id-display" id="lobby-id-display">Lade deine Mitspieler ein!</div>
                 <div class="join-link-container">
                     <input type="text" id="join-link" class="join-link-input" value="<%= it.joinUrl %>" readonly>
                     <button class="copy-button" onclick="copyJoinLink()">Kopieren</button>
@@ -359,9 +239,7 @@
         </div>
 
         <% if (it.isHost) { %>
-        <button id="startGameButton" class="start-game-button" disabled>
-            Spiel starten (mind. 2 Spieler benötigt)
-        </button>
+        <button id="startGameButton" class="start-game-button" disabled>Spiel starten</button>
         <% } %>
     </div>
 </div>
@@ -372,16 +250,14 @@
 <script>
     // Globale Variablen für den Zustand
     let lobbyPollingInterval = null;
-    const POLLING_INTERVAL_MS = 7000; // Alle 7 Sekunden
-    const MIN_PLAYERS_TO_START = 2;
+    const POLLING_INTERVAL_MS = 7000;
+    const MIN_PLAYERS_TO_START = 1;
     const LOBBY_ID = '<%= it.lobbyId || "" %>';
     const USER_ID = '<%= it.userId || "" %>';
     const USER_NAME = '<%= it.userName || "User" %>';
     const IS_HOST = <%= it.isHost ? 'true' : 'false' %>;
 
-
     document.addEventListener('DOMContentLoaded', function() {
-        // Dark Mode Initialisierung
         const toggle = document.getElementById('darkmode-toggle');
         const isDark = document.documentElement.classList.contains('darkmode');
         toggle.checked = !isDark;
@@ -392,28 +268,15 @@
             document.body.classList.toggle('darkmode', dark);
             localStorage.setItem('darkmode', dark.toString());
         });
-
-        // Lobby Initialisierung starten
         initializeLobby();
     });
 
-    /**
-     * Holt den aktuellen Zustand der Lobby vom Server und aktualisiert die gesamte UI.
-     * Dies ist die zentrale Funktion für alle Updates.
-     */
     async function refreshLobbyState() {
-        console.log("Polling for lobby state...");
         if (!LOBBY_ID) return;
-
         try {
             const response = await fetch(`/api/lobby/${LOBBY_ID}`);
-            if (!response.ok) {
-                throw new Error(`Server antwortete mit Status ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Server antwortete mit Status ${response.status}`);
             const data = await response.json();
-
-            console.log("Lobby data received:", data);
-
             if (data && data.players) {
                 updatePlayerGrid(data.players, data.lobby?.host_id, USER_ID);
             }
@@ -424,24 +287,22 @@
     }
 
     /**
-     * Erstellt eine einzelne Spieler-Karte.
+     * Erstellt eine einzelne Spieler-Karte mit Themeneingabe.
      */
     function createPlayerCard(player, hostId, currentUserId) {
-        const isHost = player.is_host;
+        const isHostPlayer = player.user_id === hostId;
         const isYou = player.user_id === currentUserId;
+        const isEditable = IS_HOST; // Nur der Host kann Themen bearbeiten
+
         let cardClasses = 'player-card';
-        if (isHost) cardClasses += ' is-host';
+        if (isHostPlayer) cardClasses += ' is-host';
         if (isYou) cardClasses += ' is-you';
 
         const avatarInitial = player.name ? player.name.charAt(0).toUpperCase() : '?';
 
         let badge = '';
-        if (isHost) {
-            badge = `<div class="player-badge host-badge">Host</div>`;
-        }
-        if (isYou && !isHost) {
-            badge = `<div class="player-badge you-badge">Du</div>`;
-        }
+        if (isHostPlayer) badge = `<div class="player-badge host-badge">Host</div>`;
+        if (isYou && !isHostPlayer) badge = `<div class="player-badge you-badge">Du</div>`;
 
         return `
             <div class="${cardClasses}" data-user-id="${player.user_id}">
@@ -452,13 +313,35 @@
                         <p class="player-name">${player.name || 'Unbenannter Spieler'}</p>
                     </div>
                 </div>
+                <div>
+                    <div class="player-topic-row">
+                        <input type="text" class="topic-input" placeholder="Präsentationsthema" maxlength="50" ${!isEditable ? 'disabled' : ''}>
+                        <label class="random-switch-label" title="Zufälliges Thema wählen">
+                            <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)" ${!isEditable ? 'disabled' : ''}>
+                            <i class="fas fa-random" style="font-size: 14px;"></i>
+                        </label>
+                    </div>
+                    <div class="error-message topic-error"></div>
+                </div>
             </div>
         `;
     }
 
-    /**
-     * Aktualisiert das gesamte Gitter mit den Spieler-Karten.
-     */
+    function toggleRandomTopic(checkbox) {
+        const topicInput = checkbox.closest('.player-topic-row').querySelector('.topic-input');
+        if (checkbox.checked) {
+            topicInput.disabled = true;
+            topicInput.value = '';
+            topicInput.placeholder = 'Zufälliges Thema';
+            topicInput.classList.remove('error');
+            const errorDiv = topicInput.closest('.player-card').querySelector('.topic-error');
+            if(errorDiv) errorDiv.textContent = '';
+        } else {
+            topicInput.disabled = false;
+            topicInput.placeholder = 'Präsentationsthema';
+        }
+    }
+
     function updatePlayerGrid(players, hostId, currentUserId) {
         const playerGrid = document.getElementById('playerGrid');
         if (!playerGrid) return;
@@ -487,7 +370,7 @@
         } else {
             startButton.disabled = true;
             const needed = MIN_PLAYERS_TO_START - playerCount;
-            startButton.textContent = `Warte auf ${needed} weitere${needed > 1 ? 'n' : 'n'} Spieler...`;
+            startButton.textContent = `Warte auf ${needed} weitere${needed > 1 ? '' : 'n'} Spieler...`;
         }
     }
 
@@ -499,10 +382,7 @@
                 const originalText = button.textContent;
                 button.textContent = 'Kopiert!';
                 setTimeout(() => { button.textContent = originalText; }, 2000);
-            }).catch(err => {
-                console.error('Kopieren fehlgeschlagen: ', err);
-                alert('Konnte nicht in die Zwischenablage kopieren.');
-            });
+            }).catch(err => console.error('Kopieren fehlgeschlagen: ', err));
         }
     }
 
@@ -514,9 +394,6 @@
         }
     }
 
-    /**
-     * Hauptfunktion zur Initialisierung der Lobby-Logik.
-     */
     async function initializeLobby() {
         if (!USER_ID || !LOBBY_ID) {
             updateStatus('Fehler: Wichtige Lobby-Daten fehlen.', 'error');
@@ -524,60 +401,103 @@
             return;
         }
 
-        // 1. Initiales Laden der Daten
         await refreshLobbyState();
 
-        // 2. Echtzeit-Verbindung aufbauen
         const realtimeClient = new SupabaseRealtimeClient();
-
         realtimeClient.on('connect', () => {
             updateStatus('Mit Lobby verbunden', 'connected');
-            // Nach erfolgreicher Verbindung sofort aktualisieren
             refreshLobbyState();
         });
-
-        realtimeClient.on('connect_error', (error) => {
-            updateStatus(`Verbindungsfehler. Updates könnten verzögert sein.`, 'error');
-        });
-
-        // Bei Echtzeit-Update -> UI neu zeichnen
-        realtimeClient.on('lobbyUpdate', (data) => {
-            console.log('Realtime "lobbyUpdate" event received!');
-            refreshLobbyState();
-        });
-
+        realtimeClient.on('connect_error', () => updateStatus(`Verbindungsfehler.`, 'error'));
+        realtimeClient.on('lobbyUpdate', () => refreshLobbyState());
         realtimeClient.on('presentationStarted', (data) => {
-            console.log('Presentation started event received!');
-            if(lobbyPollingInterval) clearInterval(lobbyPollingInterval); // Polling stoppen
+            if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
             updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
             setTimeout(() => {
-                window.location.href = `/match?id=${LOBBY_ID}&userId=${USER_ID}`;
+                window.location.href = data.url || `/match?id=${LOBBY_ID}&userId=${USER_ID}`;
             }, 1500);
         });
 
         await realtimeClient.connect(LOBBY_ID, USER_ID, USER_NAME, IS_HOST);
 
-        // 3. Periodisches Polling als Sicherheitsnetz starten
-        if(lobbyPollingInterval) clearInterval(lobbyPollingInterval); // Altes Intervall löschen
+        if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
         lobbyPollingInterval = setInterval(refreshLobbyState, POLLING_INTERVAL_MS);
 
-        // 4. Event-Listener für den Start-Button
         const startBtn = document.getElementById('startGameButton');
-        if(startBtn) {
+        if (startBtn) {
             startBtn.addEventListener('click', async () => {
                 startBtn.disabled = true;
                 startBtn.textContent = 'Starte...';
+
+                let hasError = false;
+                const presentations = [];
+                const playerCards = document.querySelectorAll('.player-grid .player-card');
+
+                // Daten sammeln und validieren
+                playerCards.forEach(card => {
+                    card.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
+
+                    const playerName = card.querySelector('.player-name').textContent.trim();
+                    const topicInput = card.querySelector('.topic-input');
+                    const randomSwitch = card.querySelector('.random-switch');
+                    const errorDiv = card.querySelector('.topic-error');
+
+                    errorDiv.textContent = '';
+                    topicInput.classList.remove('error');
+
+                    let topic = '';
+                    if (randomSwitch.checked) {
+                        topic = '//RANDOM//';
+                    } else {
+                        topic = topicInput.value.trim();
+                        if (topic.length < 3 || topic.length > 50) {
+                            hasError = true;
+                            errorDiv.textContent = 'Thema muss 3-50 Zeichen lang sein.';
+                            topicInput.classList.add('error', 'shake');
+                        }
+                    }
+                    presentations.push({ player: playerName, topic: topic });
+                });
+
+                if (hasError) {
+                    updateStartButton(playerCards.length); // Re-enable button with correct text
+                    return;
+                }
+
+                // Anfrage an den Server senden
                 try {
-                    await realtimeClient.startPresentation();
-                } catch(error) {
+                    const response = await fetch('/initiateGeneration', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            presentations: presentations,
+                            user: { id: USER_ID }, // Globale USER_ID verwenden
+                            gameMode: 2, // Game-Mode 2 => Multi-Device-Mode
+                            lobbyId: '<%= it.lobbyId || "" %>',
+                            userId: '<%= it.userId || "" %>',
+                            userName: '<%= it.userName || "User" %>',
+                            isHost: <%= it.isHost ? 'true' : 'false' %>
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data && data.url) {
+                        // Erfolgreich, jetzt alle Clients per Realtime benachrichtigen
+                        // await realtimeClient.startPresentation(data.url);
+                        // Stattdessen auf /lobby weiterleiten
+                        console.log(data.url);
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error(data.error || 'Fehler bei der Generierung der Präsentation.');
+                    }
+                } catch (error) {
                     console.error('Fehler beim Starten der Präsentation:', error);
                     updateStatus('Fehler beim Starten: ' + error.message, 'error');
-                    updateStartButton(document.querySelectorAll('.player-card').length);
+                    updateStartButton(playerCards.length);
                 }
             });
         }
     }
-
 </script>
 </body>
 </html>

@@ -186,7 +186,7 @@
     <div class="status-bar" id="status-bar">
         Verbunden mit Multiplayer-Session
     </div>
-    
+
     <div class="presentation-container">
         <div class="reveal-container">
             <div class="reveal">
@@ -197,7 +197,7 @@
                         <p>Dies ist eine Demo-Präsentation mit Reveal.js</p>
                         <p><small>Multiplayer-Modus aktiv</small></p>
                     </section>
-                    
+
                     <section>
                         <h2>Folie 2</h2>
                         <p>Hier könnte Ihr Inhalt stehen...</p>
@@ -207,7 +207,7 @@
                             <li>Punkt 3</li>
                         </ul>
                     </section>
-                    
+
                     <section>
                         <h2>Interaktive Frage</h2>
                         <p>Was ist die Hauptstadt von Deutschland?</p>
@@ -218,7 +218,7 @@
                             <button style="margin: 5px; padding: 10px 20px; font-size: 16px;">D) Köln</button>
                         </div>
                     </section>
-                    
+
                     <section>
                         <h2>Letzte Folie</h2>
                         <p>Vielen Dank für Ihre Aufmerksamkeit!</p>
@@ -240,7 +240,7 @@
             </div>
             <div class="chat-input-container">
                 <form class="chat-input-form" id="chat-form">
-                    <input type="text" class="chat-input" id="chat-input" 
+                    <input type="text" class="chat-input" id="chat-input"
                            placeholder="Nachricht eingeben..." maxlength="500">
                     <button type="submit" class="chat-send-btn" id="chat-send-btn">
                         Senden
@@ -252,13 +252,13 @@
 
     <!-- Reveal.js JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
-    
+
     <!-- Supabase JavaScript Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+
     <!-- Supabase Realtime Client -->
     <script src="/js/sse-client.js"></script>
-    
+
     <script>
         // Template-Daten
         const matchData = {
@@ -268,7 +268,7 @@
             isHost: <%= it.isHost ? 'true' : 'false' %>,
             players: []
         };
-        
+
         // Sichere JSON-Übertragung der Spielerdaten
         try {
             const playersData = `<%- JSON.stringify(it.players || []) %>`;
@@ -279,12 +279,12 @@
             console.warn('Fehler beim Parsen der Spielerdaten:', e);
             matchData.players = [];
         }
-        
+
         console.log('Match-Daten:', matchData);
-        
+
         // Globale Variablen
         let realtimeClient = null;
-        
+
         // Reveal.js initialisieren
         Reveal.initialize({
             hash: true,
@@ -295,49 +295,49 @@
             center: true,
             transition: 'slide'
         });
-        
+
         // Chat-Funktionalität
         const chatMessages = document.getElementById('chat-messages');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         const chatSendBtn = document.getElementById('chat-send-btn');
         const statusBar = document.getElementById('status-bar');
-        
+
         function updateStatus(message, isError = false) {
             statusBar.textContent = message;
             statusBar.className = isError ? 'status-bar error' : 'status-bar';
         }
-        
+
         function addChatMessage(sender, message, isOwn = false, isHost = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'chat-message';
             if (isOwn) messageDiv.className += ' own';
             if (isHost) messageDiv.className += ' host';
-            
+
             messageDiv.innerHTML = `
                 <span class="sender">${sender}:</span>
                 ${message}
             `;
-            
+
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
+
         function updateParticipantCount(count) {
             document.getElementById('participant-number').textContent = count;
         }
-        
+
         // Chat-Form Handler
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const message = chatInput.value.trim();
             if (!message) return;
-            
+
             try {
                 if (realtimeClient && realtimeClient.isConnected()) {
                     const result = await realtimeClient.sendChatMessage(message);
-                    
+
                     if (result.success) {
                         chatInput.value = '';
                         addChatMessage(matchData.userName, message, true, matchData.isHost);
@@ -352,16 +352,16 @@
                 updateStatus('Fehler beim Senden der Nachricht', true);
             }
         });
-        
+
         // Reveal.js Slide-Change Handler (nur für Host)
         if (matchData.isHost) {
             Reveal.on('slidechanged', async (event) => {
                 console.log('Host ändert Folie zu:', event.indexh);
-                
+
                 try {
                     if (realtimeClient && realtimeClient.isConnected()) {
                         const result = await realtimeClient.changeSlide(event.indexh);
-                        
+
                         if (!result.success) {
                             console.error('Fehler beim Ändern der Folie:', result.error);
                         }
@@ -371,20 +371,20 @@
                 }
             });
         }
-        
+
         // Initialisierung
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Match-Seite geladen');
-            
+
             // Zeige initiale Teilnehmer
             if (matchData.players) {
                 updateParticipantCount(matchData.players.length);
             }
-            
+
             try {
                 // Supabase Realtime Client erstellen und verbinden
                 realtimeClient = new SupabaseRealtimeClient();
-                
+
                 // Event-Listener für Realtime-Events
                 realtimeClient.on('connect', () => {
                     console.log('Supabase Realtime verbunden in Match');
@@ -422,12 +422,12 @@
 
                 // Verbindung zur Lobby herstellen
                 await realtimeClient.connect(matchData.lobbyId, matchData.userId, matchData.userName, matchData.isHost);
-                
+
             } catch (error) {
                 console.error('Fehler beim Initialisieren von Realtime:', error);
                 updateStatus('Fehler beim Verbinden mit Realtime', true);
             }
-            
+
             // Willkommensnachricht im Chat
             setTimeout(() => {
                 addChatMessage('System', `${matchData.userName} ist der Präsentation beigetreten`);
