@@ -4,499 +4,501 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lobby - FreestAIle</title>
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script src="darkmode-init.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/landing-page.css"> <!-- Wiederverwendung der Haupt-Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+        /* Basis-Styles für alle Buttons */
+        .auth-button {
+            position: relative; margin: auto; padding: 12px 18px; transition: all 0.2s ease;
+            border: none; background: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .auth-button:before {
+            content: ""; position: absolute; top: 0; left: 0; display: block;
+            border-radius: 50px; width: 45px; height: 45px; transition: all 0.3s ease;
         }
-        .lobby-header {
-            text-align: center;
-            margin-bottom: 30px;
+        .auth-button span {
+            position: relative; font-family: "Ubuntu", sans-serif; font-size: 18px; font-weight: 700;
+            letter-spacing: 0.05em; color: #234567;
         }
-        .lobby-id {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin: 10px 0;
+        .auth-button svg {
+            position: relative; top: 0; margin-left: 10px; fill: none; stroke-linecap: round;
+            stroke-linejoin: round; stroke: #234567; stroke-width: 2; transform: translateX(-5px); transition: all 0.3s ease;
         }
-        .qr-code {
-            margin: 20px 0;
+        .auth-button:hover:before { width: 100%; }
+        .auth-button:hover svg { transform: translateX(0); }
+        .auth-button:active { transform: scale(0.95); }
+        .auth-button-login:before { background: #b1dae7; }
+        .auth-button-login:hover:before { background: #b1dae7; }
+        .auth-button-register:before { background: #b1e7c8; }
+        .auth-button-register:hover:before { background: #b1e7c8; }
+        .profile-container { display: flex; align-items: center; gap: 1rem; margin-right: 1rem; }
+        .profile-circle {
+            width: 45px; height: 45px; border-radius: 50%; background: #b1dae7; display: flex;
+            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
+            font-size: 20px; font-weight: 700; color: #234567; transition: all 0.3s ease; flex-shrink: 0;
         }
-        .participants-section {
-            margin: 30px 0;
+        html.darkmode .profile-circle { background: #3d3d3d; color: #ffffff; }
+        .profile-email { font-family: "Ubuntu", sans-serif; font-size: 16px; color: #234567; white-space: nowrap; }
+        html.darkmode .profile-email { color: #ffffff; }
+
+        /* Lobby-spezifische Styles */
+        .lobby-info {
+            background: #ffffff; border-radius: 10px; padding: 1.5rem 2rem;
+            margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 2rem; flex-wrap: wrap;
         }
-        .participants-list {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            min-height: 100px;
-            padding: 15px;
-            background: #f9f9f9;
+        body.darkmode .lobby-info { background: #2d2d2d; }
+        .lobby-details { flex: 1; min-width: 250px; }
+        .lobby-id-display {
+            font-family: "Ubuntu", sans-serif; font-size: 22px; font-weight: 700;
+            color: #234567; margin-bottom: 0.5rem;
         }
-        .participant {
-            padding: 8px 12px;
-            margin: 4px 0;
-            background: #e3f2fd;
-            border-radius: 4px;
-            font-size: 14px;
+        body.darkmode .lobby-id-display { color: #ffffff; }
+        .join-link-container { display: flex; align-items: center; margin-top: 1rem; }
+        .join-link-input {
+            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-right: none;
+            border-radius: 8px 0 0 8px; font-family: "Inter", sans-serif;
+            font-size: 14px; background: #f8fafc; color: #333;
         }
-        .participant.host {
-            background: #1976d2;
-            color: white;
-            font-weight: bold;
+        body.darkmode .join-link-input { background: #3d3d3d; border-color: #4d4d4d; color: #e2e8f0; }
+        .copy-button {
+            padding: 0.75rem 0.75rem; border: 2px solid #b1e7c8; background: #b1e7c8;
+            color: #234567; border-radius: 0 8px 8px 0; cursor: pointer;
+            font-family: "Ubuntu", sans-serif; font-size: 14px; font-weight: 600;
+            transition: all 0.2s ease;
         }
-        .participant.current-user {
-            background: #4caf50;
-            color: white;
+        .copy-button:hover { background: #9bd7b8; border-color: #9bd7b8; }
+        body.darkmode .copy-button { background: #2d5a3f; border-color: #2d5a3f; color: #ffffff; }
+        body.darkmode .copy-button:hover { background: #3d6a4f; border-color: #3d6a4f; }
+        .qr-code-container { padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .qr-code-container img { display: block; max-width: 150px; max-height: 150px; }
+        .player-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Breite angepasst */
+            gap: 1.5rem; margin-top: 2rem;
         }
-        .controls {
-            text-align: center;
-            margin-top: 30px;
+
+        /* Angepasste Spieler-Karte */
+        .player-card {
+            background: #ffffff; border-radius: 10px; padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
+            position: relative; overflow: hidden; border: 2px solid transparent;
         }
-        .btn {
-            padding: 12px 24px;
-            margin: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+        .player-card.is-host { border-color: #b1dae7; }
+        .player-card.is-you { border-color: #b1e7c8; }
+        .player-card.is-host.is-you { border-color: #b1e7c8; }
+        body.darkmode .player-card { background: #2d2d2d; }
+        body.darkmode .player-card.is-host { border-color: #b1dae7; }
+        body.darkmode .player-card.is-you { border-color: #2d5a3f; }
+
+        .player-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .player-avatar {
+            width: 50px; height: 50px; border-radius: 50%; background: #b1dae7; display: flex;
+            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
+            font-size: 24px; font-weight: 700; color: #234567; flex-shrink: 0;
         }
-        .btn-primary {
-            background: #1976d2;
-            color: white;
+        body.darkmode .player-avatar { background: #3d3d3d; color: #ffffff; }
+        .player-name {
+            font-family: "Ubuntu", sans-serif; font-size: 18px; font-weight: 700;
+            color: #234567; margin: 0;
         }
-        .btn-primary:hover {
-            background: #1565c0;
+        body.darkmode .player-name { color: #ffffff; }
+        .player-badge {
+            position: absolute; top: 10px; right: 10px; padding: 4px 8px; border-radius: 12px;
+            font-size: 12px; font-weight: 600; font-family: "Inter", sans-serif;
         }
-        .btn-secondary {
-            background: #757575;
-            color: white;
+        .player-badge.host-badge { background-color: #b1dae7; color: #234567; }
+        .player-badge.you-badge { background-color: #b1e7c8; color: #234567; }
+        body.darkmode .player-badge.host-badge { background-color: #4a4a4a; color: #e0e0e0; }
+        body.darkmode .player-badge.you-badge { background-color: #2d5a3f; color: #ffffff; }
+
+        /* NEUE STYLES für Themeneingabe */
+        .player-topic-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+        .topic-input {
+            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 5px;
+            font-family: "Inter", sans-serif; font-size: 14px; transition: border-color 0.3s ease;
         }
-        .btn-secondary:hover {
-            background: #616161;
+        .topic-input:focus { outline: none; border-color: #b1dae7; }
+        .topic-input:disabled { background: #f0f0f0; cursor: not-allowed; }
+        body.darkmode .topic-input { background: #3d3d3d; border-color: #4d4d4d; color: #ffffff; }
+        body.darkmode .topic-input:focus { border-color: #b1dae7; }
+        body.darkmode .topic-input:disabled { background: #333; color: #888; }
+
+        .random-switch-label { user-select: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer; }
+        .random-switch {
+            width: 32px; height: 18px; appearance: none; background: #b1dae7; outline: none;
+            border-radius: 18px; position: relative; transition: background 0.3s; cursor: pointer;
         }
+        .random-switch:checked { background: #b1e7c8; }
+        .random-switch::before {
+            content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px;
+            background: #fff; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        .random-switch:checked::before { transform: translateX(14px); }
+        .random-switch:disabled { cursor: not-allowed; background: #ccc; }
+        body.darkmode .random-switch:disabled { background: #555; }
+
+        .error-message { color: #e53e3e; font-family: "Inter", sans-serif; font-size: 12px; margin-top: 0.5rem; min-height: 1.2em; }
+        body.darkmode .error-message { color: #fc8181; }
+        .topic-input.error { border-color: #e53e3e; }
+        body.darkmode .topic-input.error { border-color: #fc8181; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.5s ease-in-out; }
+
+        /* Sonstige Styles */
+        .placeholder-card {
+            border: 2px dashed #e2e8f0; background: rgba(255, 255, 255, 0.5); display: flex;
+            align-items: center; justify-content: center; text-align: center; color: #a0aec0;
+            font-family: "Inter", sans-serif; min-height: 150px; border-radius: 10px; box-shadow: none;
+        }
+        body.darkmode .placeholder-card { border-color: #4d4d4d; background: #2d2d2d; color: #718096; }
+
+        .start-game-button {
+            width: 100%; padding: 1rem; margin-top: 2rem; background: #b1dae7; color: #234567;
+            border: none; border-radius: 5px; font-family: "Ubuntu", sans-serif; font-size: 18px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+        }
+        .start-game-button:hover { background: #9bc8d7; }
+        .start-game-button:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
+        body.darkmode .start-game-button:disabled { background: #3d3d3d; color: #666; }
+
         .status {
-            margin: 20px 0;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
+            margin-top: 1rem; padding: 10px; border-radius: 5px; text-align: center;
+            font-family: "Inter", sans-serif; font-size: 14px;
         }
-        .status.waiting {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        .status.connected {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+        .status.waiting { background: #fff3cd; color: #856404; }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        body.darkmode .status.waiting { background: #4a4023; color: #ffeaa7; }
+        body.darkmode .status.connected { background: #1c3c24; color: #c3e6cb; }
+        body.darkmode .status.error { background: #4a2124; color: #f5c6cb; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="lobby-header">
-            <h1>Multiplayer Lobby</h1>
-            <div class="status waiting" id="connection-status">
-                Verbindung wird hergestellt...
-            </div>
-            <div class="lobby-id" id="lobby-id-display">
-                Lobby wird erstellt...
-            </div>
-            <div class="qr-code" id="qr-code-container" style="display: block;">
-                <% if (it.qrCode) { %>
-                    <img src="<%= it.qrCode %>" alt="QR-Code" style="max-width: 200px;">
-                <% } %>
-            </div>
-            <div style="text-align:center; margin-bottom: 20px;">
-                <input type="text" id="join-link" value="<%= it.joinUrl %>" readonly style="width:70%;padding:8px;">
-                <button class="btn btn-secondary" onclick="copyJoinLink()">Link kopieren</button>
-            </div>
-        </div>
 
-        <div class="participants-section">
-            <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
-            <div class="participants-list" id="participants-list">
-                <p>Warten auf Teilnehmer...</p>
+<body data-user-id="<%= it.userId || '' %>">
+<header class="main-header">
+    <div class="header-content">
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <span class="header-logo">Freest<b>AI</b>le</span>
+        </a>
+        <div class="flex items-center space-x-4">
+            <% if (it.user) { %>
+            <div class="profile-container">
+                <a href="/user" style="text-decoration: none;">
+                    <div class="profile-circle"><%= it.user.email.charAt(0).toUpperCase() %></div>
+                </a>
+                <div class="profile-email"><%= it.user.email %></div>
             </div>
-        </div>
-
-        <div class="controls">
-            <% if (it.isHost) { %>
-                <button class="btn btn-primary" id="start-presentation" disabled>
-                    Präsentation starten
-                </button>
             <% } %>
-            <button class="btn btn-secondary" onclick="copyJoinLink()">
-                Link kopieren
-            </button>
-            <button class="btn btn-secondary" onclick="window.location.href='/main'">
-                Lobby verlassen
-            </button>
+            <label class="switch">
+                <input id="darkmode-toggle" type="checkbox" />
+                <span class="slider">
+                    <div class="star star_1"></div><div class="star star_2"></div><div class="star star_3"></div>
+                    <svg viewBox="0 0 16 16" class="cloud_1 cloud"><path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff" d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"></path></svg>
+                </span>
+            </label>
         </div>
     </div>
+</header>
 
-    <!-- Supabase JavaScript Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Supabase Realtime Client für Vercel-Kompatibilität -->
-    <script src="/js/sse-client.js"></script>
-    
-    <script>
-        // Globale Variablen
-        let realtimeClient = null;
-        let currentLobbyId = null;
-        let joinUrl = null;
+<div class="container-wrapper">
+    <div class="container">
+        <div class="header">
+            <h1 class="logo"><b>Multiplayer</b>-Lobby</h1>
+            <p class="tagline">Lade deine Freunde ein und startet gemeinsam eine Präsentation.</p>
+        </div>
 
-        // UI-Logik für Teilnehmerliste
-        function updateParticipantsList(players, hostId, currentUserId) {
-            console.log('Aktualisiere Teilnehmerliste:', { players, hostId, currentUserId });
-            
-            const participantsList = document.getElementById('participants-list');
-            if (!participantsList) {
-                console.error('participants-list Element nicht gefunden');
-                return;
+        <div class="lobby-info">
+            <div class="lobby-details">
+                <div class="lobby-id-display" id="lobby-id-display">Lade deine Mitspieler ein!</div>
+                <div class="join-link-container">
+                    <input type="text" id="join-link" class="join-link-input" value="<%= it.joinUrl %>" readonly>
+                    <button class="copy-button" onclick="copyJoinLink()">Kopieren</button>
+                </div>
+                <div class="status waiting" id="connection-status">Verbindung wird hergestellt...</div>
+            </div>
+            <% if (it.qrCode) { %>
+            <div class="qr-code-container" id="qr-code-container">
+                <img src="<%= it.qrCode %>" alt="QR-Code zum Beitreten">
+            </div>
+            <% } %>
+        </div>
+
+        <% if (it.isHost) { %>
+        <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
+        <div class="player-grid" id="playerGrid">
+            <div class="placeholder-card">Lobby-Daten werden geladen...</div>
+        </div>
+        <button id="startGameButton" class="start-game-button" disabled>Spiel starten</button>
+        <% } %>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/sse-client.js"></script>
+
+<script>
+    // Globale Variablen für den Zustand
+    let lobbyPollingInterval = null;
+    const POLLING_INTERVAL_MS = 7000;
+    const MIN_PLAYERS_TO_START = 1;
+    const LOBBY_ID = '<%= it.lobbyId || "" %>';
+    const USER_ID = '<%= it.userId || "" %>';
+    const USER_NAME = '<%= it.userName || "User" %>';
+    const IS_HOST = <%= it.isHost ? 'true' : 'false' %>;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('darkmode-toggle');
+        const isDark = document.documentElement.classList.contains('darkmode');
+        toggle.checked = !isDark;
+        document.body.classList.toggle('darkmode', isDark);
+        toggle.addEventListener('change', function() {
+            const dark = !toggle.checked;
+            document.documentElement.classList.toggle('darkmode', dark);
+            document.body.classList.toggle('darkmode', dark);
+            localStorage.setItem('darkmode', dark.toString());
+        });
+        initializeLobby();
+    });
+
+    async function refreshLobbyState() {
+        if (!LOBBY_ID) return;
+        try {
+            const response = await fetch(`/api/lobby/${LOBBY_ID}`);
+            if (!response.ok) throw new Error(`Server antwortete mit Status ${response.status}`);
+            const data = await response.json();
+            if (data && data.players) {
+                updatePlayerGrid(data.players, data.lobby?.host_id, USER_ID);
             }
+        } catch (error) {
+            console.error("Fehler beim Abrufen des Lobby-Zustands:", error);
+            updateStatus('Fehler bei der Synchronisierung mit der Lobby.', 'error');
+        }
+    }
 
-            participantsList.innerHTML = '';
+    /**
+     * Erstellt eine einzelne Spieler-Karte mit Themeneingabe.
+     */
+    function createPlayerCard(player, hostId, currentUserId) {
+        const isHostPlayer = player.user_id === hostId;
+        const isYou = player.user_id === currentUserId;
+        const isEditable = IS_HOST; // Nur der Host kann Themen bearbeiten
 
-            if (!players || players.length === 0) {
-                participantsList.innerHTML = '<div class="participant">Keine Teilnehmer</div>';
-                return;
-            }
+        let cardClasses = 'player-card';
+        if (isHostPlayer) cardClasses += ' is-host';
+        if (isYou) cardClasses += ' is-you';
 
+        const avatarInitial = player.name ? player.name.charAt(0).toUpperCase() : '?';
+
+        let badge = '';
+        if (isHostPlayer) badge = `<div class="player-badge host-badge">Host</div>`;
+        if (isYou && !isHostPlayer) badge = `<div class="player-badge you-badge">Du</div>`;
+
+        return `
+            <div class="${cardClasses}" data-user-id="${player.user_id}">
+                ${badge}
+                <div class="player-header">
+                    <div class="player-avatar">${avatarInitial}</div>
+                    <div class="player-info">
+                        <p class="player-name">${player.name || 'Unbenannter Spieler'}</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="player-topic-row">
+                        <input type="text" class="topic-input" placeholder="Präsentationsthema" maxlength="50" ${!isEditable ? 'disabled' : ''}>
+                        <label class="random-switch-label" title="Zufälliges Thema wählen">
+                            <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)" ${!isEditable ? 'disabled' : ''}>
+                            <i class="fas fa-random" style="font-size: 14px;"></i>
+                        </label>
+                    </div>
+                    <div class="error-message topic-error"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    function toggleRandomTopic(checkbox) {
+        const topicInput = checkbox.closest('.player-topic-row').querySelector('.topic-input');
+        if (checkbox.checked) {
+            topicInput.disabled = true;
+            topicInput.value = '';
+            topicInput.placeholder = 'Zufälliges Thema';
+            topicInput.classList.remove('error');
+            const errorDiv = topicInput.closest('.player-card').querySelector('.topic-error');
+            if(errorDiv) errorDiv.textContent = '';
+        } else {
+            topicInput.disabled = false;
+            topicInput.placeholder = 'Präsentationsthema';
+        }
+    }
+
+    function updatePlayerGrid(players, hostId, currentUserId) {
+        const playerGrid = document.getElementById('playerGrid');
+        if (!playerGrid) return;
+
+        if (!players || players.length === 0) {
+            playerGrid.innerHTML = '<div class="placeholder-card">Warten auf Spieler...</div>';
+        } else {
             const sortedPlayers = [...players].sort((a, b) => {
-                // Host zuerst
-                if (a.is_host && !b.is_host) return -1;
-                if (!a.is_host && b.is_host) return 1;
-                // Aktueller User als nächstes
-                if (a.user_id === currentUserId && b.user_id !== currentUserId) return -1;
-                if (a.user_id !== currentUserId && b.user_id === currentUserId) return 1;
-                // Alphabetisch nach Name
+                if (a.is_host) return -1; if (b.is_host) return 1;
                 return (a.name || '').localeCompare(b.name || '');
             });
-
-            sortedPlayers.forEach(player => {
-                const playerElement = document.createElement('div');
-                playerElement.className = 'participant';
-                
-                let displayName = player.name || 'Unbenannter Spieler';
-                
-                if (player.user_id === currentUserId) {
-                    playerElement.className += ' current-user';
-                    displayName += ' (Du)';
-                }
-                
-                if (player.is_host) {
-                    playerElement.className += ' host';
-                    displayName += ' (Host)';
-                }
-                
-                playerElement.textContent = displayName;
-                participantsList.appendChild(playerElement);
-            });
-
-            console.log(`Teilnehmerliste aktualisiert: ${players.length} Spieler`);
+            playerGrid.innerHTML = sortedPlayers.map(p => createPlayerCard(p, hostId, currentUserId)).join('');
         }
 
-        // Hauptinitialisierungslogik
-        async function initializeLobby() {
-            try {
-                console.log('Initialisiere Lobby mit Supabase Realtime...');
-                
-                // Benutzerdaten aus dem Template
-                const userData = {
-                    userId: '<%= it.userId || "" %>',
-                    userName: '<%= it.userName || "User" %>',
-                    isHost: <%= it.isHost ? 'true' : 'false' %>
-                };
+        document.getElementById('participant-count').textContent = players.length;
+        updateStartButton(players.length);
+    }
 
-                console.log('Template-Daten:', userData);
-                
-                // Prüfe Benutzerdaten
-                if (!userData.userId || userData.userId === '') {
-                    updateStatus('Fehler: Keine Benutzer-ID verfügbar', 'error');
-                    console.error('Keine userId verfügbar:', userData);
-                    return;
-                }
+    function updateStartButton(playerCount) {
+        const startButton = document.getElementById('startGameButton');
+        if (!startButton) return;
 
-                // Lobby-ID aus Template
-                const lobbyId = '<%= it.lobbyId || "" %>';
-                console.log('Lobby-ID aus Template:', lobbyId);
-                
-                if (!lobbyId || lobbyId === '') {
-                    updateStatus('Fehler: Keine Lobby-ID verfügbar', 'error');
-                    console.error('Keine lobbyId verfügbar');
-                    return;
-                }
+        if (playerCount >= MIN_PLAYERS_TO_START) {
+            startButton.disabled = false;
+            startButton.textContent = 'Spiel starten';
+        } else {
+            startButton.disabled = true;
+            const needed = MIN_PLAYERS_TO_START - playerCount;
+            startButton.textContent = `Warte auf ${needed} weitere${needed > 1 ? '' : 'n'} Spieler...`;
+        }
+    }
 
-                // Supabase Realtime Client erstellen
-                realtimeClient = new SupabaseRealtimeClient();
-                
-                // Event-Listener für Realtime-Events
-                realtimeClient.on('connect', () => {
-                    console.log('Supabase Realtime verbunden');
-                    updateStatus('Mit Lobby verbunden (Supabase Realtime)', 'connected');
-                    
-                    if (userData.isHost) {
-                        console.log('Host-Modus aktiviert');
-                        updateStatus('Als Host mit Lobby verbunden', 'connected');
-                        
-                        // Start-Button aktivieren
-                        const startBtn = document.getElementById('start-presentation');
-                        if (startBtn) {
-                            startBtn.disabled = false;
-                            console.log('Start-Button aktiviert für Host');
-                        }
-                    }
-                });
+    function copyJoinLink() {
+        const input = document.getElementById('join-link');
+        const button = document.querySelector('.copy-button');
+        if (input && input.value) {
+            navigator.clipboard.writeText(input.value).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Kopiert!';
+                setTimeout(() => { button.textContent = originalText; }, 2000);
+            }).catch(err => console.error('Kopieren fehlgeschlagen: ', err));
+        }
+    }
 
-                realtimeClient.on('connect_error', (error) => {
-                    console.error('Supabase Realtime Verbindungsfehler:', error);
-                    updateStatus('Verbindungsfehler: ' + error.message, 'error');
-                });
+    function updateStatus(message, type = 'waiting') {
+        const statusEl = document.getElementById('connection-status');
+        if (statusEl) {
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+    }
 
-                realtimeClient.on('playerJoined', (player) => {
-                    console.log('Spieler beigetreten:', player);
-                    // Aktualisiere die Teilnehmerliste
-                    loadLobbyData(lobbyId);
-                });
-
-                realtimeClient.on('playerLeft', (player) => {
-                    console.log('Spieler verlassen:', player);
-                    // Aktualisiere die Teilnehmerliste
-                    loadLobbyData(lobbyId);
-                });
-
-                realtimeClient.on('lobbyUpdate', (data) => {
-                    console.log('Lobby-Update erhalten:', data);
-                    if (data.players) {
-                        const currentUserId = userData.userId;
-                        updateParticipantsList(data.players, data.lobby?.host_id, currentUserId);
-                        updateParticipantCount(data.players.length);
-                    }
-                });
-
-                realtimeClient.on('presenceUpdate', (presenceState) => {
-                    console.log('Presence Update:', presenceState);
-                    // Konvertiere Presence-Daten zu Spielerliste
-                    const players = Object.values(presenceState).flat().map(presence => ({
-                        user_id: presence.user_id,
-                        name: presence.user_name,
-                        is_host: presence.is_host,
-                        online_at: presence.online_at
-                    }));
-                    
-                    if (players.length > 0) {
-                        const currentUserId = userData.userId;
-                        updateParticipantsList(players, null, currentUserId);
-                        updateParticipantCount(players.length);
-                    }
-                });
-
-                realtimeClient.on('presentationStarted', (data) => {
-                    console.log('Präsentation gestartet:', data);
-                    updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
-                    
-                    // Weiterleitung zur Match-Seite
-                    setTimeout(() => {
-                        window.location.href = `/match?id=${lobbyId}&userId=${userData.userId}&userName=${encodeURIComponent(userData.userName)}&isHost=${userData.isHost}`;
-                    }, 1500);
-                });
-
-                // Verbindung zur Lobby herstellen
-                await realtimeClient.connect(lobbyId, userData.userId, userData.userName, userData.isHost);
-
-                // Regelmäßige Aktualisierung der Lobby-Daten (als Fallback)
-                setInterval(() => {
-                    loadLobbyData(lobbyId);
-                }, 10000); // Alle 10 Sekunden
-
-            } catch (error) {
-                console.error('Fehler bei der Initialisierung:', error);
-                updateStatus('Initialisierungsfehler: ' + error.message, 'error');
-            }
+    async function initializeLobby() {
+        if (!USER_ID || !LOBBY_ID) {
+            updateStatus('Fehler: Wichtige Lobby-Daten fehlen.', 'error');
+            document.getElementById('playerGrid').innerHTML = '<div class="placeholder-card">Fehler beim Laden. Bitte neu laden.</div>';
+            return;
         }
 
-        // Lobby-Daten von der API laden
-        async function loadLobbyData(lobbyId) {
-            try {
-                console.log('Lade Lobby-Daten für:', lobbyId);
-                const response = await fetch(`/api/lobby/${lobbyId}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Lobby-Daten erhalten:', data);
-                
-                if (data.players) {
-                    const currentUserId = '<%= it.userId || "" %>';
-                    updateParticipantsList(data.players, data.lobby?.host_id, currentUserId);
-                    updateParticipantCount(data.players.length);
-                }
-                
-                return data;
-            } catch (error) {
-                console.error('Fehler beim Laden der Lobby-Daten:', error);
-                return null;
-            }
-        }
+        await refreshLobbyState();
 
-        // Status-Updates
-        function updateStatus(message, type = 'waiting') {
-            const statusEl = document.getElementById('connection-status');
-            if (statusEl) {
-                statusEl.textContent = message;
-                statusEl.className = `status ${type}`;
-            }
-        }
-
-        function updateLobbyDisplay(lobbyId, qrCode = null) {
-            currentLobbyId = lobbyId;
-            joinUrl = `${window.location.origin}/join?id=${lobbyId}`;
-            
-            const lobbyIdEl = document.getElementById('lobby-id-display');
-            if (lobbyIdEl) {
-                lobbyIdEl.textContent = `Lobby-ID: ${lobbyId}`;
-            }
-            
-            const joinLinkEl = document.getElementById('join-link');
-            if (joinLinkEl) {
-                joinLinkEl.value = joinUrl;
-            }
-            
-            if (qrCode) {
-                const qrContainer = document.getElementById('qr-code-container');
-                if (qrContainer) {
-                    qrContainer.innerHTML = `<img src="${qrCode}" alt="QR-Code" style="max-width: 200px;">`;
-                    qrContainer.style.display = 'block';
-                }
-            }
-        }
-
-        function updateParticipantCount(count) {
-            const countEl = document.getElementById('participant-count');
-            if (countEl) {
-                countEl.textContent = count || 0;
-            }
-        }
-
-        function copyJoinLink() {
-            const input = document.getElementById('join-link');
-            if (input && input.value) {
-                navigator.clipboard.writeText(input.value).then(() => {
-                    alert('Link wurde in die Zwischenablage kopiert!');
-                }).catch(() => {
-                    prompt('Kopieren Sie diesen Link:', input.value);
-                });
-            }
-        }
-
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOMContentLoaded - starte Multiplayer-Initialisierung');
-            
-            // Zeige sofort die Lobby-ID an
-            const lobbyId = '<%= it.lobbyId %>';
-            console.log('Lobby-ID beim Laden:', lobbyId);
-            
-            if (lobbyId && lobbyId !== '') {
-                updateLobbyDisplay(lobbyId, '<%= it.qrCode || "" %>');
-            }
-            
-            // Zeige sofort die initialen Spieler an
-            try {
-                // Sichere JSON-Übertragung der initialen Spielerdaten
-                const initialPlayersData = `<%- JSON.stringify(it.players || []) %>`;
-                console.log('Raw JSON String:', initialPlayersData);
-                
-                let initialPlayers = [];
-                if (initialPlayersData && initialPlayersData !== '[]' && initialPlayersData !== '') {
-                    try {
-                        initialPlayers = JSON.parse(initialPlayersData);
-                    } catch (parseError) {
-                        console.warn('JSON Parse Fehler für initiale Spieler:', parseError);
-                        initialPlayers = [];
-                    }
-                }
-                
-                const hostId = '<%= it.lobbyDetails?.host_id || it.user?.id || "" %>';
-                const currentUserId = '<%= it.userId || "" %>';
-                
-                console.log('Initiale Daten:', { initialPlayers, hostId, currentUserId });
-                
-                if (initialPlayers && initialPlayers.length > 0) {
-                    updateParticipantsList(initialPlayers, hostId, currentUserId);
-                    updateParticipantCount(initialPlayers.length);
-                    updateStatus('Lobby geladen', 'connected');
-                } else {
-                    console.log('Keine initialen Spieler gefunden');
-                }
-            } catch (error) {
-                console.error('Fehler beim Laden der initialen Spieler:', error);
-            }
-            
-            // Starte die Lobby-Initialisierung direkt
-            initializeLobby();
-
-            // Start-Button Event-Listener
-            const startBtn = document.getElementById('start-presentation');
-            if (startBtn) {
-                startBtn.addEventListener('click', async () => {
-                    console.log('Starte Präsentation...');
-                    const lobbyId = '<%= it.lobbyId %>';
-                    const userId = '<%= it.userId %>';
-                    const userName = '<%= it.userName %>';
-                    const isHost = <%= it.isHost ? 'true' : 'false' %>;
-                    
-                    startBtn.disabled = true;
-                    startBtn.textContent = 'Präsentation wird gestartet...';
-                    updateStatus('Präsentation wird gestartet...', 'waiting');
-                    
-                    try {
-                        // Über Supabase Realtime die Präsentation starten
-                        if (realtimeClient && realtimeClient.isConnected()) {
-                            const result = await realtimeClient.startPresentation();
-                            
-                            if (result.success) {
-                                console.log('Präsentation erfolgreich gestartet');
-                                updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
-                                
-                                // Direkte Weiterleitung nach kurzer Verzögerung
-                                setTimeout(() => {
-                                    window.location.href = `/match?id=${lobbyId}&userId=${userId}&userName=${encodeURIComponent(userName)}&isHost=${isHost}`;
-                                }, 1000);
-                            } else {
-                                throw new Error(result.error || 'Unbekannter Fehler');
-                            }
-                        } else {
-                            throw new Error('Nicht mit Realtime verbunden');
-                        }
-                    } catch (error) {
-                        console.error('Fehler beim Starten der Präsentation:', error);
-                        updateStatus('Fehler beim Starten: ' + error.message, 'error');
-                        startBtn.disabled = false;
-                        startBtn.textContent = 'Präsentation starten';
-                    }
-                });
+        const realtimeClient = new SupabaseRealtimeClient();
+        realtimeClient.on('connect', () => {
+            updateStatus('Mit Lobby verbunden', 'connected');
+            refreshLobbyState();
+        });
+        realtimeClient.on('connect_error', () => updateStatus(`Verbindungsfehler.`, 'error'));
+        realtimeClient.on('lobbyUpdate', () => refreshLobbyState());
+        realtimeClient.on('presentationStarted', () => {
+            if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
+            if (!IS_HOST) {
+                updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
+                setTimeout(() => {
+                    window.location.href = `/chat?id=${LOBBY_ID}&userId=${USER_ID}&userName=${USER_NAME}&isHost=${IS_HOST}`;
+                }, 1500);
             }
         });
-    </script>
+
+        await realtimeClient.connect(LOBBY_ID, USER_ID, USER_NAME, IS_HOST);
+
+        if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
+        lobbyPollingInterval = setInterval(refreshLobbyState, POLLING_INTERVAL_MS);
+
+        const startBtn = document.getElementById('startGameButton');
+        if (startBtn) {
+            startBtn.addEventListener('click', async () => {
+                startBtn.disabled = true;
+                startBtn.textContent = 'Starte...';
+
+                let hasError = false;
+                const presentations = [];
+                const playerCards = document.querySelectorAll('.player-grid .player-card');
+
+                // Daten sammeln und validieren
+                playerCards.forEach(card => {
+                    card.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
+
+                    const playerName = card.querySelector('.player-name').textContent.trim();
+                    const topicInput = card.querySelector('.topic-input');
+                    const randomSwitch = card.querySelector('.random-switch');
+                    const errorDiv = card.querySelector('.topic-error');
+
+                    errorDiv.textContent = '';
+                    topicInput.classList.remove('error');
+
+                    let topic = '';
+                    if (randomSwitch.checked) {
+                        topic = '//RANDOM//';
+                    } else {
+                        topic = topicInput.value.trim();
+                        if (topic.length < 3 || topic.length > 50) {
+                            hasError = true;
+                            errorDiv.textContent = 'Thema muss 3-50 Zeichen lang sein.';
+                            topicInput.classList.add('error', 'shake');
+                        }
+                    }
+                    presentations.push({ player: playerName, topic: topic });
+                });
+
+                if (hasError) {
+                    updateStartButton(playerCards.length); // Re-enable button with correct text
+                    return;
+                }
+
+                // Anfrage an den Server senden
+                try {
+                    const response = await fetch('/initiateGeneration', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            presentations: presentations,
+                            user: { id: USER_ID }, // Globale USER_ID verwenden
+                            gameMode: 2, // Game-Mode 2 => Multi-Device-Mode
+                            lobbyId: '<%= it.lobbyId || "" %>',
+                            userId: '<%= it.userId || "" %>',
+                            userName: '<%= it.userName || "User" %>',
+                            isHost: <%= it.isHost ? 'true' : 'false' %>
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data && data.url) {
+                        // Erfolgreich, jetzt alle Clients per Realtime benachrichtigen
+                        await realtimeClient.startPresentation(data.url);
+                        // Stattdessen auf /lobby weiterleiten
+                        console.log(data.url);
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error(data.error || 'Fehler bei der Generierung der Präsentation.');
+                    }
+                } catch (error) {
+                    console.error('Fehler beim Starten der Präsentation:', error);
+                    updateStatus('Fehler beim Starten: ' + error.message, 'error');
+                    updateStartButton(playerCards.length);
+                }
+            });
+        }
+    }
+</script>
 </body>
-</html> 
+</html>

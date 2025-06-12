@@ -264,6 +264,7 @@ app.post("/initiateGeneration", async (req, res) => {
   const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
   const accountID = req.user.id;
   const presentations = req.body.presentations;
+  const gameMode = parseInt(req.body.gameMode);
   console.log(presentations);
 
   if (presentations === undefined || presentations.length === 0) {
@@ -324,49 +325,190 @@ app.post("/initiateGeneration", async (req, res) => {
 
   console.log(presentationIDs);
   console.log(roundID);
-  setTimeout( () => {
-    res.send({ url: "/lobby?gameMode=1&roundID=" + roundID });
-  }, 500);
+
+  if (gameMode === 1) {
+    res.send({
+      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
+    });
+  } else if (gameMode === 2) {
+    res.send({
+      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
+    });
+  } else {
+    res.send({
+      url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
+    })
+  }
 
   //Background process:
   for (let i = 0; i < presentations.length; i++) {
     try {
+      //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
       const presentationID = presentationIDs[i];
       const topic = presentations[i].topic;
+      const roundID = req.body.roundID;
       const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
       const content = await insertImages(contentWithoutImages);
       const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
 
       if (!successful) {
-        const success = await setGenerationStatus(presentationID, 'error', req.user.id);
-        if (!success) {
-          return res.status(500).json({
-            message: "Generation status could not be written."
-          }).send();
-        }
+        await setGenerationStatus(presentationID, 'error', accountID);
       }
 
       setTimeout(async () => {
-        const success = await setGenerationStatus(presentationID, 'completed', req.user.id);
-        if (!success) {
-          return res.status(500).json({
-            message: "Generation status could not be written."
-          }).send();
-        }
+        await setGenerationStatus(presentationID, 'completed', accountID);
       }, 500);
+
     } catch (error) {
       const presentationID = presentationIDs[i];
       console.error("Error while fetching and saving slides:", error);
+      await setGenerationStatus(presentationID, 'error', accountID);
+    }
+  }
+});
 
-      const success = await setGenerationStatus(presentationID, 'error', req.user.id);
+/*app.post("/initiateGeneration", async (req, res) => {
+  const presentationLanguage = 'en';
+  const accountID = req.user.id;
+  const presentations = req.body.presentations;
+  const gameMode = parseInt(req.body.gameMode);
+  console.log(presentations);
+
+  if (presentations === undefined || presentations.length === 0) {
+    return res.status(500).json({
+      message: "Request not valid"
+    }).send();
+  }
+
+  let playersAndTopics = [];
+
+  for (let i = 0; i < presentations.length; i++) {
+    if (presentations[i].topic.length < 3 || presentations[i].topic.length > 50) {
+      return res.status(500).json({
+        message: "Request not valid"
+      }).send();
+    } else if (presentations[i].topic === "//RANDOM//") {
+      presentations[i].topic = getRandomTopic();
+    }
+    const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
+    playersAndTopics.push(playerAndTopic);
+  }
+
+  const roundID = v4();
+
+  const roundCreated = await createRound(roundID, req.user.id);
+
+  if (!roundCreated) {
+    return res.status(500).json({
+      message: "Round could not be created"
+    }).send();
+  }
+
+  let presentationIDs = [];
+
+  for (const presentation of presentations) {
+    const presentationID = v4();
+    presentationIDs.push(presentationID);
+  }
+
+  const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID);
+
+  if (!presentationIDsWritten) {
+    if (!roundCreated) {
+      return res.status(500).json({
+        message: "Presentation ID could not be written for round ID"
+      }).send();
+    }
+  }
+
+  for (const presentationID of presentationIDs) {
+    const success = await setGenerationStatus(presentationID, 'processing', req.user.id);
+    if (!success) {
+      return res.status(500).json({
+        message: "Generation status could not be written."
+      }).send();
+    }
+  }
+
+  console.log(presentationIDs);
+  console.log(roundID);
+
+  //Background process:
+  for (let i = 0; i < presentations.length; i++) {
+
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ presentationID: presentationIDs[i], topic: presentations[i].topic, roundID: roundID, accountID: accountID, presentationLanguage: presentationLanguage })
+    }
+    fetch(`${process.env.PROTOCOL}://${req.headers.host}/generate`, options);               // Absichtlich kein await!
+    console.log("Request an " + `${process.env.PROTOCOL}://${req.headers.host}/generate` + "weitergegeben");
+
+  }
+
+  if (gameMode === 1) {
+    res.send({
+      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
+    });
+  } else if (gameMode === 2) {
+    res.send({
+      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
+    });
+  } else {
+    res.send({
+      url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
+    })
+  }
+
+});*/
+
+// Da Vercel API-Requests nicht aufrechterhält, bringt die Auslagerung nichts
+/*app.post("/generate", async (req, res) => {
+  try {
+  //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
+    const presentationID = req.body.presentationID;
+    const topic = req.body.topic;
+    const presentationLanguage = req.body.presentationLanguage;
+    const roundID = req.body.roundID;
+    const accountID = req.body.accountID;
+    const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
+    const content = await insertImages(contentWithoutImages);
+    const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
+
+    if (!successful) {
+      const success = await setGenerationStatus(presentationID, 'error', accountID);
       if (!success) {
         return res.status(500).json({
           message: "Generation status could not be written."
         }).send();
       }
     }
+
+    setTimeout(async () => {
+      const success = await setGenerationStatus(presentationID, 'completed', accountID);
+      if (!success) {
+        return res.status(500).json({
+          message: "Generation status could not be written."
+        }).send();
+      }
+    }, 500);
+
+    res.send(true);
+  } catch (error) {
+    const presentationID = req.body.presentationID;
+    console.error("Error while fetching and saving slides:", error);
+
+    const success = await setGenerationStatus(presentationID, 'error', accountID);
+    if (!success) {
+      return res.status(500).json({
+        message: "Generation status could not be written."
+      }).send();
+    }
+    res.send(false);
   }
-});
+});*/
 
 app.get("/user", requireAuth, async (req, res) => {
   const rounds = await getRoundsFromAccountID(req.user.id);
@@ -695,7 +837,6 @@ app.get("/present2", async (req, res) => {
     const data = await fetchPresentation(presentationID);
 
     if (!data) {
-      console.log("Hier!!!!");
       return res.send(eta.render("error-page", {
         message: "The presentation does not exist or is still generating.",
       }));
@@ -798,16 +939,16 @@ app.post("/checkGenerationStatus", requireAuth, async (req, res) => {
 
 app.get("/lobby", requireAuth, async (req, res) => {
 
-  const gameMode = req.query.gameMode;
+  const gameMode = parseInt(req.query.gameMode, 10);
   const roundID = req.query.roundID;
 
-  console.log(gameMode, roundID)
-
-  if (!gameMode || !roundID || !validator.isUUID(roundID)) {
-    return res.redirect('/');
+  if (isNaN(gameMode) || (gameMode !== 1 && gameMode !== 2) || !roundID || !validator.isUUID(roundID)) {
+    return res.status(500).send(
+        eta.render("error-page", {
+          message: "Ungültige Anfrage: gameMode: " + (gameMode || undefined) + ", roundID: " + (roundID || undefined),
+        })
+    );
   }
-
-  // TODO: GameMode behandeln...
 
   const presentationIDs = await getPresentationIDsFromRoundID(roundID);
 
@@ -840,7 +981,60 @@ app.get("/lobby", requireAuth, async (req, res) => {
   }
 
   console.log(players);
-  return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
+  if (gameMode === 1) {             // 1-Device-Mode
+    return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
+  } else {
+    const { lobbyId, userId, userName, isHost } = req.query;
+    if (!lobbyId || !userId || !userName || isHost === undefined) {
+      return res.redirect("/error-page?message=Fehlende Parameter für Match");
+    }
+
+    const players2 = await getLobbyPlayers(lobbyId);
+
+    const data = {
+      lobbyId: lobbyId,
+      userId: userId,
+      userName: userName,
+      isHost: isHost,
+      presentationIDs: presentationIDs,
+      players: players,
+      players2: players2
+    }
+
+    return res.send(eta.render("generation-status-multiplayer-multidevice", data));
+  }
+
+});
+
+app.get("/chat", async (req, res) => {
+  try {
+    const { id: lobbyId, userId, userName, isHost } = req.query;
+
+    if (!lobbyId || !userId || !userName) {
+      return res.redirect("/main?error=Fehlende Parameter für Match");
+    }
+
+    // Lobby-Details und Spieler abrufen
+    const lobbyDetails = await getLobbyDetails(lobbyId);
+    if (!lobbyDetails) {
+      return res.redirect("/main?error=Lobby nicht gefunden");
+    }
+
+    const players = await getLobbyPlayers(lobbyId);
+
+    res.send(
+        eta.render("chat", {
+          lobbyId: lobbyId,
+          userId: userId,
+          userName: userName,
+          isHost: isHost === "true",
+          players: players || [],
+        })
+    );
+  } catch (error) {
+    console.error("Fehler beim Laden der Match-Seite:", error);
+    res.redirect("/error-page?message=Fehler beim Laden der Match-Seite");
+  }
 });
 
 // ===== NEUE MULTIPLAYER-API-ENDPUNKTE =====
@@ -1216,41 +1410,28 @@ app.post(
 // ===== ERWEITERTE LOBBY-ROUTES =====
 
 // Match/Präsentations-Route mit Reveal.js und Chat
-app.get("/match", async (req, res) => {
+app.get("/present3", async (req, res) => {
+  //TODO: if undefined redirect
   try {
-    const { id: lobbyId, userId, userName, isHost } = req.query;
+    const { presentationID, lobbyId, userId, userName, isHost } = req.query;
 
-    if (!lobbyId || !userId || !userName) {
-      return res.redirect("/main?error=Fehlende Parameter für Match");
-    }
-
-    // Lobby-Details und Spieler abrufen
-    const lobbyDetails = await getLobbyDetails(lobbyId);
-    if (!lobbyDetails) {
-      return res.redirect("/main?error=Lobby nicht gefunden");
+    if ( !presentationID || !lobbyId || !userId || !userName || isHost === undefined) {
+      return res.redirect("/error-page?message=Fehlende Parameter für Match");
     }
 
     const players = await getLobbyPlayers(lobbyId);
 
-    // QR-Code für Join-Link generieren
-    const joinUrl = `${req.protocol}://${req.get("host")}/join?id=${lobbyId}`;
-    let qrCode = null;
-    try {
-      qrCode = await QRCode.toDataURL(joinUrl);
-    } catch (qrError) {
-      console.warn("QR-Code konnte nicht generiert werden:", qrError);
-    }
+    const data = await fetchPresentation(presentationID);
 
     res.send(
-      eta.render("match", {
+      eta.render("match2", {
+        topic: data.topic,
+        content: data.content,
         lobbyId: lobbyId,
         userId: userId,
         userName: userName,
         isHost: isHost === "true",
-        players: players || [],
-        lobbyDetails: lobbyDetails,
-        joinUrl: joinUrl,
-        qrCode: qrCode,
+        players: players || []
       })
     );
   } catch (error) {

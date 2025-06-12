@@ -1210,7 +1210,8 @@
                 },
                 body: JSON.stringify({
                     presentations,
-                    user: { id: '<%= it.user.id %>' }
+                    user: { id: '<%= it.user.id %>' },
+                    gameMode: 1 // Game-Mode 1 => 1-Device-Mode
                 })
             });
             const data = await response.json();

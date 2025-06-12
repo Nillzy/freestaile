@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Präsentation - FreestAIle</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .lobby-info {
+            font-size: 14px;
+        }
+
+        .participants-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .center-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .presentation-container {
+            height: 100%;
+        }
+
+        .reveal {
+            height: 100% !important;
+        }
+
+        .status-bar {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 8px 15px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .status-bar.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .emoji-fly {
+            position: fixed;
+            font-size: 40px;
+            animation: flyUp 1.2s ease-in-out forwards;
+            z-index: 9999;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        @keyframes flyUp {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0) scale(1);
+            }
+            25% {
+                opacity: 1;
+                transform: translate(-50%, -80px) scale(1.3);
+            }
+            75% {
+                transform: translate(-50%, 50px) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, 150px) scale(0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="lobby-info">
+        <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 8) %>...
+        <% if (it.isHost) { %>
+        <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
+        <% } %>
+    </div>
+    <div class="participants-count" id="participants-count">
+        <span id="participant-number"><%= it.players?.length || 0 %></span> Teilnehmer
+    </div>
+</div>
+
+<div class="status-bar" id="status-bar">
+    Verbunden mit Multiplayer-Session
+</div>
+
+<div class="center-container">
+    <%~ it.content %>
+</div>
+
+<!-- Reveal.js JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/sse-client.js"></script>
+
+<script>
+    const matchData = {
+        lobbyId: '<%= it.lobbyId %>',
+        userId: '<%= it.userId %>',
+        userName: '<%= it.userName %>',
+        isHost: <%= it.isHost ? 'true' : 'false' %>,
+        players: []
+    };
+
+    try {
+        const playersData = `<%- JSON.stringify(it.players || []) %>`;
+        if (playersData && playersData !== 'null' && playersData !== 'undefined') {
+            matchData.players = JSON.parse(playersData);
+        }
+    } catch (e) {
+        console.warn('Fehler beim Parsen der Spielerdaten:', e);
+        matchData.players = [];
+    }
+
+    Reveal.initialize({
+        hash: true,
+        controls: matchData.isHost,
+        keyboard: matchData.isHost,
+        touch: matchData.isHost,
+        progress: true,
+        center: true,
+        transition: 'slide'
+    });
+
+    function updateParticipantCount(count) {
+        document.getElementById('participant-number').textContent = count;
+    }
+
+    function updateStatus(message, isError = false) {
+        const bar = document.getElementById('status-bar');
+        bar.textContent = message;
+        bar.className = isError ? 'status-bar error' : 'status-bar';
+    }
+
+    function extractEmojis(text) {
+        const regex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+        return [...text.matchAll(regex)].map(match => match[0]);
+    }
+
+    function animateEmoji(emoji, delay = 0) {
+        const span = document.createElement('span');
+        span.className = 'emoji-fly';
+        span.textContent = emoji;
+        document.body.appendChild(span);
+        span.style.animationDelay = `${delay}s`;
+
+        setTimeout(() => {
+            span.remove();
+        }, 1600 + delay * 1000);
+    }
+
+    function animateEmojiSequence(message) {
+        const emojis = extractEmojis(message);
+        emojis.forEach((emoji, index) => {
+            animateEmoji(emoji, index * 0.5);
+        });
+    }
+
+    let realtimeClient = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        updateParticipantCount(matchData.players.length || 0);
+
+        try {
+            realtimeClient = new SupabaseRealtimeClient();
+
+            realtimeClient.on('connect', () => {
+                updateStatus('Verbunden mit Multiplayer-Session (Realtime)', false);
+            });
+
+            realtimeClient.on('connect_error', (error) => {
+                updateStatus('Verbindungsfehler: ' + error.message, true);
+            });
+
+            realtimeClient.on('chatMessage', (data) => {
+                if (data.userId !== matchData.userId) {
+                    animateEmojiSequence(data.message);
+                }
+            });
+
+            realtimeClient.on('slideChanged', (data) => {
+                if (!matchData.isHost) {
+                    Reveal.slide(data.slideIndex);
+                }
+            });
+
+            realtimeClient.on('playerJoined', (player) => {
+                animateEmojiSequence('👋');
+            });
+
+            realtimeClient.on('playerLeft', (player) => {
+                animateEmojiSequence('😢');
+            });
+
+            await realtimeClient.connect(
+                matchData.lobbyId,
+                matchData.userId,
+                matchData.userName,
+                matchData.isHost
+            );
+
+        } catch (err) {
+            console.error('Fehler bei Init:', err);
+            updateStatus('Fehler beim Verbinden mit Realtime', true);
+        }
+
+        // Willkommensanimation
+        setTimeout(() => {
+            animateEmojiSequence('👋');
+        }, 1000);
+    });
+</script>
+</body>
+</html>
