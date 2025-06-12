@@ -346,7 +346,6 @@ app.post("/initiateGeneration", async (req, res) => {
       //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
       const presentationID = presentationIDs[i];
       const topic = presentations[i].topic;
-      const roundID = req.body.roundID;
       const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
       const content = await insertImages(contentWithoutImages);
       const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
