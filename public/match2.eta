@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiplayer Präsentation - FreestAIle</title>
 
-    <!-- Reveal.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
 
@@ -48,104 +47,12 @@
             overflow: hidden;
         }
 
-        .container {
-            flex: 1;
-            background: white;
-            border-bottom: 2px solid #ddd;
-        }
-
         .presentation-container {
             height: 100%;
         }
 
         .reveal {
             height: 100% !important;
-        }
-
-        .chat-container {
-            height: 300px;
-            background: white;
-            border-top: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border-bottom: 1px solid #ddd;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            max-height: 200px;
-        }
-
-        .chat-message {
-            margin-bottom: 8px;
-            padding: 6px 10px;
-            border-radius: 8px;
-            background: #f1f3f4;
-            font-size: 13px;
-        }
-
-        .chat-message.own {
-            background: #e3f2fd;
-            margin-left: 20px;
-        }
-
-        .chat-message.host {
-            background: #fff3e0;
-            border-left: 3px solid #ff9800;
-        }
-
-        .chat-message .sender {
-            font-weight: bold;
-            color: #1976d2;
-            margin-right: 5px;
-        }
-
-        .chat-input-container {
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            background: #fafafa;
-        }
-
-        .chat-input-form {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .chat-send-btn {
-            padding: 8px 16px;
-            background: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .chat-send-btn:hover {
-            background: #1565c0;
-        }
-
-        .chat-send-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
         }
 
         .status-bar {
@@ -161,15 +68,32 @@
             color: #c62828;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .chat-container {
-                height: 250px;
-            }
+        .emoji-fly {
+            position: fixed;
+            font-size: 40px;
+            animation: flyUp 1.2s ease-in-out forwards;
+            z-index: 9999;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
 
-            .header {
-                padding: 8px 15px;
-                font-size: 14px;
+        @keyframes flyUp {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0) scale(1);
+            }
+            25% {
+                opacity: 1;
+                transform: translate(-50%, -80px) scale(1.3);
+            }
+            75% {
+                transform: translate(-50%, 50px) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, 150px) scale(0.6);
             }
         }
     </style>
@@ -192,42 +116,15 @@
 </div>
 
 <div class="center-container">
-
     <%~ it.content %>
-
-    <div class="chat-container">
-        <div class="chat-header">
-            💬 Live Chat
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="chat-message">
-                <span class="sender">System:</span>
-                Willkommen im Live-Chat! Stellen Sie hier Ihre Fragen.
-            </div>
-        </div>
-        <div class="chat-input-container">
-            <form class="chat-input-form" id="chat-form">
-                <input type="text" class="chat-input" id="chat-input"
-                       placeholder="Nachricht eingeben..." maxlength="500">
-                <button type="submit" class="chat-send-btn" id="chat-send-btn">
-                    Senden
-                </button>
-            </form>
-        </div>
-    </div>
 </div>
 
 <!-- Reveal.js JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
-
-<!-- Supabase JavaScript Client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Supabase Realtime Client -->
 <script src="/js/sse-client.js"></script>
 
 <script>
-    // Template-Daten
     const matchData = {
         lobbyId: '<%= it.lobbyId %>',
         userId: '<%= it.userId %>',
@@ -236,7 +133,6 @@
         players: []
     };
 
-    // Sichere JSON-Übertragung der Spielerdaten
     try {
         const playersData = `<%- JSON.stringify(it.players || []) %>`;
         if (playersData && playersData !== 'null' && playersData !== 'undefined') {
@@ -247,15 +143,9 @@
         matchData.players = [];
     }
 
-    console.log('Match-Daten:', matchData);
-
-    // Globale Variablen
-    let realtimeClient = null;
-
-    // Reveal.js initialisieren
     Reveal.initialize({
         hash: true,
-        controls: matchData.isHost, // Nur Host kann navigieren
+        controls: matchData.isHost,
         keyboard: matchData.isHost,
         touch: matchData.isHost,
         progress: true,
@@ -263,141 +153,91 @@
         transition: 'slide'
     });
 
-    // Chat-Funktionalität
-    const chatMessages = document.getElementById('chat-messages');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const chatSendBtn = document.getElementById('chat-send-btn');
-    const statusBar = document.getElementById('status-bar');
-
-    function updateStatus(message, isError = false) {
-        statusBar.textContent = message;
-        statusBar.className = isError ? 'status-bar error' : 'status-bar';
-    }
-
-    function addChatMessage(sender, message, isOwn = false, isHost = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message';
-        if (isOwn) messageDiv.className += ' own';
-        if (isHost) messageDiv.className += ' host';
-
-        messageDiv.innerHTML = `
-                <span class="sender">${sender}:</span>
-                ${message}
-            `;
-
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
     function updateParticipantCount(count) {
         document.getElementById('participant-number').textContent = count;
     }
 
-    // Chat-Form Handler
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    function updateStatus(message, isError = false) {
+        const bar = document.getElementById('status-bar');
+        bar.textContent = message;
+        bar.className = isError ? 'status-bar error' : 'status-bar';
+    }
 
-        const message = chatInput.value.trim();
-        if (!message) return;
+    function extractEmojis(text) {
+        const regex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+        return [...text.matchAll(regex)].map(match => match[0]);
+    }
 
-        try {
-            if (realtimeClient && realtimeClient.isConnected()) {
-                const result = await realtimeClient.sendChatMessage(message);
+    function animateEmoji(emoji, delay = 0) {
+        const span = document.createElement('span');
+        span.className = 'emoji-fly';
+        span.textContent = emoji;
+        document.body.appendChild(span);
+        span.style.animationDelay = `${delay}s`;
 
-                if (result.success) {
-                    chatInput.value = '';
-                    addChatMessage(matchData.userName, message, true, matchData.isHost);
-                } else {
-                    updateStatus('Fehler beim Senden der Nachricht', true);
-                }
-            } else {
-                updateStatus('Nicht mit Realtime verbunden', true);
-            }
-        } catch (error) {
-            console.error('Fehler beim Senden der Nachricht:', error);
-            updateStatus('Fehler beim Senden der Nachricht', true);
-        }
-    });
+        setTimeout(() => {
+            span.remove();
+        }, 1600 + delay * 1000);
+    }
 
-    // Reveal.js Slide-Change Handler (nur für Host)
-    if (matchData.isHost) {
-        Reveal.on('slidechanged', async (event) => {
-            console.log('Host ändert Folie zu:', event.indexh);
-
-            try {
-                if (realtimeClient && realtimeClient.isConnected()) {
-                    const result = await realtimeClient.changeSlide(event.indexh);
-
-                    if (!result.success) {
-                        console.error('Fehler beim Ändern der Folie:', result.error);
-                    }
-                }
-            } catch (error) {
-                console.error('Fehler beim Ändern der Folie:', error);
-            }
+    function animateEmojiSequence(message) {
+        const emojis = extractEmojis(message);
+        emojis.forEach((emoji, index) => {
+            animateEmoji(emoji, index * 0.5);
         });
     }
 
-    // Initialisierung
-    document.addEventListener('DOMContentLoaded', async () => {
-        console.log('Match-Seite geladen');
+    let realtimeClient = null;
 
-        // Zeige initiale Teilnehmer
-        if (matchData.players) {
-            updateParticipantCount(matchData.players.length);
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
+        updateParticipantCount(matchData.players.length || 0);
 
         try {
-            // Supabase Realtime Client erstellen und verbinden
             realtimeClient = new SupabaseRealtimeClient();
 
-            // Event-Listener für Realtime-Events
             realtimeClient.on('connect', () => {
-                console.log('Supabase Realtime verbunden in Match');
                 updateStatus('Verbunden mit Multiplayer-Session (Realtime)', false);
             });
 
             realtimeClient.on('connect_error', (error) => {
-                console.error('Supabase Realtime Verbindungsfehler:', error);
                 updateStatus('Verbindungsfehler: ' + error.message, true);
             });
 
             realtimeClient.on('chatMessage', (data) => {
-                console.log('Chat-Nachricht erhalten:', data);
-                if (data.userId !== matchData.userId) { // Nicht eigene Nachrichten anzeigen
-                    addChatMessage(data.userName, data.message, false, data.isHost);
+                if (data.userId !== matchData.userId) {
+                    animateEmojiSequence(data.message);
                 }
             });
 
             realtimeClient.on('slideChanged', (data) => {
-                console.log('Slide-Änderung erhalten:', data);
-                if (!matchData.isHost) { // Nur Teilnehmer folgen Slide-Änderungen
+                if (!matchData.isHost) {
                     Reveal.slide(data.slideIndex);
                 }
             });
 
             realtimeClient.on('playerJoined', (player) => {
-                console.log('Spieler beigetreten:', player);
-                addChatMessage('System', `${player.name} ist der Präsentation beigetreten`);
+                animateEmojiSequence('👋');
             });
 
             realtimeClient.on('playerLeft', (player) => {
-                console.log('Spieler verlassen:', player);
-                addChatMessage('System', `${player.name} hat die Präsentation verlassen`);
+                animateEmojiSequence('😢');
             });
 
-            // Verbindung zur Lobby herstellen
-            await realtimeClient.connect(matchData.lobbyId, matchData.userId, matchData.userName, matchData.isHost);
+            await realtimeClient.connect(
+                matchData.lobbyId,
+                matchData.userId,
+                matchData.userName,
+                matchData.isHost
+            );
 
-        } catch (error) {
-            console.error('Fehler beim Initialisieren von Realtime:', error);
+        } catch (err) {
+            console.error('Fehler bei Init:', err);
             updateStatus('Fehler beim Verbinden mit Realtime', true);
         }
 
-        // Willkommensnachricht im Chat
+        // Willkommensanimation
         setTimeout(() => {
-            addChatMessage('System', `${matchData.userName} ist der Präsentation beigetreten`);
+            animateEmojiSequence('👋');
         }, 1000);
     });
 </script>
