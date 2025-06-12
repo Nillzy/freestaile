@@ -233,12 +233,11 @@
             <% } %>
         </div>
 
+        <% if (it.isHost) { %>
         <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
         <div class="player-grid" id="playerGrid">
             <div class="placeholder-card">Lobby-Daten werden geladen...</div>
         </div>
-
-        <% if (it.isHost) { %>
         <button id="startGameButton" class="start-game-button" disabled>Spiel starten</button>
         <% } %>
     </div>
