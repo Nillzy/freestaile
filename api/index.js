@@ -326,6 +326,8 @@ app.post("/initiateGeneration", async (req, res) => {
   console.log(presentationIDs);
   console.log(roundID);
 
+  // TODO: Heartbeat starten (setInterval...)
+
   if (gameMode === 1) {
     res.send({
       url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
@@ -343,7 +345,6 @@ app.post("/initiateGeneration", async (req, res) => {
   //Background process:
   for (let i = 0; i < presentations.length; i++) {
     try {
-      //TODO: Ganze Methode 50 Sekunden und dann Selbstaufruf
       const presentationID = presentationIDs[i];
       const topic = presentations[i].topic;
       const contentWithoutImages = await fetchSlides(topic, presentationLanguage);

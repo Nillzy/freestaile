@@ -5,152 +5,120 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
 
     const prompt = buildPrompt(topic, presentationLanguage);
 
-    let content;
+    const geminiAPI = async () => {
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-    try {
-        if (tryCount <= 3) {
-            // First 3 times with Gemini
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        const maxAttempts = 5;
 
-            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-            const response = await Promise.race([
-                ai.models.generateContent({
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                const response = await ai.models.generateContent({
                     model: "gemini-2.0-flash",
                     contents: [{
                         parts: [{ text: prompt }]
                     }]
-                }),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("GeminiTimeout")), 60000)
-                )
-            ]);
+                });
 
-            if (response.text) {
-                content = response.text.toString();
-            } else {
-                throw new Error("Gemini API Error\n");
-            }
-
-        } else if (tryCount <= 6) {
-            // Second 3 tries with DeepSeek (Fallback)
-
-            const url = 'https://openrouter.ai/api/v1/chat/completions';
-            const options = {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                    'Content-Type': 'application/json',
-                },
-                body: '{"model":"deepseek/deepseek-chat-v3-0324:free","messages":[{"role":"user","content":[{"type":"text","text":"' + prompt + '"}]}]}'
-            };
-
-            const response = await Promise.race([
-                fetch(url, options),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("DeepSeekTimeout")), 150000)
-                )
-            ]);
-
-            if (response.ok) {
-                const json = await response.json();
-                if (json.choices && json.choices[0].message && json.choices[0].message.content) {
-                    content = json.choices[0].message.content;
+                if (!response || !response.text) {
+                    throw new Error("Gemini API Error: No response");
                 }
-            } else {
-                throw new Error("DeepSeek API Error\n");
-            }
 
-        } else {
-            return "<h2 style='text-align: center'>Neither Google Gemini nor DeepSeek could generate a presentation about the given topic '" + topic + "' after several tries. Please try again later or try another topic.</h2>";
-        }
+                let content = response.text.toString();
 
-        if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
-            console.error("AI responded with 'NO_SLIDE'.");
-            throw new Error("AI responded with 'NO_SLIDE'.");
-        }
+                if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
+                    throw new Error("AI responded with 'NO_SLIDE'.");
+                }
 
-        content = content.replace("```html", "");
-        content = content.replace("```", "");
-
-        validateRevealSlides(content);
-        return content;
-
-    } catch (error) {
-        if (error.message === "GeminiTimeout") {
-            return fetchSlides(topic, presentationLanguage, 4);
-        } else if (error.message === "DeepSeekTimeout") {
-            return fetchSlides(topic, presentationLanguage, 7);
-        }
-        console.error("Error: " + error + "Starting another try...");
-        return fetchSlides(topic, presentationLanguage, tryCount + 1);
-    }
-
-    /*try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: [{
-                parts: [{ text: prompt }]
-            }]
-        });
-
-        if (response.ok && response.text) {
-            let content = response.text.toString();
-
-            if (content === undefined || content === null) {
-                console.error(response);
-                return;
-            }
-
-            if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
-                console.error("Could not generate slide.");
-                return "<h2 style='text-align: center'>No presentation could be generated about the given topic '" + topic + "'. Please try again with another one.</h2>";
-            }
-
-            content = content.replace("```html", "");
-            content = content.replace("```", "");
-
-            try {
+                content = content.replace("```html", "").replace("```", "");
                 validateRevealSlides(content);
                 return content;
-            } catch (validationError) {
-                console.error(
-                    `Validierungsfehler (Versuch ${tryCount + 1}/${MAX_TRIES}):`,
-                    validationError.message
-                );
-            }
-        } else {
 
-        }
-
-        //TODO: if !response.ok retry... (Nach 3-mal Fehler DeepSeek)
-
-
-
-
-        try {
-            validateRevealSlides(content);
-            return content;
-        } catch (validationError) {
-            console.error(
-                `Validierungsfehler (Versuch ${tryCount + 1}/${MAX_TRIES}):`,
-                validationError.message
-            );
-
-            if (tryCount < MAX_TRIES) {
-                console.log(
-                    `Starte erneuten Versuch ${tryCount + 1}/${MAX_TRIES}...`
-                );
-                return fetchSlides(topic, presentationLanguage, tryCount + 1);
-            } else {
-                console.log(
-                    `Maximale Anzahl von Versuchen (${MAX_TRIES}) erreicht. Letzter Fehler: ${validationError.message}`
-                );
+            } catch (error) {
+                console.error(`Gemini API Error (Attempt ${attempt}): ${error.message}`);
+                if (attempt < maxAttempts) {
+                    await delay(5000); // 5 Sekunden warten vor dem nächsten Versuch
+                } else {
+                    throw new Error("Gemini API failed after multiple attempts.");
+                }
             }
         }
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }*/
+    };
+
+
+    const deepSeekAPI = async () => {
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        const maxAttempts = 5;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+
+                const url = 'https://openrouter.ai/api/v1/chat/completions';
+
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "model": "deepseek/deepseek-r1-0528-qwen3-8b:free",
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": prompt
+                            }
+                        ]
+                    })
+                });
+
+                console.log(response);
+
+                if (!response.ok) {
+                    throw new Error("Response was not ok");
+                }
+
+                const json = await response.json();
+                if (!json.choices || !json.choices[0].message || !json.choices[0].message.content) {
+                    throw new Error("json.choices[0].message.content was not defined");
+                }
+                let content =  json.choices[0].message.content;
+
+                if (content === "NO_SLIDE\n" || content === "NO_SLIDE") {
+                    console.error("AI responded with 'NO_SLIDE'.");
+                    throw new Error("AI responded with 'NO_SLIDE'.");
+                }
+
+                content = content.replace("```html", "");
+                content = content.replace("```", "");
+
+                validateRevealSlides(content);
+                return content;
+
+            } catch (error) {
+                console.error(`DeepSeek API Error (Attempt ${attempt}): ${error.message}`);
+                if (attempt < maxAttempts) {
+                    await delay(5000); // 5 Sekunden warten vor dem nächsten Versuch
+                } else {
+                    throw new Error("DeepSeek API failed after multiple attempts.");
+                }
+            }
+        }
+    }
+
+    const timeoutHandler = () => {
+        return "<h2 style='text-align: center'>Neither Google Gemini nor DeepSeek could generate a presentation about the given topic '" + topic + "' after several tries. Please try again later or try another topic.</h2>";
+    }
+
+    return await Promise.race([
+        geminiAPI(),
+        deepSeekAPI(),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(timeoutHandler()), 120000)
+        )
+    ]);
 }
 
 function buildPrompt(topic, presentationLanguage) {
