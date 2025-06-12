@@ -410,12 +410,12 @@
         });
         realtimeClient.on('connect_error', () => updateStatus(`Verbindungsfehler.`, 'error'));
         realtimeClient.on('lobbyUpdate', () => refreshLobbyState());
-        realtimeClient.on('presentationStarted', (data) => {
+        realtimeClient.on('presentationStarted', () => {
             if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
             if (!IS_HOST) {
                 updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
                 setTimeout(() => {
-                    window.location.href = data.url || `/chat?id=${LOBBY_ID}&userId=${USER_ID}`;
+                    window.location.href = `/chat?id=${LOBBY_ID}&userId=${USER_ID}&userName=${USER_NAME}&isHost=${IS_HOST}`;
                 }, 1500);
             }
         });
