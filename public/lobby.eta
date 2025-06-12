@@ -412,10 +412,12 @@
         realtimeClient.on('lobbyUpdate', () => refreshLobbyState());
         realtimeClient.on('presentationStarted', (data) => {
             if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
-            updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
-            setTimeout(() => {
-                window.location.href = data.url || `/match?id=${LOBBY_ID}&userId=${USER_ID}`;
-            }, 1500);
+            if (IS_HOST) {
+                updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
+                setTimeout(() => {
+                    window.location.href = data.url || `/chat?id=${LOBBY_ID}&userId=${USER_ID}`;
+                }, 1500);
+            }
         });
 
         await realtimeClient.connect(LOBBY_ID, USER_ID, USER_NAME, IS_HOST);
@@ -483,7 +485,7 @@
                     const data = await response.json();
                     if (response.ok && data && data.url) {
                         // Erfolgreich, jetzt alle Clients per Realtime benachrichtigen
-                        // await realtimeClient.startPresentation(data.url);
+                        await realtimeClient.startPresentation(data.url);
                         // Stattdessen auf /lobby weiterleiten
                         console.log(data.url);
                         window.location.href = data.url;

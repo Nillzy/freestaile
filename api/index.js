@@ -1006,6 +1006,37 @@ app.get("/lobby", requireAuth, async (req, res) => {
 
 });
 
+app.get("/chat", async (req, res) => {
+  try {
+    const { id: lobbyId, userId, userName, isHost } = req.query;
+
+    if (!lobbyId || !userId || !userName) {
+      return res.redirect("/main?error=Fehlende Parameter für Match");
+    }
+
+    // Lobby-Details und Spieler abrufen
+    const lobbyDetails = await getLobbyDetails(lobbyId);
+    if (!lobbyDetails) {
+      return res.redirect("/main?error=Lobby nicht gefunden");
+    }
+
+    const players = await getLobbyPlayers(lobbyId);
+
+    res.send(
+        eta.render("chat", {
+          lobbyId: lobbyId,
+          userId: userId,
+          userName: userName,
+          isHost: isHost === "true",
+          players: players || [],
+        })
+    );
+  } catch (error) {
+    console.error("Fehler beim Laden der Match-Seite:", error);
+    res.redirect("/error-page?message=Fehler beim Laden der Match-Seite");
+  }
+});
+
 // ===== NEUE MULTIPLAYER-API-ENDPUNKTE =====
 
 // Host Game - Erstelle Lobby mit 6-stelligem Code
