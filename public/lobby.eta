@@ -412,7 +412,7 @@
         realtimeClient.on('lobbyUpdate', () => refreshLobbyState());
         realtimeClient.on('presentationStarted', (data) => {
             if(lobbyPollingInterval) clearInterval(lobbyPollingInterval);
-            if (IS_HOST) {
+            if (!IS_HOST) {
                 updateStatus('Präsentation gestartet! Weiterleitung...', 'connected');
                 setTimeout(() => {
                     window.location.href = data.url || `/chat?id=${LOBBY_ID}&userId=${USER_ID}`;
