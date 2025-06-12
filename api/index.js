@@ -339,6 +339,7 @@ app.post("/initiateGeneration", async (req, res) => {
 
     let protocol = process.env.IS_LOCAL ? 'http://' : 'https://';
     fetch(`${protocol}${req.headers.host}/generate`, options);               // Absichtlich kein await!
+    console.log("Request an " + `${protocol}${req.headers.host}/generate` + "weitergegeben");
 
   }
 
