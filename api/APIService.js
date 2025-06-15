@@ -5,10 +5,11 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
 
     const prompt = buildPrompt(topic, presentationLanguage);
 
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
     const geminiAPI = async () => {
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        const delay = ms => new Promise(res => setTimeout(res, ms));
         const maxAttempts = 5;
 
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -37,7 +38,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
             } catch (error) {
                 console.error(`Gemini API Error (Attempt ${attempt}): ${error.message}`);
                 if (attempt < maxAttempts) {
-                    await delay(5000); // 5 Sekunden warten vor dem nächsten Versuch
+                    await delay(5000);
                 } else {
                     throw new Error("Gemini API failed after multiple attempts.");
                 }
@@ -47,15 +48,11 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
 
 
     const deepSeekAPI = async () => {
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        const delay = ms => new Promise(res => setTimeout(res, ms));
         const maxAttempts = 5;
 
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-
-                const url = 'https://openrouter.ai/api/v1/chat/completions';
 
                 const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
@@ -100,7 +97,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
             } catch (error) {
                 console.error(`DeepSeek API Error (Attempt ${attempt}): ${error.message}`);
                 if (attempt < maxAttempts) {
-                    await delay(5000); // 5 Sekunden warten vor dem nächsten Versuch
+                    await delay(5000);
                 } else {
                     throw new Error("DeepSeek API failed after multiple attempts.");
                 }
@@ -204,7 +201,7 @@ function buildPrompt(topic, presentationLanguage) {
         "- If you cannot understand the topic, or if you are unwilling or unable to create a presentation on the given topic in the requested humorous style and according to all requirements, reply ONLY with the exact string \\\"NO_SLIDE\\\" and nothing else." + "\\n" +
         "- If no language is specified, use English as the default language. Do NOT write 'NO LANGUAGE' on the first slide in this case." + "\\n" +
         "\\n" +
-        "Begin generation for topic: \\\"" + topic + "\\\""
+        "Begin generation for topic: \\\"" + topic + "\\\"";
 }
 
 export async function fetchImages(motifs) {
