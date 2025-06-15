@@ -326,33 +326,39 @@ app.post("/initiateGeneration", async (req, res) => {
   console.log(presentationIDs);
   console.log(roundID);
 
-  // TODO: Heartbeat starten (setInterval...)
+  switch (gameMode) {
+    case 1:
+      res.send({
+        url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
+      });
+      break;
 
-  if (gameMode === 1) {
-    res.send({
-      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
-    });
-  } else if (gameMode === 2) {
-    res.send({
-      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
-    });
-  } else {
-    res.send({
-      url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
-    })
+    case 2:
+      res.send({
+        url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
+      });
+      break;
+
+    default:
+      res.send({
+        url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
+      });
+      break;
   }
 
-  //Background process:
-  for (let i = 0; i < presentations.length; i++) {
+  //Background process for slide generation:
+  const generationPromises = presentations.map(async (presentation, i) => {
+    const presentationID = presentationIDs[i];
+    const topic = presentation.topic;
+
     try {
-      const presentationID = presentationIDs[i];
-      const topic = presentations[i].topic;
       const contentWithoutImages = await fetchSlides(topic, presentationLanguage);
       const content = await insertImages(contentWithoutImages);
       const successful = await saveSlides(presentationID, content, topic, roundID, accountID);
 
       if (!successful) {
         await setGenerationStatus(presentationID, 'error', accountID);
+        return;
       }
 
       setTimeout(async () => {
@@ -360,109 +366,112 @@ app.post("/initiateGeneration", async (req, res) => {
       }, 500);
 
     } catch (error) {
-      const presentationID = presentationIDs[i];
       console.error("Error while fetching and saving slides:", error);
       await setGenerationStatus(presentationID, 'error', accountID);
     }
-  }
+  });
+
+  await Promise.all(generationPromises);
+
 });
 
-/*app.post("/initiateGeneration", async (req, res) => {
-  const presentationLanguage = 'en';
-  const accountID = req.user.id;
-  const presentations = req.body.presentations;
-  const gameMode = parseInt(req.body.gameMode);
-  console.log(presentations);
 
-  if (presentations === undefined || presentations.length === 0) {
-    return res.status(500).json({
-      message: "Request not valid"
-    }).send();
-  }
+  /*app.post("/initiateGeneration", async (req, res) => {
+    const presentationLanguage = 'en';
+    const accountID = req.user.id;
+    const presentations = req.body.presentations;
+    const gameMode = parseInt(req.body.gameMode);
+    console.log(presentations);
 
-  let playersAndTopics = [];
-
-  for (let i = 0; i < presentations.length; i++) {
-    if (presentations[i].topic.length < 3 || presentations[i].topic.length > 50) {
+    if (presentations === undefined || presentations.length === 0) {
       return res.status(500).json({
         message: "Request not valid"
       }).send();
-    } else if (presentations[i].topic === "//RANDOM//") {
-      presentations[i].topic = getRandomTopic();
     }
-    const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
-    playersAndTopics.push(playerAndTopic);
-  }
 
-  const roundID = v4();
+    let playersAndTopics = [];
 
-  const roundCreated = await createRound(roundID, req.user.id);
+    for (let i = 0; i < presentations.length; i++) {
+      if (presentations[i].topic.length < 3 || presentations[i].topic.length > 50) {
+        return res.status(500).json({
+          message: "Request not valid"
+        }).send();
+      } else if (presentations[i].topic === "//RANDOM//") {
+        presentations[i].topic = getRandomTopic();
+      }
+      const playerAndTopic = { player: presentations[i].player, topic: presentations[i].topic };
+      playersAndTopics.push(playerAndTopic);
+    }
 
-  if (!roundCreated) {
-    return res.status(500).json({
-      message: "Round could not be created"
-    }).send();
-  }
+    const roundID = v4();
 
-  let presentationIDs = [];
+    const roundCreated = await createRound(roundID, req.user.id);
 
-  for (const presentation of presentations) {
-    const presentationID = v4();
-    presentationIDs.push(presentationID);
-  }
-
-  const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID);
-
-  if (!presentationIDsWritten) {
     if (!roundCreated) {
       return res.status(500).json({
-        message: "Presentation ID could not be written for round ID"
+        message: "Round could not be created"
       }).send();
     }
-  }
 
-  for (const presentationID of presentationIDs) {
-    const success = await setGenerationStatus(presentationID, 'processing', req.user.id);
-    if (!success) {
-      return res.status(500).json({
-        message: "Generation status could not be written."
-      }).send();
+    let presentationIDs = [];
+
+    for (const presentation of presentations) {
+      const presentationID = v4();
+      presentationIDs.push(presentationID);
     }
-  }
 
-  console.log(presentationIDs);
-  console.log(roundID);
+    const presentationIDsWritten = await setPresentationIDsAndPlayersFromRoundID(presentationIDs, playersAndTopics, roundID, accountID);
 
-  //Background process:
-  for (let i = 0; i < presentations.length; i++) {
-
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ presentationID: presentationIDs[i], topic: presentations[i].topic, roundID: roundID, accountID: accountID, presentationLanguage: presentationLanguage })
+    if (!presentationIDsWritten) {
+      if (!roundCreated) {
+        return res.status(500).json({
+          message: "Presentation ID could not be written for round ID"
+        }).send();
+      }
     }
-    fetch(`${process.env.PROTOCOL}://${req.headers.host}/generate`, options);               // Absichtlich kein await!
-    console.log("Request an " + `${process.env.PROTOCOL}://${req.headers.host}/generate` + "weitergegeben");
 
-  }
+    for (const presentationID of presentationIDs) {
+      const success = await setGenerationStatus(presentationID, 'processing', req.user.id);
+      if (!success) {
+        return res.status(500).json({
+          message: "Generation status could not be written."
+        }).send();
+      }
+    }
 
-  if (gameMode === 1) {
-    res.send({
-      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
-    });
-  } else if (gameMode === 2) {
-    res.send({
-      url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
-    });
-  } else {
-    res.send({
-      url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
-    })
-  }
+    console.log(presentationIDs);
+    console.log(roundID);
 
-});*/
+    //Background process:
+    for (let i = 0; i < presentations.length; i++) {
+
+      const options = {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ presentationID: presentationIDs[i], topic: presentations[i].topic, roundID: roundID, accountID: accountID, presentationLanguage: presentationLanguage })
+      }
+      fetch(`${process.env.PROTOCOL}://${req.headers.host}/generate`, options);               // Absichtlich kein await!
+      console.log("Request an " + `${process.env.PROTOCOL}://${req.headers.host}/generate` + "weitergegeben");
+
+    }
+
+    if (gameMode === 1) {
+      res.send({
+        url: `/lobby?gameMode=${gameMode}&roundID=${roundID}`
+      });
+    } else if (gameMode === 2) {
+      res.send({
+        url: `/lobby?gameMode=${gameMode}&roundID=${roundID}&lobbyId=${req.body.lobbyId}&userId=${req.body.userId}&userName=${req.body.userName}&isHost=${req.body.isHost}`
+      });
+    } else {
+      res.send({
+        url: `/error-page?message=Falsche Parameter beim Initialisieren der Generierung`
+      })
+    }
+
+  });*/
 
 // Da Vercel API-Requests nicht aufrechterhält, bringt die Auslagerung nichts
 /*app.post("/generate", async (req, res) => {
