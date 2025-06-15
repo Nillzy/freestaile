@@ -31,7 +31,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
                     throw new Error("AI responded with 'NO_SLIDE'.");
                 }
 
-                content = content.replace("```html", "").replace("```", "");
+                content = content.replace("```html", "").replace("```", "").replace("\n", "");
                 validateRevealSlides(content);
                 return content;
 
@@ -88,8 +88,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
                     throw new Error("AI responded with 'NO_SLIDE'.");
                 }
 
-                content = content.replace("```html", "");
-                content = content.replace("```", "");
+                content = content.replace("```html", "").replace("```", "").replace("\n", "");
 
                 validateRevealSlides(content);
                 return content;
@@ -112,9 +111,10 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
     return await Promise.race([
         geminiAPI(),
         deepSeekAPI(),
-        new Promise((_, reject) =>
-            setTimeout(() => reject(timeoutHandler()), 120000)
+        new Promise((resolve) =>
+            setTimeout(() => resolve(timeoutHandler()), 120000)
         )
+
     ]);
 }
 
