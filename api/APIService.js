@@ -208,7 +208,7 @@ export async function fetchImages(motifs) {
     let images = [];
     for (const motif of motifs) {
         let i = await fetchImage(motif);
-        images.push(i);
+        images.push(i || "");
     }
     console.log(images);
     return images;
@@ -220,25 +220,20 @@ async function fetchImage(motif) {
 
     try {
         const response = await fetch(url, options);
-        if (response.ok) {
 
-            const json = await response.json();
-            let link = json.hits?.[0]?.webformatURL;
-            console.log(link);
-
-            if (link === undefined || link === null) {
-                console.error(response);
-                return;
-            }
-
-            console.log("" + motif + link)
-
-            return link;
-
-        } else {
-            console.log(response.statusCode);
-            return 'Not 200';
+        if (!response.ok) {
+            throw new Error(`Could not fetch image ${motif}, response code: ${response.status}.`);
         }
+
+        const json = await response.json();
+        let link = json.hits?.[0]?.webformatURL;
+
+        if (!link) {
+            throw new Error(`Could not fetch image ${motif}, link is undefined.`);
+        }
+
+        return link;
+
     } catch (error) {
         console.error(error);
     }
