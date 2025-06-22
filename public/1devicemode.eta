@@ -816,7 +816,6 @@
 
         .player-input input.error {
             border-color: #e53e3e;
-            /* animation: shake 0.5s ease-in-out; entfernt */
         }
 
         body.darkmode .player-input input.error {
@@ -831,19 +830,12 @@
 
         .player-input input.duplicate-error {
             border-color: #e53e3e;
-            /* animation: duplicate-shake 0.8s ease-in-out; entfernt */
         }
 
         body.darkmode .player-input input.duplicate-error {
             border-color: #fc8181;
         }
 
-        /* Füge die shake-Animation für .shake hinzu */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
         .player-input input.shake {
             animation: shake 0.5s ease-in-out;
         }
@@ -880,6 +872,304 @@
         }
         .random-switch:checked::before {
             transform: translateX(14px);
+        }
+
+        /* === CSS FÜR DAS LADE-OVERLAY === */
+        #loadingOverlay {
+            position: fixed;
+            display: none; /* Standardmäßig ausgeblendet */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+        }
+
+        .loading-text {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin-top: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* === KORREKTER CSS-CODE FÜR DIE HAMSTER-ANIMATION === */
+        .wheel-and-hamster {
+            --dur: 1s;
+            position: relative;
+            width: 12em;
+            height: 12em;
+            font-size: 14px;
+        }
+
+        .wheel,
+        .hamster,
+        .hamster div,
+        .spoke {
+            position: absolute;
+        }
+
+        .wheel,
+        .spoke {
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .wheel {
+            background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%);
+            z-index: 2;
+        }
+
+        .hamster {
+            animation: hamster var(--dur) ease-in-out infinite;
+            top: 50%;
+            left: calc(50% - 3.5em);
+            width: 7em;
+            height: 3.75em;
+            transform: rotate(4deg) translate(-0.8em,1.85em);
+            transform-origin: 50% 0;
+            z-index: 1;
+        }
+
+        .hamster__head {
+            animation: hamsterHead var(--dur) ease-in-out infinite;
+            background: hsl(30,90%,55%);
+            border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
+            box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset,
+            0.75em -1.55em 0 hsl(30,90%,90%) inset;
+            top: 0;
+            left: -2em;
+            width: 2.75em;
+            height: 2.5em;
+            transform-origin: 100% 50%;
+        }
+
+        .hamster__ear {
+            animation: hamsterEar var(--dur) ease-in-out infinite;
+            background: hsl(0,90%,85%);
+            border-radius: 50%;
+            box-shadow: -0.25em 0 hsl(30,90%,55%) inset;
+            top: -0.25em;
+            right: -0.25em;
+            width: 0.75em;
+            height: 0.75em;
+            transform-origin: 50% 75%;
+        }
+
+        .hamster__eye {
+            animation: hamsterEye var(--dur) linear infinite;
+            background-color: hsl(0,0%,0%);
+            border-radius: 50%;
+            top: 0.375em;
+            left: 1.25em;
+            width: 0.5em;
+            height: 0.5em;
+        }
+
+        .hamster__nose {
+            background: hsl(0,90%,75%);
+            border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
+            top: 0.75em;
+            left: 0;
+            width: 0.2em;
+            height: 0.25em;
+        }
+
+        .hamster__body {
+            animation: hamsterBody var(--dur) ease-in-out infinite;
+            background: hsl(30,90%,90%);
+            border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
+            box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset,
+            0.15em -0.5em 0 hsl(30,90%,80%) inset;
+            top: 0.25em;
+            left: 2em;
+            width: 4.5em;
+            height: 3em;
+            transform-origin: 17% 50%;
+            transform-style: preserve-3d;
+        }
+
+        .hamster__limb--fr,
+        .hamster__limb--fl {
+            clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
+            top: 2em;
+            left: 0.5em;
+            width: 1em;
+            height: 1.5em;
+            transform-origin: 50% 0;
+        }
+
+        .hamster__limb--fr {
+            animation: hamsterFRLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
+            transform: rotate(15deg) translateZ(-1px);
+        }
+
+        .hamster__limb--fl {
+            animation: hamsterFLLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%);
+            transform: rotate(15deg);
+        }
+
+        .hamster__limb--br,
+        .hamster__limb--bl {
+            border-radius: 0.75em 0.75em 0 0;
+            clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
+            top: 1em;
+            left: 2.8em;
+            width: 1.5em;
+            height: 2.5em;
+            transform-origin: 50% 30%;
+        }
+
+        .hamster__limb--br {
+            animation: hamsterBRLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
+            transform: rotate(-25deg) translateZ(-1px);
+        }
+
+        .hamster__limb--bl {
+            animation: hamsterBLLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%);
+            transform: rotate(-25deg);
+        }
+
+        .hamster__tail {
+            animation: hamsterTail var(--dur) linear infinite;
+            background: hsl(0,90%,85%);
+            border-radius: 0.25em 50% 50% 0.25em;
+            box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset;
+            top: 1.5em;
+            right: -0.5em;
+            width: 1em;
+            height: 0.5em;
+            transform: rotate(30deg) translateZ(-1px);
+            transform-origin: 0.25em 0.25em;
+        }
+
+        .spoke {
+            animation: spoke var(--dur) linear infinite;
+            background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%),
+            linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
+        }
+
+        /* Animations */
+        @keyframes hamster {
+            from, to {
+                transform: rotate(4deg) translate(-0.8em,1.85em);
+            }
+
+            50% {
+                transform: rotate(0) translate(-0.8em,1.85em);
+            }
+        }
+
+        @keyframes hamsterHead {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(0);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(8deg);
+            }
+        }
+
+        @keyframes hamsterEye {
+            from, 90%, to {
+                transform: scaleY(1);
+            }
+
+            95% {
+                transform: scaleY(0);
+            }
+        }
+
+        @keyframes hamsterEar {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(0);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(12deg);
+            }
+        }
+
+        @keyframes hamsterBody {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(0);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(-2deg);
+            }
+        }
+
+        @keyframes hamsterFRLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(50deg) translateZ(-1px);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(-30deg) translateZ(-1px);
+            }
+        }
+
+        @keyframes hamsterFLLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(-30deg);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(50deg);
+            }
+        }
+
+        @keyframes hamsterBRLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(-60deg) translateZ(-1px);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(20deg) translateZ(-1px);
+            }
+        }
+
+        @keyframes hamsterBLLimb {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(20deg);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(-60deg);
+            }
+        }
+
+        @keyframes hamsterTail {
+            from, 25%, 50%, 75%, to {
+                transform: rotate(30deg) translateZ(-1px);
+            }
+
+            12.5%, 37.5%, 62.5%, 87.5% {
+                transform: rotate(10deg) translateZ(-1px);
+            }
+        }
+
+        @keyframes spoke {
+            from {
+                transform: rotate(0);
+            }
+
+            to {
+                transform: rotate(-1turn);
+            }
         }
     </style>
 </head>
@@ -971,7 +1261,7 @@
 <!-- Modal HTML nach dem container-wrapper div -->
 <div class="modal-overlay" id="authModal">
     <div class="modal-content">
-        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+        <button class="modal-close" onclick="closeAuthModal()">×</button>
         <div class="modal-tabs">
             <button class="modal-tab active" onclick="switchTab('login')">Anmelden</button>
             <button class="modal-tab" onclick="switchTab('register')">Registrieren</button>
@@ -1007,17 +1297,36 @@
     </div>
 </div>
 
+<!-- KORRIGIERTES HTML FÜR DAS LADE-OVERLAY -->
+<div id="loadingOverlay">
+    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
+        <div class="wheel"></div>
+        <div class="hamster">
+            <div class="hamster__body">
+                <div class="hamster__head">
+                    <div class="hamster__ear"></div>
+                    <div class="hamster__eye"></div>
+                    <div class="hamster__nose"></div>
+                </div>
+                <div class="hamster__limb hamster__limb--fr"></div>
+                <div class="hamster__limb hamster__limb--fl"></div>
+                <div class="hamster__limb hamster__limb--br"></div>
+                <div class="hamster__limb hamster__limb--bl"></div>
+                <div class="hamster__tail"></div>
+            </div>
+        </div>
+        <div class="spoke"></div>
+    </div>
+    <p class="loading-text">Lobby erstellen...</p>
+</div>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const toggle = document.getElementById('darkmode-toggle');
 
-        // Get current dark mode status (already set by darkmode-init.js)
         const isDark = document.documentElement.classList.contains('darkmode');
-
-        // Set toggle position based on current dark mode status
         toggle.checked = !isDark;
-
-        // Ensure body also has the class for backward compatibility
         document.body.classList.toggle('darkmode', isDark);
 
         toggle.addEventListener('change', function() {
@@ -1029,6 +1338,30 @@
 
         // Initial einen Spieler hinzufügen (den Host)
         addPlayer(true);
+    });
+
+    // NEU: Event-Listener für das "pageshow"-Ereignis
+    // Dieser Code wird ausgeführt, wenn der Benutzer mit dem "Zurück"-Button des Browsers auf diese Seite navigiert.
+    window.addEventListener('pageshow', function(event) {
+        // 'event.persisted' ist true, wenn die Seite aus dem Back-Forward-Cache geladen wird.
+        if (event.persisted) {
+            // 1. Lade-Animation verstecken, falls sie noch sichtbar ist
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'none';
+
+            // 2. Spieler-Karten auf den Anfangszustand zurücksetzen
+            const playerGrid = document.getElementById('playerGrid');
+            const playerCards = playerGrid.querySelectorAll('.player-card');
+
+            // Alle existierenden Spieler-Karten entfernen
+            playerCards.forEach(card => card.remove());
+
+            // Spielerzähler zurücksetzen
+            playerCount = 0;
+
+            // Den ersten Spieler wieder hinzufügen, um den Ursprungszustand herzustellen
+            addPlayer(true);
+        }
     });
 
     let playerCount = 0;
@@ -1065,30 +1398,16 @@
             <div class="player-actions">
                 <button class="delete-button" onclick="removePlayer(this)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 69 14" class="svgIcon bin-top">
-                        <g clip-path="url(#clip0_35_24)">
-                            <path fill="currentColor" d="M20.8232 2.62734L19.9948 4.21304C19.8224 4.54309 19.4808 4.75 19.1085 4.75H4.92857C2.20246 4.75 0 6.87266 0 9.5C0 12.1273 2.20246 14.25 4.92857 14.25H64.0714C66.7975 14.25 69 12.1273 69 9.5C69 6.87266 66.7975 4.75 64.0714 4.75H49.8915C49.5192 4.75 49.1776 4.54309 49.0052 4.21305L48.1768 2.62734C47.3451 1.00938 45.6355 0 43.7719 0H25.2281C23.3645 0 21.6549 1.00938 20.8232 2.62734ZM64.0023 20.0648C64.0397 19.4882 63.5822 19 63.0044 19H5.99556C5.4178 19 4.96025 19.4882 4.99766 20.0648L8.19375 69.3203C8.44018 73.0758 11.6746 76 15.5712 76H53.4288C57.3254 76 60.5598 73.0758 60.8062 69.3203L64.0023 20.0648Z"></path>
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_35_24">
-                                <rect fill="white" height="14" width="69"></rect>
-                            </clipPath>
-                        </defs>
+                        <g clip-path="url(#clip0_35_24)"><path fill="currentColor" d="M20.8232 2.62734L19.9948 4.21304C19.8224 4.54309 19.4808 4.75 19.1085 4.75H4.92857C2.20246 4.75 0 6.87266 0 9.5C0 12.1273 2.20246 14.25 4.92857 14.25H64.0714C66.7975 14.25 69 12.1273 69 9.5C69 6.87266 66.7975 4.75 64.0714 4.75H49.8915C49.5192 4.75 49.1776 4.54309 49.0052 4.21305L48.1768 2.62734C47.3451 1.00938 45.6355 0 43.7719 0H25.2281C23.3645 0 21.6549 1.00938 20.8232 2.62734ZM64.0023 20.0648C64.0397 19.4882 63.5822 19 63.0044 19H5.99556C5.4178 19 4.96025 19.4882 4.99766 20.0648L8.19375 69.3203C8.44018 73.0758 11.6746 76 15.5712 76H53.4288C57.3254 76 60.5598 73.0758 60.8062 69.3203L64.0023 20.0648Z"></path></g><defs><clipPath id="clip0_35_24"><rect fill="white" height="14" width="69"></rect></clipPath></defs>
                     </svg>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 69 57" class="svgIcon bin-bottom">
-                        <g clip-path="url(#clip0_35_22)">
-                            <path fill="currentColor" d="M20.8232 -16.3727L19.9948 -14.787C19.8224 -14.4569 19.4808 -14.25 19.1085 -14.25H4.92857C2.20246 -14.25 0 -12.1273 0 -9.5C0 -6.8727 2.20246 -4.75 4.92857 -4.75H64.0714C66.7975 -4.75 69 -6.8727 69 -9.5C69 -12.1273 66.7975 -14.25 64.0714 -14.25H49.8915C49.5192 -14.25 49.1776 -14.4569 49.0052 -14.787L48.1768 -16.3727C47.3451 -17.9906 45.6355 -19 43.7719 -19H25.2281C23.3645 -19 21.6549 -17.9906 20.8232 -16.3727ZM64.0023 1.0648C64.0397 0.4882 63.5822 0 63.0044 0H5.99556C5.4178 0 4.96025 0.4882 4.99766 1.0648L8.19375 50.3203C8.44018 54.0758 11.6746 57 15.5712 57H53.4288C57.3254 57 60.5598 54.0758 60.8062 50.3203L64.0023 1.0648Z"></path>
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_35_22">
-                                <rect fill="white" height="57" width="69"></rect>
-                            </clipPath>
-                        </defs>
+                        <g clip-path="url(#clip0_35_22)"><path fill="currentColor" d="M20.8232 -16.3727L19.9948 -14.787C19.8224 -14.4569 19.4808 -14.25 19.1085 -14.25H4.92857C2.20246 -14.25 0 -12.1273 0 -9.5C0 -6.8727 2.20246 -4.75 4.92857 -4.75H64.0714C66.7975 -4.75 69 -6.8727 69 -9.5C69 -12.1273 66.7975 -14.25 64.0714 -14.25H49.8915C49.5192 -14.25 49.1776 -14.4569 49.0052 -14.787L48.1768 -16.3727C47.3451 -17.9906 45.6355 -19 43.7719 -19H25.2281C23.3645 -19 21.6549 -17.9906 20.8232 -16.3727ZM64.0023 1.0648C64.0397 0.4882 63.5822 0 63.0044 0H5.99556C5.4178 0 4.96025 0.4882 4.99766 1.0648L8.19375 50.3203C8.44018 54.0758 11.6746 57 15.5712 57H53.4288C57.3254 57 60.5598 54.0758 60.8062 50.3203L64.0023 1.0648Z"></path></g><defs><clipPath id="clip0_35_22"><rect fill="white" height="57" width="69"></rect></clipPath></defs>
                     </svg>
                 </button>
             </div>
         `;
 
-        playerGrid.appendChild(playerCard);
+        playerGrid.insertBefore(playerCard, document.getElementById('addPlayerCard'));
         playerCount++;
         updateStartButton();
         updateAddPlayerCard();
@@ -1111,7 +1430,6 @@
 
     function updateStartButton() {
         const startButton = document.getElementById('startGameButton');
-        // Button ist nur deaktiviert, wenn keine Spieler vorhanden sind
         startButton.disabled = playerCount < minPlayers;
     }
 
@@ -1124,8 +1442,9 @@
         }
     }
 
-    // Event Listener für den Start-Button
     document.getElementById('startGameButton').addEventListener('click', async function() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
         let hasError = false;
         const allNameInputs = document.querySelectorAll('.player-name-input');
         const allTopicRows = document.querySelectorAll('.player-topic-row');
@@ -1168,7 +1487,7 @@
                 topics.push('//RANDOM//');
             }
         });
-        // Prüfe auf doppelte Namen
+
         const nameCount = {};
         names.forEach(name => {
             if (name) {
@@ -1188,10 +1507,13 @@
         setTimeout(() => {
             document.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
         }, 600);
+
         if (hasError) {
             return;
         }
-        // Präsentationen zusammenstellen:
+
+        loadingOverlay.style.display = 'flex';
+
         const presentations = Array.from(document.querySelectorAll('.player-card')).map(card => {
             const nameInput = card.querySelector('.player-name-input');
             const topicRow = card.querySelector('.player-topic-row');
@@ -1211,21 +1533,22 @@
                 body: JSON.stringify({
                     presentations,
                     user: { id: '<%= it.user.id %>' },
-                    gameMode: 1 // Game-Mode 1 => 1-Device-Mode
+                    gameMode: 1
                 })
             });
             const data = await response.json();
             if (response.ok && data && data.url) {
                 window.location.href = data.url;
             } else {
+                loadingOverlay.style.display = 'none';
                 console.error('Fehler bei der Generierung:', data.error || 'Unbekannter Fehler');
             }
         } catch (error) {
+            loadingOverlay.style.display = 'none';
             console.error('Fehler beim Senden der Anfrage:', error);
         }
     });
 
-    // Modal Funktionen
     function openAuthModal(tab) {
         const modal = document.getElementById('authModal');
         modal.classList.add('active');
@@ -1237,7 +1560,6 @@
         const modal = document.getElementById('authModal');
         modal.classList.remove('active');
         document.body.style.overflow = '';
-        // Formulare zurücksetzen
         document.getElementById('loginForm').reset();
         document.getElementById('registerForm').reset();
         document.getElementById('loginError').classList.remove('active');
@@ -1302,7 +1624,6 @@
             });
 
             if (response.ok) {
-                // Nach erfolgreicher Registrierung zum Login-Tab wechseln
                 switchTab('login');
                 document.getElementById('loginEmail').value = email;
                 errorElement.classList.remove('active');
@@ -1317,7 +1638,6 @@
         }
     }
 
-    // Schließen des Modals bei Klick außerhalb oder Escape-Taste
     document.addEventListener('click', function(event) {
         const modal = document.getElementById('authModal');
         if (event.target === modal) {
@@ -1331,7 +1651,6 @@
         }
     });
 
-    // Event Listener für Input-Felder, um Fehler-Status zu entfernen
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('player-name-input') || (e.target.closest('.player-input') && e.target.placeholder === 'Präsentationsthema eingeben')) {
             updateStartButton();
@@ -1353,7 +1672,6 @@
         }
         if (e.target.classList.contains('error') || e.target.classList.contains('duplicate-error')) {
             e.target.classList.remove('error', 'duplicate-error');
-            // Entferne auch die duplicate-error Klasse von anderen Feldern
             const allInputs = document.querySelectorAll('.player-input input');
             allInputs.forEach(input => {
                 if (input !== e.target) {

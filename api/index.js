@@ -5,15 +5,13 @@ import { dirname } from "path";
 import { Eta } from "eta";
 import { JSDOM } from "jsdom";
 import {} from 'dotenv/config'
+import os from "os";
 import favicon from "serve-favicon";
-//import { validateRevealSlides } from "./revealValidator.js";
-//import { exampleUsage, testInvalidSlides } from "./revealValidatorExample.js";
 import validator from "validator";
 import cookieParser from "cookie-parser";
 import { v4 } from "uuid";
 import { createClient } from "@supabase/supabase-js";
 import { authMiddleware, requireAuth } from "./middleware/auth.js";
-import { validateRevealSlides } from "./revealValidator.js";
 import { fetchSlides, fetchImages } from "./APIService.js";
 import {
   fetchPresentation,
@@ -32,7 +30,6 @@ import {
   getLobbyPlayers,
   getLobbyDetails,
   updateLobbyStatus,
-  testSupabaseConnection,
   startGame,
   nextSlide,
   previousSlide,
@@ -41,12 +38,10 @@ import {
   saveLobbySlides,
   getLobbySlides,
   getCurrentSlide,
-  createGameEvent,
   updatePlayerScore,
   savePlayerAnswer,
   getScoreboard,
   getFullLobbyData,
-  generateJoinCode,
   createLobbyWithCode,
   joinLobbyByCode,
 } from "./SupabaseServiceMultiDeviceMode.js";
@@ -59,8 +54,6 @@ const __dirname = dirname(__filename);
 const app = express();
 const eta = new Eta({ views: path.join(__dirname, "../public") });
 
-let presentationStatus = new Map();
-
 app.use(favicon(path.join(__dirname, "../public/assets/favicon.ico")));
 
 // Express-Middleware
@@ -68,21 +61,17 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../public")));
+app.use(authMiddleware); // Auth-Middleware für alle Routes
+
+// Statische Dateien - Reihenfolge ist wichtig!
+app.use("/api", express.static(path.join(__dirname, "public"))); // Für /api/public Dateien
+app.use(express.static(path.join(__dirname, "../public"))); // Für /public Dateien
 
 // Supabase Client für Backend-Authentifizierung
 const supabase = createClient(
   `https://${process.env.SUPABASE_USER_ID}.supabase.co`,
   process.env.SUPABASE_API_KEY
 );
-
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-app.use(authMiddleware); // Auth-Middleware für alle Routes
-
-// Statische Dateien - Reihenfolge ist wichtig!
-app.use("/api", express.static(path.join(__dirname, "public"))); // Für /api/public Dateien
-app.use(express.static(path.join(__dirname, "../public"))); // Für /public Dateien
 
 // Logout-Route
 app.post("/api/auth/logout", async (req, res) => {
@@ -553,8 +542,9 @@ app.get("/multi-device-mode", async (req, res) => {
     // Erstelle IMMER eine neue Lobby (keine bestehende Lobby-ID)
     const lobbyId = v4();
     const playerName = req.query.name || req.user.email.split("@")[0];
-    const baseUrl = req.headers.host;
-    const joinUrl = `${baseUrl}/join?id=${lobbyId}`;
+    const host = req.get("host");
+    const realHost = host.includes("localhost") ? host.replace("localhost", getLocalIP()) : host;
+    const joinUrl = `${req.protocol}://${realHost}/join?id=${lobbyId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(joinUrl);
     const userId = req.user.id || req.user.email || v4();
 
@@ -746,7 +736,9 @@ app.get("/lobby-multidevicemode", async (req, res) => {
     }
 
     // QR-Code und Join-URL generieren
-    const joinUrl = `${req.protocol}://${req.get("host")}/join?id=${lobbyId}`;
+    const host = req.get("host");
+    const realHost = host.includes("localhost") ? host.replace("localhost", getLocalIP()) : host;
+    const joinUrl = `${req.protocol}://${realHost}/join?id=${lobbyId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(joinUrl);
 
     console.log("Lobby-Route aufgerufen:", {
@@ -991,11 +983,14 @@ app.get("/lobby", requireAuth, async (req, res) => {
 
   console.log(players);
   if (gameMode === 1) {             // 1-Device-Mode
-    return res.send(eta.render("generation-status-multiplayer", {presentationIDs: presentationIDs, players: players}));
-  } else {
+    return res.send(eta.render("generation-status-multiplayer", {
+      presentationIDs: presentationIDs,
+      players: players
+    }));
+  } else {                          // Multi-Device-Mode
     const { lobbyId, userId, userName, isHost } = req.query;
     if (!lobbyId || !userId || !userName || isHost === undefined) {
-      return res.redirect("/error-page?message=Fehlende Parameter für Match");
+      return res.redirect("/error-page?message=Fehlende Parameter für das Match");
     }
 
     const players2 = await getLobbyPlayers(lobbyId);
@@ -1604,6 +1599,18 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
     res.status(500).json({ error: "Serverfehler" });
   }
 });
+
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === "IPv4" && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return "localhost";
+}
 
 function getRandomTopic() {
   const topicsPath = path.join(__dirname, 'topics.json');

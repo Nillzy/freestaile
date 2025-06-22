@@ -114,7 +114,6 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
         new Promise((resolve) =>
             setTimeout(() => resolve(timeoutHandler()), 120000)
         )
-
     ]);
 }
 
