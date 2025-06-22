@@ -181,6 +181,239 @@
         body.darkmode .status.waiting { background: #4a4023; color: #ffeaa7; }
         body.darkmode .status.connected { background: #1c3c24; color: #c3e6cb; }
         body.darkmode .status.error { background: #4a2124; color: #f5c6cb; }
+
+        /* === CSS FÜR DAS LADE-OVERLAY === */
+        #loadingOverlay {
+            position: fixed;
+            display: none; /* Standardmäßig ausgeblendet */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+        }
+
+        .loading-text {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin-top: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* === CSS-CODE FÜR DIE HAMSTER-ANIMATION === */
+        .wheel-and-hamster {
+            --dur: 1s;
+            position: relative;
+            width: 12em;
+            height: 12em;
+            font-size: 14px;
+        }
+
+        .wheel,
+        .hamster,
+        .hamster div,
+        .spoke {
+            position: absolute;
+        }
+
+        .wheel,
+        .spoke {
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .wheel {
+            background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%);
+            z-index: 2;
+        }
+
+        .hamster {
+            animation: hamster var(--dur) ease-in-out infinite;
+            top: 50%;
+            left: calc(50% - 3.5em);
+            width: 7em;
+            height: 3.75em;
+            transform: rotate(4deg) translate(-0.8em,1.85em);
+            transform-origin: 50% 0;
+            z-index: 1;
+        }
+
+        .hamster__head {
+            animation: hamsterHead var(--dur) ease-in-out infinite;
+            background: hsl(30,90%,55%);
+            border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
+            box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset,
+            0.75em -1.55em 0 hsl(30,90%,90%) inset;
+            top: 0;
+            left: -2em;
+            width: 2.75em;
+            height: 2.5em;
+            transform-origin: 100% 50%;
+        }
+
+        .hamster__ear {
+            animation: hamsterEar var(--dur) ease-in-out infinite;
+            background: hsl(0,90%,85%);
+            border-radius: 50%;
+            box-shadow: -0.25em 0 hsl(30,90%,55%) inset;
+            top: -0.25em;
+            right: -0.25em;
+            width: 0.75em;
+            height: 0.75em;
+            transform-origin: 50% 75%;
+        }
+
+        .hamster__eye {
+            animation: hamsterEye var(--dur) linear infinite;
+            background-color: hsl(0,0%,0%);
+            border-radius: 50%;
+            top: 0.375em;
+            left: 1.25em;
+            width: 0.5em;
+            height: 0.5em;
+        }
+
+        .hamster__nose {
+            background: hsl(0,90%,75%);
+            border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
+            top: 0.75em;
+            left: 0;
+            width: 0.2em;
+            height: 0.25em;
+        }
+
+        .hamster__body {
+            animation: hamsterBody var(--dur) ease-in-out infinite;
+            background: hsl(30,90%,90%);
+            border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
+            box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset,
+            0.15em -0.5em 0 hsl(30,90%,80%) inset;
+            top: 0.25em;
+            left: 2em;
+            width: 4.5em;
+            height: 3em;
+            transform-origin: 17% 50%;
+            transform-style: preserve-3d;
+        }
+
+        .hamster__limb--fr,
+        .hamster__limb--fl {
+            clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
+            top: 2em;
+            left: 0.5em;
+            width: 1em;
+            height: 1.5em;
+            transform-origin: 50% 0;
+        }
+
+        .hamster__limb--fr {
+            animation: hamsterFRLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
+            transform: rotate(15deg) translateZ(-1px);
+        }
+
+        .hamster__limb--fl {
+            animation: hamsterFLLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%);
+            transform: rotate(15deg);
+        }
+
+        .hamster__limb--br,
+        .hamster__limb--bl {
+            border-radius: 0.75em 0.75em 0 0;
+            clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
+            top: 1em;
+            left: 2.8em;
+            width: 1.5em;
+            height: 2.5em;
+            transform-origin: 50% 30%;
+        }
+
+        .hamster__limb--br {
+            animation: hamsterBRLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
+            transform: rotate(-25deg) translateZ(-1px);
+        }
+
+        .hamster__limb--bl {
+            animation: hamsterBLLimb var(--dur) linear infinite;
+            background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%);
+            transform: rotate(-25deg);
+        }
+
+        .hamster__tail {
+            animation: hamsterTail var(--dur) linear infinite;
+            background: hsl(0,90%,85%);
+            border-radius: 0.25em 50% 50% 0.25em;
+            box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset;
+            top: 1.5em;
+            right: -0.5em;
+            width: 1em;
+            height: 0.5em;
+            transform: rotate(30deg) translateZ(-1px);
+            transform-origin: 0.25em 0.25em;
+        }
+
+        .spoke {
+            animation: spoke var(--dur) linear infinite;
+            background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%),
+            linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
+        }
+
+        /* Animations */
+        @keyframes hamster {
+            from, to { transform: rotate(4deg) translate(-0.8em,1.85em); }
+            50% { transform: rotate(0) translate(-0.8em,1.85em); }
+        }
+        @keyframes hamsterHead {
+            from, 25%, 50%, 75%, to { transform: rotate(0); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); }
+        }
+        @keyframes hamsterEye {
+            from, 90%, to { transform: scaleY(1); }
+            95% { transform: scaleY(0); }
+        }
+        @keyframes hamsterEar {
+            from, 25%, 50%, 75%, to { transform: rotate(0); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); }
+        }
+        @keyframes hamsterBody {
+            from, 25%, 50%, 75%, to { transform: rotate(0); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); }
+        }
+        @keyframes hamsterFRLimb {
+            from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); }
+        }
+        @keyframes hamsterFLLimb {
+            from, 25%, 50%, 75%, to { transform: rotate(-30deg); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); }
+        }
+        @keyframes hamsterBRLimb {
+            from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); }
+        }
+        @keyframes hamsterBLLimb {
+            from, 25%, 50%, 75%, to { transform: rotate(20deg); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); }
+        }
+        @keyframes hamsterTail {
+            from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); }
+            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); }
+        }
+        @keyframes spoke {
+            from { transform: rotate(0); }
+            to { transform: rotate(-1turn); }
+        }
     </style>
 </head>
 
@@ -243,6 +476,30 @@
     </div>
 </div>
 
+<!-- HTML-ELEMENT FÜR DAS LADE-OVERLAY -->
+<div id="loadingOverlay">
+    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
+        <div class="wheel"></div>
+        <div class="hamster">
+            <div class="hamster__body">
+                <div class="hamster__head">
+                    <div class="hamster__ear"></div>
+                    <div class="hamster__eye"></div>
+                    <div class="hamster__nose"></div>
+                </div>
+                <div class="hamster__limb hamster__limb--fr"></div>
+                <div class="hamster__limb hamster__limb--fl"></div>
+                <div class="hamster__limb hamster__limb--br"></div>
+                <div class="hamster__limb hamster__limb--bl"></div>
+                <div class="hamster__tail"></div>
+            </div>
+        </div>
+        <div class="spoke"></div>
+    </div>
+    <p class="loading-text">Spiel wird gestartet...</p>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/sse-client.js"></script>
 
@@ -270,6 +527,20 @@
         initializeLobby();
     });
 
+    // Event-Listener für das "pageshow"-Ereignis zum Zurücksetzen beim Navigieren mit "Zurück"
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            // Lade-Animation verstecken, falls sie noch sichtbar ist
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+            // Lobby-Zustand neu abrufen, um Eingaben und Status zurückzusetzen
+            refreshLobbyState();
+        }
+    });
+
+
     async function refreshLobbyState() {
         if (!LOBBY_ID) return;
         try {
@@ -285,9 +556,6 @@
         }
     }
 
-    /**
-     * Erstellt eine einzelne Spieler-Karte mit Themeneingabe.
-     */
     function createPlayerCard(player, hostId, currentUserId) {
         const isHostPlayer = player.user_id === hostId;
         const isYou = player.user_id === currentUserId;
@@ -376,14 +644,14 @@
     function copyJoinLink() {
         const input = document.getElementById('join-link');
         const button = document.querySelector('.copy-button');
-        if (input && input.value) {
-            navigator.clipboard.writeText(input.value).then(() => {
-                const originalText = button.textContent;
-                button.textContent = 'Kopiert!';
-                setTimeout(() => { button.textContent = originalText; }, 2000);
-            }).catch(err => console.error('Kopieren fehlgeschlagen: ', err));
-        }
+        if (!input || !button) return;
+        navigator.clipboard.writeText(input.value).then(() => {
+            const originalText = button.textContent;
+            button.textContent = 'Kopiert!';
+            setTimeout(() => { button.textContent = originalText; }, 2000);
+        }).catch(err => console.error('Kopieren fehlgeschlagen: ', err));
     }
+
 
     function updateStatus(message, type = 'waiting') {
         const statusEl = document.getElementById('connection-status');
@@ -396,7 +664,9 @@
     async function initializeLobby() {
         if (!USER_ID || !LOBBY_ID) {
             updateStatus('Fehler: Wichtige Lobby-Daten fehlen.', 'error');
-            document.getElementById('playerGrid').innerHTML = '<div class="placeholder-card">Fehler beim Laden. Bitte neu laden.</div>';
+            if(document.getElementById('playerGrid')) {
+                document.getElementById('playerGrid').innerHTML = '<div class="placeholder-card">Fehler beim Laden. Bitte neu laden.</div>';
+            }
             return;
         }
 
@@ -427,17 +697,14 @@
         const startBtn = document.getElementById('startGameButton');
         if (startBtn) {
             startBtn.addEventListener('click', async () => {
-                startBtn.disabled = true;
-                startBtn.textContent = 'Starte...';
-
                 let hasError = false;
                 const presentations = [];
                 const playerCards = document.querySelectorAll('.player-grid .player-card');
 
-                // Daten sammeln und validieren
                 playerCards.forEach(card => {
                     card.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
 
+                    const userId = card.dataset.userId;
                     const playerName = card.querySelector('.player-name').textContent.trim();
                     const topicInput = card.querySelector('.topic-input');
                     const randomSwitch = card.querySelector('.random-switch');
@@ -457,43 +724,45 @@
                             topicInput.classList.add('error', 'shake');
                         }
                     }
-                    presentations.push({ player: playerName, topic: topic });
+                    presentations.push({ userId: userId, player: playerName, topic: topic });
                 });
 
                 if (hasError) {
-                    updateStartButton(playerCards.length); // Re-enable button with correct text
                     return;
                 }
 
-                // Anfrage an den Server senden
+                // Lade-Animation anzeigen
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                loadingOverlay.style.display = 'flex';
+                startBtn.disabled = true;
+
                 try {
                     const response = await fetch('/initiateGeneration', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             presentations: presentations,
-                            user: { id: USER_ID }, // Globale USER_ID verwenden
-                            gameMode: 2, // Game-Mode 2 => Multi-Device-Mode
-                            lobbyId: '<%= it.lobbyId || "" %>',
-                            userId: '<%= it.userId || "" %>',
-                            userName: '<%= it.userName || "User" %>',
-                            isHost: <%= it.isHost ? 'true' : 'false' %>
+                            user: { id: USER_ID },
+                            gameMode: 2,
+                            lobbyId: LOBBY_ID,
+                            userId: USER_ID,
+                            userName: USER_NAME,
+                            isHost: IS_HOST
                         })
                     });
 
                     const data = await response.json();
                     if (response.ok && data && data.url) {
-                        // Erfolgreich, jetzt alle Clients per Realtime benachrichtigen
                         await realtimeClient.startPresentation(data.url);
-                        // Stattdessen auf /lobby weiterleiten
-                        console.log(data.url);
                         window.location.href = data.url;
                     } else {
-                        throw new Error(data.error || 'Fehler bei der Generierung der Präsentation.');
+                        throw new Error(data.error || 'Fehler bei der Generierung.');
                     }
                 } catch (error) {
                     console.error('Fehler beim Starten der Präsentation:', error);
                     updateStatus('Fehler beim Starten: ' + error.message, 'error');
+                    // Lade-Animation bei Fehler ausblenden und Button reaktivieren
+                    loadingOverlay.style.display = 'none';
                     updateStartButton(playerCards.length);
                 }
             });
