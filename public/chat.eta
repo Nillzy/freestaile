@@ -3,174 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Präsentation - FreestAIle</title>
+    <title>Live Chat - FreestAIle</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+        /* === GRUNDLEGENDE SEITENSTRUKTUR (ANGEPASST FÜR MOBILE) === */
+        /* GEÄNDERT: Stellt sicher, dass das Wurzelelement die volle Höhe hat */
+        html {
+            height: 100%;
         }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafd;
+            display: flex;
+            flex-direction: column;
+            /* GEÄNDERT: Höhe auf 100% statt 100vh für bessere mobile Kompatibilität */
+            height: 100%;
+            color: #333;
+            /* ENTFERNT: overflow: hidden; war der Hauptgrund für das Problem auf Mobilgeräten */
+        }
+
+        /* === HEADER UND STATUS === */
         .header {
-            background: #1976d2;
-            color: white;
+            background: #ffffff;
+            color: #234567;
             padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #e2e8f0;
+            font-family: "Ubuntu", sans-serif;
+            flex-shrink: 0;
         }
-
-        .lobby-info {
-            font-size: 14px;
+        .header strong { font-weight: 700; }
+        .host-badge {
+            background: #b1dae7; color: #234567; padding: 3px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 700; margin-left: 0.5rem; display: inline-block;
         }
-
-        .participants-count {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
+        .participants-count { display: flex; align-items: center; gap: 0.5rem; }
+        .participants-count i { color: #234567; }
+        .status-bar {
+            padding: 10px; text-align: center; margin: 1rem 1rem 0 1rem;
+            font-family: "Inter", sans-serif; font-size: 14px;
+            background: #d4edda; color: #155724;
+            border-radius: 5px;
+            flex-shrink: 0;
         }
+        .status-bar.error { background: #f8d7da; color: #721c24; }
 
+        /* === PRÄSENTATIONS-CONTAINER === */
         .presentation-container {
-            flex: 1;
+            flex: 1; /* Wichtig: Dieser Container wächst, um den Rest des Platzes zu füllen */
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Hier ist overflow okay, da der Inhalt darin flexibel ist */
+            padding: 1rem;
+            min-height: 0; /* Wichtiger Fix für Flexbox in einigen Browsern */
+        }
+
+        /* === CHAT-BEREICH === */
+        .chat-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Füllt den .presentation-container aus */
             overflow: hidden;
         }
 
-        .chat-container {
-            flex: 1;
-            background: white;
-            border-top: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-        }
-
         .chat-header {
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border-bottom: 1px solid #ddd;
-            font-weight: bold;
-            font-size: 14px;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-family: "Ubuntu", sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: #234567;
+            flex-shrink: 0;
         }
 
         .chat-messages {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
-            padding: 10px;
+            padding: 1rem 1.5rem;
+            font-family: "Inter", sans-serif;
         }
+        .chat-messages::after { content: ""; display: table; clear: both; }
 
         .chat-message {
-            margin-bottom: 8px;
-            padding: 6px 10px;
-            border-radius: 8px;
-            background: #f1f3f4;
-            font-size: 13px;
+            margin-bottom: 0.75rem; padding: 0.5rem 1rem; border-radius: 12px;
+            max-width: 80%; line-height: 1.5;
         }
-
-        .chat-message.own {
-            background: #e3f2fd;
-            margin-left: 20px;
-        }
-
-        .chat-message.host {
-            background: #fff3e0;
-            border-left: 3px solid #ff9800;
-        }
-
         .chat-message .sender {
-            font-weight: bold;
-            color: #1976d2;
-            margin-right: 5px;
+            font-weight: 600; display: block; margin-bottom: 2px; font-size: 13px;
         }
+        .chat-message .content { font-size: 14px; word-wrap: break-word; }
+        .chat-message.other {
+            background: #f1f5f9; color: #333; float: left; clear: both;
+            border-radius: 12px 12px 12px 0;
+        }
+        .chat-message.other .sender { color: #63b3ed; }
+        .chat-message.own {
+            background: #b1e7c8; color: #234567; float: right; clear: both;
+            border-radius: 12px 12px 0 12px;
+        }
+        .chat-message.own .sender { display: none; }
+        .chat-message.host:not(.own) { border-left: 4px solid #b1dae7; }
+        .chat-message.system {
+            clear: both; float: none; text-align: center; background: none;
+            color: #a0aec0; font-size: 12px; font-style: italic;
+            width: 100%; padding: 0.5rem 0;
+        }
+        .chat-message.system .sender { display: none; }
 
         .chat-input-container {
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            background: #fafafa;
+            padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc;
+            flex-shrink: 0;
         }
-
-        .chat-input-form {
-            display: flex;
-            gap: 10px;
-        }
-
+        .chat-input-form { display: flex; gap: 0.75rem; }
         .chat-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-            font-size: 14px;
+            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 5px;
+            font-family: "Inter", sans-serif; font-size: 14px; transition: border-color 0.3s ease;
         }
-
+        .chat-input:focus { outline: none; border-color: #b1dae7; }
         .chat-send-btn {
-            padding: 8px 16px;
-            background: #1976d2;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
+            padding: 0.75rem 1.25rem; background: #b1dae7; color: #234567;
+            border: none; border-radius: 5px; font-family: "Ubuntu", sans-serif;
+            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
         }
-
-        .chat-send-btn:hover {
-            background: #1565c0;
-        }
-
-        .chat-send-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .status-bar {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 8px 15px;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .status-bar.error {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        @media (max-width: 768px) {
-            .chat-container {
-                height: 250px;
-            }
-
-            .header {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-        }
+        .chat-send-btn:hover { background: #9bc8d7; }
+        .chat-send-btn:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
     </style>
 </head>
 <body>
 <div class="header">
     <div class="lobby-info">
-        <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 8) %>...
+        <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 12) %>...
         <% if (it.isHost) { %>
-        <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
+        <span class="host-badge">HOST</span>
         <% } %>
     </div>
     <% if (it.players) { %>
     <div class="participants-count" id="participants-count">
+        <i class="fas fa-users"></i>
         <span id="participant-number"><%= it.players.length %></span> Teilnehmer
     </div>
     <% } %>
 </div>
 
 <div class="status-bar" id="status-bar">
-    Verbunden mit Multiplayer-Session
+    Verbindung wird hergestellt...
 </div>
 
 <div class="presentation-container">
@@ -179,17 +170,14 @@
             💬 Live Chat
         </div>
         <div class="chat-messages" id="chat-messages">
-            <div class="chat-message">
-                <span class="sender">System:</span>
-                Willkommen im Live-Chat! Stellen Sie hier Ihre Fragen.
-            </div>
+            <!-- Chat-Nachrichten werden hier dynamisch eingefügt -->
         </div>
         <div class="chat-input-container">
             <form class="chat-input-form" id="chat-form">
                 <input type="text" class="chat-input" id="chat-input"
                        placeholder="Nachricht eingeben..." maxlength="500">
                 <button type="submit" class="chat-send-btn" id="chat-send-btn">
-                    Senden
+                    <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
         </div>
@@ -201,6 +189,7 @@
 <script src="/js/sse-client.js"></script>
 
 <script>
+    // Das JavaScript ist von den CSS-Änderungen nicht betroffen.
     const matchData = {
         lobbyId: '<%= it.lobbyId %>',
         userId: '<%= it.userId %>',
@@ -223,7 +212,6 @@
     const chatMessages = document.getElementById('chat-messages');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
-    const chatSendBtn = document.getElementById('chat-send-btn');
     const statusBar = document.getElementById('status-bar');
 
     function updateStatus(message, isError = false) {
@@ -231,50 +219,62 @@
         statusBar.className = isError ? 'status-bar error' : 'status-bar';
     }
 
-    function addChatMessage(sender, message, isOwn = false, isHost = false) {
+    function addChatMessage(sender, message, isOwn, isHost, isSystem = false) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message';
-        if (isOwn) messageDiv.classList.add('own');
-        if (isHost) messageDiv.classList.add('host');
 
-        messageDiv.innerHTML = `
-                <span class="sender">${sender}:</span>
-                ${message}
-            `;
+        if (isSystem) {
+            messageDiv.classList.add('system');
+        } else if (isOwn) {
+            messageDiv.classList.add('own');
+        } else {
+            messageDiv.classList.add('other');
+            if (isHost) {
+                messageDiv.classList.add('host');
+            }
+        }
+
+        const senderSpan = document.createElement('span');
+        senderSpan.className = 'sender';
+        senderSpan.textContent = sender;
+
+        const contentSpan = document.createElement('span');
+        contentSpan.className = 'content';
+        contentSpan.textContent = message;
+
+        messageDiv.appendChild(senderSpan);
+        messageDiv.appendChild(contentSpan);
+
         chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
     }
+
 
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const message = chatInput.value.trim();
         if (!message) return;
 
-        try {
-            if (realtimeClient && realtimeClient.isConnected()) {
-                const result = await realtimeClient.sendChatMessage(message);
-                if (result.success) {
-                    chatInput.value = '';
-                    addChatMessage(matchData.userName, message, true, matchData.isHost);
-                } else {
-                    updateStatus('Fehler beim Senden der Nachricht', true);
-                }
+        if (realtimeClient && realtimeClient.isConnected()) {
+            const result = await realtimeClient.sendChatMessage(message);
+            if (result.success) {
+                chatInput.value = '';
             } else {
-                updateStatus('Nicht mit Realtime verbunden', true);
+                updateStatus('Fehler beim Senden der Nachricht', true);
             }
-        } catch (error) {
-            console.error('Fehler beim Senden der Nachricht:', error);
-            updateStatus('Fehler beim Senden der Nachricht', true);
+        } else {
+            updateStatus('Nicht mit Realtime verbunden', true);
         }
     });
 
     document.addEventListener('DOMContentLoaded', async () => {
+        addChatMessage('System', 'Willkommen im Live-Chat! Stellen Sie hier Ihre Fragen.', false, false, true);
 
         try {
             realtimeClient = new SupabaseRealtimeClient();
 
             realtimeClient.on('connect', () => {
-                updateStatus('Verbunden mit Multiplayer-Session (Realtime)');
+                updateStatus('Verbunden mit Multiplayer-Session');
             });
 
             realtimeClient.on('connect_error', (error) => {
@@ -282,27 +282,23 @@
             });
 
             realtimeClient.on('chatMessage', (data) => {
-                if (data.userId !== matchData.userId) {
-                    addChatMessage(data.userName, data.message, false, data.isHost);
-                }
+                const isOwnMessage = data.userId === matchData.userId;
+                addChatMessage(data.userName, data.message, isOwnMessage, data.isHost, false);
             });
 
             realtimeClient.on('playerJoined', (player) => {
-                addChatMessage('System', `${player.name} ist der Präsentation beigetreten`);
+                addChatMessage('System', `${player.name} ist der Präsentation beigetreten.`, false, false, true);
             });
 
             realtimeClient.on('playerLeft', (player) => {
-                addChatMessage('System', `${player.name} hat die Präsentation verlassen`);
+                addChatMessage('System', `${player.name} hat die Präsentation verlassen.`, false, false, true);
             });
 
             await realtimeClient.connect(matchData.lobbyId, matchData.userId, matchData.userName, matchData.isHost);
         } catch (error) {
+            console.error('Fehler beim Verbinden mit Realtime:', error);
             updateStatus('Fehler beim Verbinden mit Realtime', true);
         }
-
-        setTimeout(() => {
-            addChatMessage('System', `${matchData.userName} ist der Präsentation beigetreten`);
-        }, 1000);
     });
 </script>
 </body>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - FreestAIle</title>
+    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
+    <script>
+        // Immediate dark mode detection and application
+        (function() {
+            const isDark = localStorage.getItem('darkmode') === 'true';
+            if (isDark) {
+                document.documentElement.classList.add('darkmode');
+                document.body.classList.add('darkmode');
+            }
+        })();
+    </script>
+    <script src="darkmode-init.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/landing-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Basis-Styles für alle Buttons */
+        .auth-button {
+            position: relative;
+            margin: auto;
+            padding: 12px 18px;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .auth-button:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            border-radius: 50px;
+            width: 45px;
+            height: 45px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-button span {
+            position: relative;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #234567;
+        }
+
+        .auth-button svg {
+            position: relative;
+            top: 0;
+            margin-left: 10px;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke: #234567;
+            stroke-width: 2;
+            transform: translateX(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .auth-button:hover:before {
+            width: 100%;
+        }
+
+        .auth-button:hover svg {
+            transform: translateX(0);
+        }
+
+        .auth-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Spezifische Styles für Login (blau) */
+        .auth-button-login:before {
+            background: #b1dae7;
+        }
+        .auth-button-login:hover:before {
+            background: #b1dae7;
+        }
+
+        /* Spezifische Styles für Register (grün) */
+        .auth-button-register:before {
+            background: #b1e7c8;
+        }
+        .auth-button-register:hover:before {
+            background: #b1e7c8;
+        }
+
+        /* Spezifische Styles für Logout (rot) */
+        .auth-button-logout:before {
+            background: #e7b1b1;
+        }
+        .auth-button-logout:hover:before {
+            background: #e7b1b1;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-right: 1rem;
+        }
+
+        .profile-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #b1dae7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #234567;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        /* Apply dark mode styles to profile circle immediately with class on html element */
+        html.darkmode .profile-circle,
+        body.darkmode .profile-circle {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        .profile-email {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 16px;
+            color: #234567;
+            white-space: nowrap;
+        }
+
+        html.darkmode .profile-email,
+        body.darkmode .profile-email {
+            color: #ffffff;
+        }
+
+        .profile-circle:hover {
+            background: #9bc8d7;
+            transform: scale(1.05);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Account Container Styles */
+        .account-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .profile-circle-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #b1dae7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            color: #234567;
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-info h1 {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #234567;
+            margin-bottom: 0.5rem;
+        }
+
+        .account-info p {
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .account-details {
+            margin-top: 2rem;
+        }
+
+        .detail-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-group label {
+            display: block;
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-group .value {
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            color: #234567;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        body.darkmode .account-container {
+            background: #2d2d2d;
+        }
+
+        body.darkmode .account-info h1,
+        body.darkmode .detail-group .value {
+            color: #ffffff;
+        }
+
+        body.darkmode .account-info p,
+        body.darkmode .detail-group label {
+            color: #a0aec0;
+        }
+
+        body.darkmode .detail-group .value {
+            background: #3d3d3d;
+        }
+
+        body.darkmode .account-header {
+            border-bottom-color: #3d3d3d;
+        }
+
+        body.darkmode .profile-circle,
+        body.darkmode .profile-circle-large {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+
+        body.darkmode .profile-email {
+            color: #ffffff;
+        }
+
+        body.darkmode .auth-button span,
+        body.darkmode .auth-button svg {
+            color: #ffffff;
+            stroke: #ffffff;
+        }
+
+        /* Styles für den Lösch-Button */
+        .delete-account-button {
+            margin-top: 2rem;
+            padding: 12px 24px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-account-button:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .delete-account-button:active {
+            transform: translateY(0);
+        }
+
+        body.darkmode .delete-account-button {
+            background: #e74c3c;
+        }
+
+        body.darkmode .delete-account-button:hover {
+            background: #c0392b;
+        }
+
+        .rounds-container {
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+
+        .round-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+
+        .round-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .round-id {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .presentations-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .presentation-item {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #234567;
+        }
+
+        .presentation-link {
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .presentation-link:hover {
+            color: #2d3748;
+            text-decoration: underline;
+        }
+
+        .presentation-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .share-button {
+            background: none;
+            border: none;
+            color: #4a5568;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            min-height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        .share-button:hover {
+            color: #2d3748;
+            background: #f8f9fa;
+        }
+
+        .share-button i {
+            font-size: 0.9rem;
+        }
+
+        .copy-feedback {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2ecc71;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .copy-feedback.show {
+            opacity: 1;
+        }
+
+        body.darkmode .round-card {
+            background: #2d2d2d;
+            color: #fff;
+        }
+
+        body.darkmode .round-header {
+            border-bottom-color: #4a5568;
+        }
+
+        body.darkmode .round-id {
+            color: #a0aec0;
+        }
+
+        body.darkmode .presentation-item {
+            background: #3d3d3d;
+        }
+
+        body.darkmode .player-name {
+            color: #fff;
+        }
+
+        body.darkmode .presentation-link {
+            color: #a0aec0;
+        }
+
+        body.darkmode .presentation-link:hover {
+            color: #fff;
+        }
+
+        body.darkmode .share-button:hover {
+            background: #3d3d3d;
+        }
+
+        body.darkmode .copy-feedback {
+            background: #27ae60;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 7rem 2rem 2rem;
+            background-color: #f9f9f9;
+            color: #234567;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode body styles - applied immediately */
+        html.darkmode body,
+        body.darkmode {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .impressum-container {
+            max-width: 800px;
+            /* KORREKTUR: Oberen Abstand auf 8rem erhöht für mehr Platz zum Header */
+            margin: 8rem auto 4rem auto;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Dark mode impressum container - applied immediately */
+        html.darkmode .impressum-container,
+        body.darkmode .impressum-container {
+            background-color: #2d2d2d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+            color: #234567;
+            font-family: 'Ubuntu', sans-serif;
+            transition: color 0.3s;
+        }
+
+        .impressum-container h4:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Dark mode h4 - applied immediately */
+        html.darkmode .impressum-container h4,
+        body.darkmode .impressum-container h4 {
+            color: #ffffff;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #333333;
+            transition: color 0.3s;
+        }
+
+        /* Dark mode p - applied immediately */
+        html.darkmode .impressum-container p,
+        body.darkmode .impressum-container p {
+            color: #a0aec0;
+        }
+
+        a {
+            color: #1a73e8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Dark mode a - applied immediately */
+        html.darkmode .impressum-container a,
+        body.darkmode .impressum-container a {
+            color: #63b3ed;
+        }
+
+        body.darkmode {
+            background-color: #1a1a1a;
+        }
+
+        body.darkmode .impressum-container {
+            background-color: #2d2d2d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        body.darkmode .impressum-container h4 {
+            color: #ffffff;
+        }
+
+        body.darkmode .impressum-container p {
+            color: #a0aec0;
+        }
+
+        body.darkmode .impressum-container a {
+            color: #63b3ed;
+        }
+    </style>
+</head>
+
+<header class="main-header">
+    <div class="header-content">
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <span class="header-logo">Freest<b>AI</b>le</span>
+        </a>
+        <div class="flex items-center space-x-4">
+            <label class="switch">
+                <input id="darkmode-toggle" type="checkbox" />
+                <span class="slider">
+                    <div class="star star_1"></div>
+                    <div class="star star_2"></div>
+                    <div class="star star_3"></div>
+                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
+                        <path
+                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                                fill="#fff"
+                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                        ></path>
+                    </svg>
+                </span>
+            </label>
+        </div>
+    </div>
+</header>
+
+<body>
+
+<div class="impressum-container">
+    <h4>Impressum</h4>
+    <p>Angaben gemäß § 5 TMG</p>
+    <p>
+        FreestAIle<br>
+        im Gebäude der<br>
+        Duale Hochschule Baden-Württemberg Karlsruhe (DHBW Karlsruhe)<br>
+        Erzbergerstraße 121<br>
+        76133 Karlsruhe<br>
+        Deutschland
+    </p>
+
+    <h4>Vertreten durch:</h4>
+    <p>Nils Seitz</p>
+
+    <h4>Kontakt:</h4>
+    <p>E-Mail: <a href="mailto:seitz.nils.a24@student.dhbw-karlsruhe.de">seitz.nils.a24@student.dhbw-karlsruhe.de</a></p>
+
+    <h4>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</h4>
+    <p>
+        Nils Seitz<br>
+        Erzbergerstraße 121<br>
+        76133 Karlsruhe
+    </p>
+
+    <h4>Haftungsausschluss:</h4>
+    <p>
+        Die Inhalte dieser Webanwendung wurden mit größtmöglicher Sorgfalt erstellt.
+        Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden.
+    </p>
+
+    <h4>Haftung für Links:</h4>
+    <p>
+        Diese Webanwendung enthält ggf. Links zu externen Webseiten Dritter,
+        auf deren Inhalte kein Einfluss besteht. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
+    </p>
+
+    <h4>Urheberrecht:</h4>
+    <p>
+        Die durch den Seitenbetreiber erstellten Inhalte und Werke auf dieser Webanwendung unterliegen dem deutschen Urheberrecht.
+        Beiträge Dritter sind als solche gekennzeichnet.
+    </p>
+</div>
+
+<div class="copy-feedback">Link kopiert</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('darkmode-toggle');
+
+        // Get current dark mode status (already set by darkmode-init.js)
+        const isDark = document.documentElement.classList.contains('darkmode');
+
+        // Set toggle position based on current dark mode status
+        toggle.checked = !isDark;
+
+        // Ensure body also has the class for backward compatibility
+        document.body.classList.toggle('darkmode', isDark);
+
+        toggle.addEventListener('change', function() {
+            const dark = !toggle.checked;
+            document.documentElement.classList.toggle('darkmode', dark);
+            document.body.classList.toggle('darkmode', dark);
+            localStorage.setItem('darkmode', dark.toString());
+        });
+    });
+</script>
+</body>
+</html>

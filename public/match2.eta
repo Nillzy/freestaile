@@ -19,26 +19,7 @@
             height: 100vh;
         }
 
-        .header {
-            background: #1976d2;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .lobby-info {
-            font-size: 14px;
-        }
-
-        .participants-count {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-        }
+        /* ENTFERNT: CSS für .header, .lobby-info, .participants-count */
 
         .center-container {
             flex: 1;
@@ -62,18 +43,7 @@
             height: 100% !important;
         }
 
-        .status-bar {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 8px 15px;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .status-bar.error {
-            background: #ffebee;
-            color: #c62828;
-        }
+        /* ENTFERNT: CSS für .status-bar und .status-bar.error */
 
         .emoji-fly {
             position: fixed;
@@ -106,23 +76,9 @@
     </style>
 </head>
 <body>
-<div class="header">
-    <div class="lobby-info">
-        <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 8) %>...
-        <% if (it.isHost) { %>
-        <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
-        <% } %>
-    </div>
-    <% if (it.players) { %>
-    <div class="participants-count" id="participants-count">
-        <span id="participant-number"><%= it.players.length %></span> Teilnehmer
-    </div>
-    <% } %>
-</div>
+<!-- ENTFERNT: Der gesamte <div class="header">...</div> Block -->
 
-<div class="status-bar" id="status-bar">
-    Verbunden mit Multiplayer-Session
-</div>
+<!-- ENTFERNT: Der gesamte <div class="status-bar">...</div> Block -->
 
 <div class="center-container">
     <%~ it.content %>
@@ -161,11 +117,7 @@
         transition: 'slide'
     });
 
-    function updateStatus(message, isError = false) {
-        const bar = document.getElementById('status-bar');
-        bar.textContent = message;
-        bar.className = isError ? 'status-bar error' : 'status-bar';
-    }
+    // ENTFERNT: Die Funktion updateStatus(), da das Element nicht mehr existiert.
 
     function extractEmojis(text) {
         const regex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
@@ -199,11 +151,13 @@
             realtimeClient = new SupabaseRealtimeClient();
 
             realtimeClient.on('connect', () => {
-                updateStatus('Verbunden mit Multiplayer-Session (Realtime)', false);
+                // ENTFERNT: Aufruf von updateStatus()
+                console.log('Verbunden mit Multiplayer-Session (Realtime)');
             });
 
             realtimeClient.on('connect_error', (error) => {
-                updateStatus('Verbindungsfehler: ' + error.message, true);
+                // ENTFERNT: Aufruf von updateStatus()
+                console.error('Verbindungsfehler: ' + error.message);
             });
 
             realtimeClient.on('chatMessage', (data) => {
@@ -235,7 +189,7 @@
 
         } catch (err) {
             console.error('Fehler bei Init:', err);
-            updateStatus('Fehler beim Verbinden mit Realtime', true);
+            // ENTFERNT: Aufruf von updateStatus()
         }
 
         // Willkommensanimation

@@ -513,6 +513,10 @@ app.get("/user", requireAuth, async (req, res) => {
   res.send(eta.render("account", { user: req.user, rounds: rounds }));
 });
 
+app.get("/imprint", async (req, res) => {
+  res.send(eta.render("imprint", {}));
+});
+
 // Startseite Route (aktualisiert)
 app.get("/", (req, res) => {
   res.send(eta.render("homepage", { user: req.user }));

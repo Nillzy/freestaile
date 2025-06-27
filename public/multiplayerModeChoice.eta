@@ -12,6 +12,84 @@
     <link rel="stylesheet" href="styles/landing-page.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles/multiplayerModeChoice.css">
+    <style>
+        .mode-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .mode-box {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mode-box h2 {
+            font-family: 'Ubuntu', sans-serif;
+            color: #234567;
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+
+        .mode-box p {
+            margin: 1rem 0 1.5rem;
+            font-family: 'Inter', sans-serif;
+            color: #666;
+            line-height: 1.6;
+            transition: color 0.3s;
+        }
+
+        /* KORREKTUR: Button-Stil auf rechteckig mit abgerundeten Ecken geändert */
+        .mode-button {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px; /* Abgerundete Ecken statt Pille */
+            background: #b1dae7; /* Solider Blauton */
+            color: #ffffff; /* Weißer Text */
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Ubuntu', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            /* text-transform und letter-spacing entfernt für Standard-Look */
+        }
+
+        .mode-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .mode-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark Mode Styles */
+        body.darkmode .mode-box {
+            background: #2d2d2d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        body.darkmode .mode-box h2 {
+            color: #ffffff;
+        }
+
+        body.darkmode .mode-box p {
+            color: #a0aec0;
+        }
+    </style>
 </head>
 
 <header class="main-header">
@@ -82,23 +160,27 @@
             <h1 class="logo"><b>MULTI</b>player-Mode</h1>
         </div>
 
-        <div class="mode-container" style="display: flex; gap: 2rem; margin-top: 2rem;">
-            <div style="flex: 1; text-align: center; background: #ffffff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <h2 style="font-family: 'Ubuntu', sans-serif; color: #234567;">1 Device Mode</h2>
-                <p style="margin: 1rem 0; font-family: 'Inter', sans-serif; color: #666;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <div class="mode-container">
+            <div class="mode-box">
+                <div>
+                    <h2>1 Device Mode</h2>
+                    <p>Spielt gemeinsam an einem einzigen Bildschirm. Alle sehen die Präsentation auf dem Hauptgerät – perfekt für spontane Runden auf dem Sofa oder am Beamer.</p>
+                </div>
                 <form class="main-form" action="/1-device-mode" method="get">
                     <div class="input-group">
-                        <button type="submit" style="background: #b1dae7; color: #234567; border: none; padding: 12px 24px; border-radius: 5px; font-family: 'Ubuntu', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">1 Device Mode starten</button>
+                        <button type="submit" class="mode-button">1 Device Mode starten</button>
                     </div>
                 </form>
             </div>
 
-            <div style="flex: 1; text-align: center; background: #ffffff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                <h2 style="font-family: 'Ubuntu', sans-serif; color: #234567;">Multi Device Mode</h2>
-                <p style="margin: 1rem 0; font-family: 'Inter', sans-serif; color: #666;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <div class="mode-box">
+                <div>
+                    <h2>Multi Device Mode</h2>
+                    <p>Jeder Spieler nutzt sein eigenes Smartphone oder Laptop. Zusätzlich zum Hauptbildschirm könnt ihr chatten und live Reaktionen auf die Folien senden.</p>
+                </div>
                 <form class="main-form" action="/multi-device-mode" method="get">
                     <div class="input-group">
-                        <button type="submit" style="background: #b1dae7; color: #234567; border: none; padding: 12px 24px; border-radius: 5px; font-family: 'Ubuntu', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">Multi Device Mode starten</button>
+                        <button type="submit" class="mode-button">Multi Device Mode starten</button>
                     </div>
                 </form>
             </div>
@@ -108,14 +190,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const toggle = document.getElementById('darkmode-toggle');
-        
-        // Get current dark mode status (already set by darkmode-init.js)
+
         const isDark = document.documentElement.classList.contains('darkmode');
-        
-        // Set toggle position based on current dark mode status
+
         toggle.checked = !isDark;
-        
-        // Ensure body also has the class for backward compatibility
+
         document.body.classList.toggle('darkmode', isDark);
 
         toggle.addEventListener('change', function() {
