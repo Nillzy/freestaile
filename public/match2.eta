@@ -113,9 +113,11 @@
         <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
         <% } %>
     </div>
+    <% if (it.players) { %>
     <div class="participants-count" id="participants-count">
-        <span id="participant-number"><%= it.players?.length || 0 %></span> Teilnehmer
+        <span id="participant-number"><%= it.players.length %></span> Teilnehmer
     </div>
+    <% } %>
 </div>
 
 <div class="status-bar" id="status-bar">
@@ -136,8 +138,7 @@
         lobbyId: '<%= it.lobbyId %>',
         userId: '<%= it.userId %>',
         userName: '<%= it.userName %>',
-        isHost: <%= it.isHost ? 'true' : 'false' %>,
-        players: []
+        isHost: <%= it.isHost ? 'true' : 'false' %>
     };
 
     try {
@@ -159,10 +160,6 @@
         center: true,
         transition: 'slide'
     });
-
-    function updateParticipantCount(count) {
-        document.getElementById('participant-number').textContent = count;
-    }
 
     function updateStatus(message, isError = false) {
         const bar = document.getElementById('status-bar');
@@ -197,7 +194,6 @@
     let realtimeClient = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
-        updateParticipantCount(matchData.players.length || 0);
 
         try {
             realtimeClient = new SupabaseRealtimeClient();

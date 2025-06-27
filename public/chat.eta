@@ -162,9 +162,11 @@
         <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
         <% } %>
     </div>
+    <% if (it.players) { %>
     <div class="participants-count" id="participants-count">
-        <span id="participant-number"><%= it.players?.length || 0 %></span> Teilnehmer
+        <span id="participant-number"><%= it.players.length %></span> Teilnehmer
     </div>
+    <% } %>
 </div>
 
 <div class="status-bar" id="status-bar">
@@ -204,7 +206,6 @@
         userId: '<%= it.userId %>',
         userName: '<%= it.userName %>',
         isHost: <%= it.isHost ? 'true' : 'false' %>,
-        players: []
     };
 
     try {
@@ -244,10 +245,6 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function updateParticipantCount(count) {
-        document.getElementById('participant-number').textContent = count;
-    }
-
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const message = chatInput.value.trim();
@@ -272,9 +269,6 @@
     });
 
     document.addEventListener('DOMContentLoaded', async () => {
-        if (matchData.players) {
-            updateParticipantCount(matchData.players.length);
-        }
 
         try {
             realtimeClient = new SupabaseRealtimeClient();
