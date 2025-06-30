@@ -26,6 +26,8 @@
     </style>
 </head>
 
+<body>
+
 <header class="main-header">
     <div class="header-content">
         <a href="/" style="text-decoration: none;">
@@ -69,7 +71,7 @@
             </div>
             <% } %>
             <label class="switch">
-                <input id="darkmode-toggle" type="checkbox" />
+                <input id="darkmode-toggle" type="checkbox">
                 <span class="slider">
                 <span class="star star_1"></span>
                 <span class="star star_2"></span>
@@ -87,7 +89,6 @@
     </div>
 </header>
 
-<body>
 <div class="container-row">
     <div class="container">
         <div class="header">

@@ -214,12 +214,24 @@
             }
         }
 
-        /* Hamster- und Checkmark-CSS (unverändert) */
+        /* === KORRIGIERTE HAMSTER-ANIMATION === */
         .wheel-and-hamster { --dur: 1s; position: relative; width: 100%; height: 100%; }
         .wheel, .hamster, .hamster div, .spoke { position: absolute; }
         .wheel, .spoke { border-radius: 50%; top: 0; left: 0; width: 100%; height: 100%; }
         .wheel { background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%); z-index: 2; }
-        .hamster { animation: hamster var(--dur) ease-in-out infinite; top: 50%; left: calc(50% - 3.5em); width: 7em; height: 3.75em; transform: rotate(4deg) translate(-0.8em,1.85em); transform-origin: 50% 0; z-index: 1; }
+
+        /* HIER IST DIE KORREKTUR: Der translate-Wert wurde angepasst, um den Hamster vertikal zu zentrieren. */
+        .hamster {
+            animation: hamster var(--dur) ease-in-out infinite;
+            top: 50%;
+            left: calc(50% - 3.5em);
+            width: 7em;
+            height: 3.75em;
+            transform: rotate(4deg) translate(-0.8em, 0.625em); /* KORRIGIERT */
+            transform-origin: 50% 0;
+            z-index: 1;
+        }
+
         .hamster__head { animation: hamsterHead var(--dur) ease-in-out infinite; background: hsl(30,90%,55%); border-radius: 70% 30% 0 100% / 40% 25% 25% 60%; box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset, 0.75em -1.55em 0 hsl(30,90%,90%) inset; top: 0; left: -2em; width: 2.75em; height: 2.5em; transform-origin: 100% 50%; }
         .hamster__ear { animation: hamsterEar var(--dur) ease-in-out infinite; background: hsl(0,90%,85%); border-radius: 50%; box-shadow: -0.25em 0 hsl(30,90%,55%) inset; top: -0.25em; right: -0.25em; width: 0.75em; height: 0.75em; transform-origin: 50% 75%; }
         .hamster__eye { animation: hamsterEye var(--dur) linear infinite; background-color: hsl(0,0%,0%); border-radius: 50%; top: 0.375em; left: 1.25em; width: 0.5em; height: 0.5em; }
@@ -233,10 +245,14 @@
         .hamster__limb--bl { animation: hamsterBLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%); transform: rotate(-25deg); }
         .hamster__tail { animation: hamsterTail var(--dur) linear infinite; background: hsl(0,90%,85%); border-radius: 0.25em 50% 50% 0.25em; box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset; top: 1.5em; right: -0.5em; width: 1em; height: 0.5em; transform: rotate(30deg) translateZ(-1px); transform-origin: 0.25em 0.25em; }
         .spoke { animation: spoke var(--dur) linear infinite; background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%), linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat; }
+
+        /* Checkmark CSS (unverändert) */
         .checkmark { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; transform: scale(0); transition: all 0.3s ease-in-out; }
         .checkmark.show { opacity: 1; transform: scale(1); }
         .checkmark::before { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 10px; border-left: 4px solid #2ecc71; border-bottom: 4px solid #2ecc71; transform: translate(-50%, -50%) rotate(-45deg) scale(0); animation: checkmark 0.3s ease-in-out forwards; animation-delay: 0.2s; }
-        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,1.85em); } 50% { transform: rotate(0) translate(-0.8em,1.85em); } }
+
+        /* Animations (unverändert) */
+        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,0.625em); } 50% { transform: rotate(0) translate(-0.8em,0.625em); } } /* KORRIGIERT */
         @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } }
         @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } }
         @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } }
@@ -267,10 +283,18 @@
             </div>
             <% } %>
             <label class="switch">
-                <input id="darkmode-toggle" type="checkbox" />
+                <input id="darkmode-toggle" type="checkbox">
                 <span class="slider">
-                    <div class="star star_1"></div><div class="star star_2"></div><div class="star star_3"></div>
-                    <svg viewBox="0 0 16 16" class="cloud_1 cloud"><path transform="matrix(.77976 0 0 .78395-299.99-418.63)" fill="#fff" d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"></path></svg>
+                    <span class="star star_1"></span>
+                    <span class="star star_2"></span>
+                    <span class="star star_3"></span>
+                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
+                        <path
+                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                                fill="#fff"
+                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                        ></path>
+                    </svg>
                 </span>
             </label>
         </div>
@@ -490,9 +514,6 @@
         // Initialer Status-Check
         checkGenerationStatus();
         checkInterval = setInterval(checkGenerationStatus, 2500);
-
-        // Initiale Systemnachricht
-        addChatMessage('System', 'Willkommen! Stellen Sie hier Ihre Fragen zum Vortrag.', false, false, true);
 
         try {
             realtimeClient = new SupabaseRealtimeClient();

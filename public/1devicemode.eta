@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="styles/landing-page.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ... (alle bisherigen CSS-Stile bis zum alten Switch bleiben unverändert) ... */
+
         /* Basis-Styles für alle Buttons */
         .auth-button {
             position: relative;
@@ -272,7 +274,7 @@
             margin-top: 1rem;
         }
 
-        .player-input input {
+        .player-input input, .topic-control input.topic-input {
             width: 100%;
             padding: 0.75rem;
             border: 2px solid #e2e8f0;
@@ -282,10 +284,114 @@
             transition: border-color 0.3s ease;
         }
 
-        .player-input input:focus {
+        .player-input input:focus, .topic-control input.topic-input:focus {
             outline: none;
             border-color: #b1dae7;
         }
+
+        .topic-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .topic-control .topic-input {
+            flex-grow: 1; /* Nimmt den verfügbaren Platz ein */
+        }
+
+        /* ========================================= */
+        /* === NEU: Verbesserte "Random Topic" Slider === */
+        /* ========================================= */
+
+        .pretty-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent; /* Verhindert blauen Blitz auf mobil */
+        }
+
+        /* Versteckt die originale Checkbox */
+        .pretty-switch .random-switch {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .pretty-switch-label {
+            font-family: "Ubuntu", sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .pretty-switch-slider {
+            width: 40px;
+            height: 22px;
+            background-color: #e2e8f0;
+            border-radius: 22px;
+            position: relative;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0; /* Verhindert, dass der Switch schrumpft */
+        }
+
+        .pretty-switch-knob {
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Zustand, wenn der Switch aktiviert ist (Checkbox ist :checked) */
+        .pretty-switch .random-switch:checked + .pretty-switch-slider {
+            background-color: #b1e7c8; /* Grüne Farbe für "Random" */
+        }
+
+        .pretty-switch .random-switch:checked + .pretty-switch-slider .pretty-switch-knob {
+            transform: translateX(18px);
+        }
+
+        .pretty-switch:hover .pretty-switch-knob {
+            box-shadow: 0 0 0 4px rgba(177, 218, 231, 0.3);
+        }
+
+        .pretty-switch .random-switch:checked:hover + .pretty-switch-slider .pretty-switch-knob {
+            box-shadow: 0 0 0 4px rgba(177, 231, 200, 0.4);
+        }
+
+        .pretty-switch .random-switch:checked ~ .pretty-switch-label {
+            color: #234567;
+        }
+
+        /* Dark Mode für den neuen Switch */
+        body.darkmode .pretty-switch-slider {
+            background-color: #4d4d4d;
+        }
+        body.darkmode .pretty-switch .random-switch:checked + .pretty-switch-slider {
+            background-color: #2d5a3f;
+        }
+        body.darkmode .pretty-switch-knob {
+            background-color: #d1d5db;
+        }
+        body.darkmode .pretty-switch-label {
+            color: #a0aec0;
+        }
+        body.darkmode .pretty-switch .random-switch:checked ~ .pretty-switch-label {
+            color: #ffffff;
+        }
+
+        /* ========================================= */
+        /* === Ende der neuen Slider-Styles === */
+        /* ========================================= */
+
 
         .player-actions {
             display: flex;
@@ -501,13 +607,13 @@
             color: #a0aec0;
         }
 
-        body.darkmode .player-input input {
+        body.darkmode .player-input input, body.darkmode .topic-control input.topic-input {
             background: #3d3d3d;
             border-color: #4d4d4d;
             color: #ffffff;
         }
 
-        body.darkmode .player-input input:focus {
+        body.darkmode .player-input input:focus, body.darkmode .topic-control input.topic-input:focus {
             border-color: #b1dae7;
         }
 
@@ -814,11 +920,11 @@
             75% { transform: translateX(5px); }
         }
 
-        .player-input input.error {
+        .player-input input.error, .topic-control input.error {
             border-color: #e53e3e;
         }
 
-        body.darkmode .player-input input.error {
+        body.darkmode .player-input input.error, body.darkmode .topic-control input.error {
             border-color: #fc8181;
         }
 
@@ -836,42 +942,49 @@
             border-color: #fc8181;
         }
 
-        .player-input input.shake {
+        .player-input input.shake, .topic-control input.shake {
             animation: shake 0.5s ease-in-out;
         }
 
-        /* CSS für den Switch */
-        .random-switch-label {
-            user-select: none;
+        /* NEU: Language Chooser Styles */
+        .language-selector-container {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
         }
-        .random-switch {
-            width: 32px;
-            height: 18px;
-            appearance: none;
-            background: #b1dae7;
-            outline: none;
-            border-radius: 18px;
-            position: relative;
-            transition: background 0.3s;
+        .language-selector-container label {
+            display: block;
+            font-family: "Ubuntu", sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #234567;
+            margin-bottom: 0.75rem;
+        }
+        .language-selector-container select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            background-color: #fff;
+            color: #234567;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .random-switch:checked {
-            background: #b1e7c8;
+        .language-selector-container select:focus {
+            outline: none;
+            border-color: #b1dae7;
         }
-        .random-switch::before {
-            content: '';
-            position: absolute;
-            left: 2px;
-            top: 2px;
-            width: 14px;
-            height: 14px;
-            background: #fff;
-            border-radius: 50%;
-            transition: transform 0.3s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        body.darkmode .language-selector-container label {
+            color: #ffffff;
         }
-        .random-switch:checked::before {
-            transform: translateX(14px);
+        body.darkmode .language-selector-container select {
+            background: #3d3d3d;
+            border-color: #4d4d4d;
+            color: #ffffff;
+        }
+        body.darkmode .language-selector-container select:focus {
+            border-color: #b1dae7;
         }
 
         /* === CSS FÜR DAS LADE-OVERLAY === */
@@ -1174,6 +1287,8 @@
     </style>
 </head>
 
+<body>
+<!-- ... (Rest des HTML-Bodys bleibt unverändert) ... -->
 <header class="main-header">
     <div class="header-content">
         <a href="/" style="text-decoration: none; color: inherit;">
@@ -1217,7 +1332,7 @@
             </div>
             <% } %>
             <label class="switch">
-                <input id="darkmode-toggle" type="checkbox" />
+                <input id="darkmode-toggle" type="checkbox">
                 <span class="slider">
                     <span class="star star_1"></span>
                     <span class="star star_2"></span>
@@ -1235,7 +1350,6 @@
     </div>
 </header>
 
-<body>
 <div class="container-wrapper">
     <div class="container">
         <div class="header">
@@ -1252,6 +1366,18 @@
             </div>
         </div>
 
+        <!-- NEU: Language Chooser -->
+        <div class="language-selector-container">
+            <label for="languageChooser">Sprache der Präsentation</label>
+            <select id="languageChooser">
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="ru">🇷🇺 Русский</option>
+            </select>
+        </div>
         <button id="startGameButton" class="start-game-button" disabled>
             Spiel starten
         </button>
@@ -1322,6 +1448,7 @@
 
 
 <script>
+    // ... (vorheriger JavaScript-Code bleibt unverändert) ...
     document.addEventListener('DOMContentLoaded', function() {
         const toggle = document.getElementById('darkmode-toggle');
 
@@ -1376,6 +1503,10 @@
         const playerGrid = document.getElementById('playerGrid');
         const playerCard = document.createElement('div');
         playerCard.className = 'player-card';
+
+        // ================================================================ //
+        // === HIER WURDE DER HTML-CODE FÜR DEN SLIDER AKTUALISIERT === //
+        // ================================================================ //
         playerCard.innerHTML = `
             <div class="player-header">
                 <div class="player-avatar">
@@ -1387,12 +1518,16 @@
                     </div>
                 </div>
             </div>
-            <div class="player-input player-topic-row" style="display: flex; align-items: center; gap: 0.5rem;">
+            <!-- NEU: Verbesserter Slider für das Thema -->
+            <div class="topic-control">
                 <input type="text" placeholder="Präsentationsthema eingeben" required class="topic-input" maxlength="50">
-                <label class="random-switch-label" style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
-                    <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
-                    <span style="font-size: 13px; font-family: Ubuntu, sans-serif;">Random Topic</span>
-                </label>
+                <label class="pretty-switch">
+                     <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
+                     <div class="pretty-switch-slider">
+                         <div class="pretty-switch-knob"></div>
+                     </div>
+                     <span class="pretty-switch-label">Random</span>
+                 </label>
             </div>
             <div class="error-message topic-error" style="display:none;"></div>
             <div class="player-actions">
@@ -1447,7 +1582,7 @@
 
         let hasError = false;
         const allNameInputs = document.querySelectorAll('.player-name-input');
-        const allTopicRows = document.querySelectorAll('.player-topic-row');
+        const allTopicControls = document.querySelectorAll('.topic-control');
         let names = [];
         let topics = [];
 
@@ -1463,10 +1598,11 @@
             }
             names.push(value);
         });
-        allTopicRows.forEach(row => {
-            const topicInput = row.querySelector('.topic-input');
-            const randomSwitch = row.querySelector('.random-switch');
-            const errorDiv = row.parentElement.querySelector('.topic-error');
+
+        allTopicControls.forEach(control => {
+            const topicInput = control.querySelector('.topic-input');
+            const randomSwitch = control.querySelector('.random-switch');
+            const errorDiv = control.parentElement.querySelector('.topic-error');
             if (!randomSwitch.checked) {
                 const value = topicInput.value.trim();
                 if (value.length < 3 || value.length > 50) {
@@ -1516,14 +1652,17 @@
 
         const presentations = Array.from(document.querySelectorAll('.player-card')).map(card => {
             const nameInput = card.querySelector('.player-name-input');
-            const topicRow = card.querySelector('.player-topic-row');
-            const topicInput = topicRow.querySelector('.topic-input');
-            const randomSwitch = topicRow.querySelector('.random-switch');
+            const topicControl = card.querySelector('.topic-control');
+            const topicInput = topicControl.querySelector('.topic-input');
+            const randomSwitch = topicControl.querySelector('.random-switch');
             return {
                 player: nameInput.value,
                 topic: randomSwitch.checked ? '//RANDOM//' : topicInput.value
             };
         });
+
+        const presentationLanguage = document.getElementById('languageChooser').value;
+
         try {
             const response = await fetch('/initiateGeneration', {
                 method: 'POST',
@@ -1532,8 +1671,9 @@
                 },
                 body: JSON.stringify({
                     presentations,
-                    user: { id: '<%= it.user.id %>' },
-                    gameMode: 1
+                    user: { id: '<%= it.user ? it.user.id : null %>' },
+                    gameMode: 1,
+                    presentationLanguage: presentationLanguage
                 })
             });
             const data = await response.json();
@@ -1652,13 +1792,13 @@
     });
 
     document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('player-name-input') || (e.target.closest('.player-input') && e.target.placeholder === 'Präsentationsthema eingeben')) {
+        if (e.target.classList.contains('player-name-input') || (e.target.closest('.topic-control') && e.target.placeholder === 'Präsentationsthema eingeben')) {
             updateStartButton();
         }
         if (e.target.classList.contains('topic-input')) {
-            const row = e.target.closest('.player-topic-row');
-            const randomSwitch = row.querySelector('.random-switch');
-            const errorDiv = row.parentElement.querySelector('.topic-error');
+            const control = e.target.closest('.topic-control');
+            const randomSwitch = control.querySelector('.random-switch');
+            const errorDiv = control.parentElement.querySelector('.topic-error');
             if (!randomSwitch.checked) {
                 const value = e.target.value.trim();
                 if (value.length >= 3 && value.length <= 50) {
@@ -1672,7 +1812,7 @@
         }
         if (e.target.classList.contains('error') || e.target.classList.contains('duplicate-error')) {
             e.target.classList.remove('error', 'duplicate-error');
-            const allInputs = document.querySelectorAll('.player-input input');
+            const allInputs = document.querySelectorAll('.player-input input, .topic-control input');
             allInputs.forEach(input => {
                 if (input !== e.target) {
                     input.classList.remove('duplicate-error');
@@ -1682,13 +1822,16 @@
     });
 
     function toggleRandomTopic(checkbox) {
-        const playerInputRow = checkbox.closest('.player-topic-row');
-        const topicInput = playerInputRow.querySelector('.topic-input');
+        const topicControl = checkbox.closest('.topic-control');
+        const topicInput = topicControl.querySelector('.topic-input');
         if (checkbox.checked) {
             topicInput.disabled = true;
             topicInput.value = '';
             topicInput.placeholder = 'Random Topic';
             topicInput.classList.remove('error', 'shake');
+            // Fehleranzeige auch verstecken
+            const errorDiv = topicControl.parentElement.querySelector('.topic-error');
+            if (errorDiv) errorDiv.style.display = 'none';
         } else {
             topicInput.disabled = false;
             topicInput.placeholder = 'Präsentationsthema eingeben';

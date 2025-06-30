@@ -30,17 +30,6 @@ import {
   getLobbyPlayers,
   getLobbyDetails,
   updateLobbyStatus,
-  startGame,
-  nextSlide,
-  previousSlide,
-  sendChatMessage,
-  getChatMessages,
-  saveLobbySlides,
-  getLobbySlides,
-  getCurrentSlide,
-  updatePlayerScore,
-  savePlayerAnswer,
-  getScoreboard,
   getFullLobbyData,
   createLobbyWithCode,
   joinLobbyByCode,
@@ -250,7 +239,7 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
 });
 
 app.post("/initiateGeneration", async (req, res) => {
-  const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
+  const presentationLanguage = req.body.presentationLanguage;
   const accountID = req.user.id;
   const presentations = req.body.presentations;
   const gameMode = parseInt(req.body.gameMode);
@@ -815,11 +804,11 @@ async function insertImages(content) {
   const dom = new JSDOM(content);
   const document = dom.window.document;
 
-  // Finde alle <img>-Elemente mit data-motif
-  const imgElements = Array.from(document.querySelectorAll("img[data-motif]"));
+  // Finde alle <img>-Elemente mit alt
+  const imgElements = Array.from(document.querySelectorAll("img[alt]"));
 
-  // Extrahiere alle data-motif-Werte
-  const dataContents = imgElements.map((el) => el.getAttribute("data-motif"));
+  // Extrahiere alle alt-Werte
+  const dataContents = imgElements.map((el) => el.getAttribute("alt"));
 
   // fetchImages ist deine eigene Methode, die ein Array von Links zurückgibt
   const images = await fetchImages(dataContents);

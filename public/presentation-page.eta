@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,71 +13,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/black.min.css" id="theme-dark" disabled>
 
     <style>
-        /* Basis-Styles für die Präsentation */
+        /* Basis-Styles für die Seite */
         html, body {
             margin: 0;
-            padding: 0;
-            width: 100%;
             height: 100%;
-            overflow: hidden;
-            position: fixed; /* Verhindert Scrollbalken */
+            overflow: hidden; /* Verhindert Scrollbalken auf der Body-Ebene */
         }
 
-        .container {
-            width: 100%;
-            height: 100%;
-            position: fixed; /* Änderung von relative zu fixed */
-            top: 0;
-            left: 0;
-            overflow: hidden;
-        }
-
-        .presentation-container {
-            width: 100%;
-            height: 100%;
-            position: absolute; /* Änderung von relative zu absolute */
-            top: 0;
-            left: 0;
-            overflow: hidden;
-        }
-
-        .reveal {
-            width: 100%;
-            height: 100%;
-            position: absolute; /* Änderung von relative zu absolute */
-            top: 0;
-            left: 0;
-            overflow: hidden;
-        }
-
-        .reveal .slides {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-
-        .reveal .slides section {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-            position: absolute; /* Wichtig für RevealJS */
-            top: 0;
-            left: 0;
-        }
-
-        /* CSS für das neue RevealJS-Menü */
+        /* CSS für das RevealJS-Menü */
         .revealjs-menu-container {
             position: fixed;
             top: 0;
@@ -109,7 +51,6 @@
             right: 20px;
         }
 
-        /* Hover-Effekt auf dem Container */
         .revealjs-menu-container:hover .revealjs-hamburger-button {
             opacity: 1;
             background-color: rgba(0, 0, 0, 0.2);
@@ -125,7 +66,6 @@
             transition: all 0.3s ease-in-out;
         }
 
-        /* Dark Theme Anpassung für Hamburger Icon */
         body.theme-dark .revealjs-hamburger-button {
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -134,16 +74,9 @@
             background-color: #fff;
         }
 
-        /* "X" Icon, wenn Menü aktiv ist */
-        .revealjs-hamburger-button.active span:nth-child(1) {
-            transform: translateY(6px) rotate(45deg);
-        }
-        .revealjs-hamburger-button.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .revealjs-hamburger-button.active span:nth-child(3) {
-            transform: translateY(-6px) rotate(-45deg);
-        }
+        .revealjs-hamburger-button.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+        .revealjs-hamburger-button.active span:nth-child(2) { opacity: 0; }
+        .revealjs-hamburger-button.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
         .revealjs-menu-dropdown {
             position: absolute;
@@ -183,26 +116,12 @@
             transition: background-color 0.2s ease;
         }
 
-        body.theme-dark .revealjs-menu-dropdown .menu-item {
-            color: #eee;
-        }
+        body.theme-dark .revealjs-menu-dropdown .menu-item { color: #eee; }
+        .revealjs-menu-dropdown .menu-item:hover { background-color: #f5f5f5; }
+        body.theme-dark .revealjs-menu-dropdown .menu-item:hover { background-color: #333; }
+        .revealjs-menu-dropdown .menu-item i { margin-right: 12px; font-size: 1.1em; }
 
-        .revealjs-menu-dropdown .menu-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        body.theme-dark .revealjs-menu-dropdown .menu-item:hover {
-            background-color: #333;
-        }
-
-        .revealjs-menu-dropdown .menu-item i {
-            margin-right: 12px;
-            font-size: 1.1em;
-        }
-
-        /* Entferne alle Header-Elemente */
-        header,
-        .reveal .header,
+        /* Nur die Standard-UI von RevealJS ausblenden. */
         .reveal .controls,
         .reveal .progress {
             display: none !important;
@@ -211,7 +130,6 @@
 </head>
 
 <body class="theme-light">
-
 <!-- Neues RevealJS Menü -->
 <div class="revealjs-menu-container" id="revealjs-menu">
     <div class="revealjs-hamburger-button" onclick="toggleMenu()">
@@ -230,66 +148,49 @@
 <%~ it.content %>
 
 <!-- RevealJS Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
 
 <script>
-    // RevealJS initialisieren
     document.addEventListener('DOMContentLoaded', function() {
+        // RevealJS initialisieren mit Skalierung
         Reveal.initialize({
+            // GEÄNDERT: Die "Design-Auflösung" wurde von 1920x1080 auf 1280x720 reduziert.
+            // Das bewirkt, dass alle Inhalte (Text, Bilder) größer skaliert werden.
+            width: 1792,
+            height: 1008,
+
+            // Der Rand bleibt auf 0, um den Platz maximal auszunutzen.
+            margin: 0,
+
+            // Standard-Optionen
             controls: false,
             progress: false,
             center: true,
             hash: true,
             transition: 'slide',
-            width: "100%",
-            height: "100%",
-            margin: 0,
             viewDistance: 3,
             autoPlayMedia: true,
             preloadIframes: true,
-            plugins: [],
-            // Zusätzliche Optionen für bessere Darstellung
-            display: 'block',
-            overflow: 'hidden',
-            minScale: 1,
-            maxScale: 1
-        });
-
-        // Force layout update und verhindere Scrollbalken
-        setTimeout(() => {
-            Reveal.layout();
-            Reveal.slide(0);
-            document.body.style.overflow = 'hidden';
-            window.scrollTo(0, 0);
-        }, 100);
-
-        // Verhindere Scrollbalken bei Größenänderung
-        window.addEventListener('resize', function() {
-            Reveal.layout();
-            document.body.style.overflow = 'hidden';
-            window.scrollTo(0, 0);
+            plugins: []
         });
     });
 
     // Hamburger-Menü umschalten
     function toggleMenu() {
         const dropdown = document.getElementById('menu-dropdown');
-        const hamburgerButton = document.querySelector('.revealjs-hamburger-button'); // Angepasst
-
+        const hamburgerButton = document.querySelector('.revealjs-hamburger-button');
         dropdown.classList.toggle('active');
-        hamburgerButton.classList.toggle('active'); // Für "X" Icon Styling
+        hamburgerButton.classList.toggle('active');
     }
 
     // Klick außerhalb des Menüs schließt das Menü
     document.addEventListener('click', function(event) {
-        const menuContainer = document.getElementById('revealjs-menu'); // Angepasst
+        const menuContainer = document.getElementById('revealjs-menu');
         const dropdown = document.getElementById('menu-dropdown');
-        const hamburgerButton = document.querySelector('.revealjs-hamburger-button'); // Angepasst
-
-        // Überprüfen, ob der Klick außerhalb des Menü-Containers war
+        const hamburgerButton = document.querySelector('.revealjs-hamburger-button');
         if (!menuContainer.contains(event.target) && dropdown.classList.contains('active')) {
             dropdown.classList.remove('active');
-            hamburgerButton.classList.remove('active'); // Auch "X" Icon zurücksetzen
+            hamburgerButton.classList.remove('active');
         }
     });
 
@@ -300,7 +201,7 @@
         const themeDark = document.getElementById('theme-dark');
         const themeText = document.getElementById('theme-text');
         const dropdown = document.getElementById('menu-dropdown');
-        const hamburgerButton = document.querySelector('.revealjs-hamburger-button'); // Angepasst
+        const hamburgerButton = document.querySelector('.revealjs-hamburger-button');
 
         if (body.classList.contains('theme-light')) {
             body.classList.remove('theme-light');
@@ -315,44 +216,8 @@
             themeDark.disabled = true;
             themeText.textContent = 'Darkmode aktivieren';
         }
-
-        // Menü nach Themenwechsel schließen
         dropdown.classList.remove('active');
-        hamburgerButton.classList.remove('active'); // Auch "X" Icon zurücksetzen
-    }
-
-    // Vollbildmodus umschalten (unverändert, da nicht Teil der Anfrage)
-    function toggleFullscreen() {
-        const presentationContainer = document.getElementById('presentation-container');
-
-        if (presentationContainer.classList.contains('fullscreen-mode')) {
-            presentationContainer.classList.remove('fullscreen-mode');
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-            else if (document.msExitFullscreen) document.msExitFullscreen();
-        } else {
-            presentationContainer.classList.add('fullscreen-mode');
-            if (presentationContainer.requestFullscreen) presentationContainer.requestFullscreen();
-            else if (presentationContainer.webkitRequestFullscreen) presentationContainer.webkitRequestFullscreen();
-            else if (presentationContainer.mozRequestFullScreen) presentationContainer.mozRequestFullScreen();
-            else if (presentationContainer.msRequestFullscreen) presentationContainer.msRequestFullscreen();
-        }
-        setTimeout(() => Reveal.layout(), 300);
-    }
-
-    document.addEventListener('fullscreenchange', updateFullscreenUI);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
-    document.addEventListener('mozfullscreenchange', updateFullscreenUI);
-    document.addEventListener('MSFullscreenChange', updateFullscreenUI);
-
-    function updateFullscreenUI() {
-        const presentationContainer = document.getElementById('presentation-container');
-        const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-        if (!isFullscreen && presentationContainer.classList.contains('fullscreen-mode')) {
-            presentationContainer.classList.remove('fullscreen-mode');
-        }
-        setTimeout(() => Reveal.layout(), 300);
+        hamburgerButton.classList.remove('active');
     }
 </script>
 </body>

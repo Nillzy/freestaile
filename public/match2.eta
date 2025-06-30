@@ -19,8 +19,6 @@
             height: 100vh;
         }
 
-        /* ENTFERNT: CSS für .header, .lobby-info, .participants-count */
-
         .center-container {
             flex: 1;
             display: flex;
@@ -34,7 +32,6 @@
             flex-direction: column;
         }
 
-
         .presentation-container {
             height: 100%;
         }
@@ -43,48 +40,41 @@
             height: 100% !important;
         }
 
-        /* ENTFERNT: CSS für .status-bar und .status-bar.error */
-
         .emoji-fly {
             position: fixed;
-            font-size: 40px;
+            font-size: 80px; /* GRÖSSERES EMOJI */
             animation: flyUp 1.2s ease-in-out forwards;
             z-index: 9999;
-            left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateY(-50%);
             pointer-events: none;
         }
 
         @keyframes flyUp {
             0% {
                 opacity: 0;
-                transform: translate(-50%, 0) scale(1);
+                transform: translateY(0) scale(1);
             }
             25% {
                 opacity: 1;
-                transform: translate(-50%, -80px) scale(1.3);
+                transform: translateY(-80px) scale(1.3);
             }
             75% {
-                transform: translate(-50%, 50px) scale(0.8);
+                transform: translateY(50px) scale(0.8);
             }
             100% {
                 opacity: 0;
-                transform: translate(-50%, 150px) scale(0.6);
+                transform: translateY(150px) scale(0.6);
             }
         }
     </style>
 </head>
 <body>
-<!-- ENTFERNT: Der gesamte <div class="header">...</div> Block -->
-
-<!-- ENTFERNT: Der gesamte <div class="status-bar">...</div> Block -->
 
 <div class="center-container">
     <%~ it.content %>
 </div>
 
-<!-- Reveal.js JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/sse-client.js"></script>
@@ -108,16 +98,19 @@
     }
 
     Reveal.initialize({
-        hash: true,
-        controls: matchData.isHost,
-        keyboard: matchData.isHost,
-        touch: matchData.isHost,
-        progress: true,
+        width: 1792,
+        height: 1008,
+        margin: 0,
+        controls: false,
+        progress: false,
         center: true,
-        transition: 'slide'
+        hash: true,
+        transition: 'slide',
+        viewDistance: 3,
+        autoPlayMedia: true,
+        preloadIframes: true,
+        plugins: []
     });
-
-    // ENTFERNT: Die Funktion updateStatus(), da das Element nicht mehr existiert.
 
     function extractEmojis(text) {
         const regex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
@@ -128,8 +121,13 @@
         const span = document.createElement('span');
         span.className = 'emoji-fly';
         span.textContent = emoji;
-        document.body.appendChild(span);
+
+        // ZUFÄLLIGE POSITION ZWISCHEN 20% UND 80% BREITE
+        const randomLeft = Math.floor(Math.random() * 60) + 20;
+        span.style.left = `${randomLeft}%`;
         span.style.animationDelay = `${delay}s`;
+
+        document.body.appendChild(span);
 
         setTimeout(() => {
             span.remove();
@@ -138,25 +136,23 @@
 
     function animateEmojiSequence(message) {
         const emojis = extractEmojis(message);
-        emojis.forEach((emoji, index) => {
-            animateEmoji(emoji, index * 0.5);
+        emojis.forEach((emoji) => {
+            animateEmoji(emoji);
         });
     }
+
 
     let realtimeClient = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
-
         try {
             realtimeClient = new SupabaseRealtimeClient();
 
             realtimeClient.on('connect', () => {
-                // ENTFERNT: Aufruf von updateStatus()
                 console.log('Verbunden mit Multiplayer-Session (Realtime)');
             });
 
             realtimeClient.on('connect_error', (error) => {
-                // ENTFERNT: Aufruf von updateStatus()
                 console.error('Verbindungsfehler: ' + error.message);
             });
 
@@ -189,7 +185,6 @@
 
         } catch (err) {
             console.error('Fehler bei Init:', err);
-            // ENTFERNT: Aufruf von updateStatus()
         }
 
         // Willkommensanimation
