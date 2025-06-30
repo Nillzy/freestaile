@@ -213,92 +213,6 @@ async function updateLobbyStatus(lobbyId, status, additionalData = {}) {
   }
 }
 
-// Spiel starten
-async function startGame(lobbyId, hostId) {
-  try {
-    console.log(`SupabaseService: Starting game for lobby ${lobbyId}`);
-
-    // Prüfe, ob der User der Host ist
-    const lobby = await getLobbyDetails(lobbyId);
-    if (!lobby || lobby.host_id !== hostId) {
-      throw new Error("Nur der Host kann das Spiel starten");
-    }
-
-    const result = await updateLobbyStatus(lobbyId, "playing", {
-      current_slide: 1,
-      started_at: new Date().toISOString(),
-    });
-
-    // Game Event erstellen
-    await createGameEvent(lobbyId, "game_start", { started_by: hostId });
-
-    return result;
-  } catch (error) {
-    console.error("Fehler beim Starten des Spiels:", error);
-    return null;
-  }
-}
-
-// Nächste Folie
-async function nextSlide(lobbyId, hostId) {
-  try {
-    console.log(`SupabaseService: Moving to next slide for lobby ${lobbyId}`);
-
-    const lobby = await getLobbyDetails(lobbyId);
-    if (!lobby || lobby.host_id !== hostId) {
-      throw new Error("Nur der Host kann Folien wechseln");
-    }
-
-    const nextSlideNumber = (lobby.current_slide || 1) + 1;
-
-    const result = await updateLobbyStatus(lobbyId, lobby.status, {
-      current_slide: nextSlideNumber,
-    });
-
-    // Game Event erstellen
-    await createGameEvent(lobbyId, "slide_change", {
-      slide_number: nextSlideNumber,
-      changed_by: hostId,
-    });
-
-    return result;
-  } catch (error) {
-    console.error("Fehler beim Wechseln zur nächsten Folie:", error);
-    return null;
-  }
-}
-
-// Vorherige Folie
-async function previousSlide(lobbyId, hostId) {
-  try {
-    console.log(
-      `SupabaseService: Moving to previous slide for lobby ${lobbyId}`
-    );
-
-    const lobby = await getLobbyDetails(lobbyId);
-    if (!lobby || lobby.host_id !== hostId) {
-      throw new Error("Nur der Host kann Folien wechseln");
-    }
-
-    const prevSlideNumber = Math.max((lobby.current_slide || 1) - 1, 1);
-
-    const result = await updateLobbyStatus(lobbyId, lobby.status, {
-      current_slide: prevSlideNumber,
-    });
-
-    // Game Event erstellen
-    await createGameEvent(lobbyId, "slide_change", {
-      slide_number: prevSlideNumber,
-      changed_by: hostId,
-    });
-
-    return result;
-  } catch (error) {
-    console.error("Fehler beim Wechseln zur vorherigen Folie:", error);
-    return null;
-  }
-}
-
 // ===== CHAT-FUNKTIONEN =====
 
 // Chat-Nachricht senden
@@ -370,43 +284,6 @@ async function getChatMessages(lobbyId, limit = 50) {
 }
 
 // ===== FOLIEN-FUNKTIONEN =====
-
-// Folien für Lobby speichern
-async function saveLobbySlides(lobbyId, slides) {
-  try {
-    console.log(
-      `SupabaseService: Saving ${slides.length} slides for lobby ${lobbyId}`
-    );
-
-    // Alte Folien löschen
-    await supabase.from("lobby_slides").delete().eq("lobby_id", lobbyId);
-
-    // Neue Folien einfügen
-    const slidesData = slides.map((slide, index) => ({
-      lobby_id: lobbyId,
-      slide_number: index + 1,
-      content: slide.content,
-      slide_type: slide.type || "presentation",
-      options: slide.options || null,
-    }));
-
-    const { data, error } = await supabase
-      .from("lobby_slides")
-      .insert(slidesData)
-      .select();
-
-    if (error) {
-      console.error("Fehler beim Speichern der Folien:", error);
-      throw error;
-    }
-
-    console.log("Folien erfolgreich gespeichert:", data);
-    return data;
-  } catch (error) {
-    console.error("Fehler beim Speichern der Folien:", error);
-    return null;
-  }
-}
 
 // Folien für Lobby abrufen
 async function getLobbySlides(lobbyId) {
@@ -512,81 +389,6 @@ async function updatePlayerScore(playerId, score) {
   } catch (error) {
     console.error("Fehler beim Aktualisieren des Spieler-Scores:", error);
     return null;
-  }
-}
-
-// Spieler-Antwort speichern
-async function savePlayerAnswer(
-  lobbyId,
-  playerId,
-  slideId,
-  answer,
-  points = 0
-) {
-  try {
-    console.log(`SupabaseService: Saving answer for player ${playerId}`);
-
-    const { data, error } = await supabase
-      .from("player_answers")
-      .insert([
-        {
-          lobby_id: lobbyId,
-          name: playerId,
-          slide_id: slideId,
-          answer: answer,
-          points: points,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Fehler beim Speichern der Spieler-Antwort:", error);
-      throw error;
-    }
-
-    // Score aktualisieren
-    const player = await supabase
-      .from("LobbyPlayers")
-      .select("score")
-      .eq("name", playerId)
-      .single();
-
-    if (player.data) {
-      await updatePlayerScore(playerId, (player.data.score || 0) + points);
-    }
-
-    console.log("Spieler-Antwort erfolgreich gespeichert:", data);
-    return data;
-  } catch (error) {
-    console.error("Fehler beim Speichern der Spieler-Antwort:", error);
-    return null;
-  }
-}
-
-// Scoreboard abrufen
-async function getScoreboard(lobbyId) {
-  try {
-    console.log(`SupabaseService: Fetching scoreboard for lobby ${lobbyId}`);
-
-    const { data, error } = await supabase
-      .from("LobbyPlayers")
-      .select("name, score, is_host")
-      .eq("lobby_id", lobbyId)
-      .order("score", { ascending: false });
-
-    if (error) {
-      console.error("Fehler beim Abrufen des Scoreboards:", error);
-      throw error;
-    }
-
-    console.log(
-      `SupabaseService: Found ${data ? data.length : 0} players in scoreboard`
-    );
-    return data || [];
-  } catch (error) {
-    console.error("Fehler beim Abrufen des Scoreboards:", error);
-    return [];
   }
 }
 
@@ -774,26 +576,6 @@ async function joinLobbyByCode(code, userId, playerName) {
   }
 }
 
-// Supabase-Verbindung testen
-async function testSupabaseConnection() {
-  try {
-    const { data, error } = await supabase
-      .from("Lobbys")
-      .select("count", { count: "exact", head: true });
-
-    if (error) {
-      console.error("Supabase-Verbindungstest fehlgeschlagen:", error);
-      return false;
-    }
-
-    console.log("Supabase-Verbindung erfolgreich");
-    return true;
-  } catch (error) {
-    console.error("Supabase-Verbindungstest fehlgeschlagen:", error);
-    return false;
-  }
-}
-
 export {
   // Bestehende Funktionen
   getLobbyPlayers,
@@ -801,21 +583,12 @@ export {
   joinLobby,
   createLobby,
   updateLobbyStatus,
-  testSupabaseConnection,
-
-  // Neue Multiplayer-Funktionen
-  startGame,
-  nextSlide,
-  previousSlide,
   sendChatMessage,
   getChatMessages,
-  saveLobbySlides,
   getLobbySlides,
   getCurrentSlide,
   createGameEvent,
   updatePlayerScore,
-  savePlayerAnswer,
-  getScoreboard,
   getFullLobbyData,
   generateJoinCode,
   createLobbyWithCode,

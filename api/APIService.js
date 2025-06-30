@@ -142,13 +142,13 @@ function buildPrompt(topic, presentationLanguage) {
         "5.  **First Slide (Title Slide):**\\n" +
         "    *   Must be the first \`<section>\`.\\n" +
         "    *   It should contain the main topic (max 7 words) in an \`<h1>\`, a catchy subtitle (max 7 words) in an \`<h2>\`, and one or two appropriately sized images.\\n" +
-        "    *   Example for first slide content (inside its \`<section>\`): \`<h1>The Epic Cats vs Dogs Battle<\\\\/h1><h2>The Ultimate Furry Showdown Begins<\\\\/h2><img data-motif='cat+dog' style='max-width: 660px; max-height: 440px;'>\`\\n" +
+        "    *   Example for first slide content (inside its \`<section>\`): \`<h1>The Epic Cats vs Dogs Battle<\\\\/h1><h2>The Ultimate Furry Showdown Begins<\\\\/h2><img alt='cat+dog' style='max-width: 660px; max-height: 440px;'>\`\\n" +
         "6.  **Content Slides (Slides 2 to ~10):**\\n" +
         "    *   Each slide should have a witty title (max 7 words) in an \`<h2>\` or \`<h3>\`.\\n" +
         "    *   Use either 4-7 bullet points or a table (2-3 columns, 2-4 rows) with engaging content.\\n" +
         "    *   Keep text content concise but expressive - each bullet point or table cell should be maximum 9-11 words.\\n" +
-        "    *   Include 1-2 appropriately sized images per slide using the \`data-motif\` attribute and inline styles for size control.\\n" +
-        "    *   Example image: \`<img data-motif='cats+dogs+cute' style='max-width: 550px; max-height: 330px;'>\`\\n" +
+        "    *   Include 1-2 appropriately sized images per slide using the \`alt\` attribute and inline styles for size control.\\n" +
+        "    *   Example image: \`<img alt='cats+dogs+cute' style='max-width: 550px; max-height: 330px;'>\`\\n" +
         "7.  **Presentation Language:** " + presentationLanguage + "(definition of the language in the language itself)" + "\\n" +
         "\\n" +
         "### OUTPUT FORMAT & STRICT INSTRUCTIONS ###\\n" +
@@ -166,7 +166,7 @@ function buildPrompt(topic, presentationLanguage) {
         "          <section>\\n" +
         "            <h1>Engaging and Fun Topic Title<\\\\/h1>\\n" +
         "            <h2>Funny and Memorable Tagline Here<\\\\/h2>\\n" +
-        "            <img data-motif='relevant+image' style='max-width: 660px; max-height: 440px;'>\\n" +
+        "            <img alt='relevant+image' style='max-width: 660px; max-height: 440px;'>\\n" +
         "          <\\\\/section>\\n" +
         "          <section>\\n" +
         "            <h2>Witty and Engaging Slide Title<\\\\/h2>\\n" +
@@ -179,7 +179,7 @@ function buildPrompt(topic, presentationLanguage) {
         "                <tr><td>Humorous observation about the topic<\\\\/td><td>Clever response that surprises everyone<\\\\/td><\\\\/tr>\\n" +
         "              <\\\\/tbody>\\n" +
         "            <\\\\/table>\\n" +
-        "            <img data-motif='confused+person' style='max-width: 550px; max-height: 330px;'>\\n" +
+        "            <img alt='confused+person' style='max-width: 550px; max-height: 330px;'>\\n" +
         "          <\\\\/section>\\n" +
         "          <section>\\n" +
         "            <h2>Funny and Engaging Slide Title<\\\\/h2>\\n" +
@@ -188,7 +188,7 @@ function buildPrompt(topic, presentationLanguage) {
         "              <li>Funny and relevant fact that surprises you<\\\\/li>\\n" +
         "              <li>Witty observation that makes everyone laugh<\\\\/li>\\n" +
         "            <\\\\/ul>\\n" +
-        "            <img data-motif='rubber+duck' style='max-width: 440px; max-height: 330px;'>\\n" +
+        "            <img alt='rubber+duck' style='max-width: 440px; max-height: 330px;'>\\n" +
         "          <\\\\/section>\\n" +
         "          <!-- ... and so on for approx. 7 more sections, using tables or bullet points as best fits the humor ... -->\\n" +
         "        <\\\\/div>\\n" +

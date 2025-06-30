@@ -30,17 +30,6 @@ import {
   getLobbyPlayers,
   getLobbyDetails,
   updateLobbyStatus,
-  startGame,
-  nextSlide,
-  previousSlide,
-  sendChatMessage,
-  getChatMessages,
-  saveLobbySlides,
-  getLobbySlides,
-  getCurrentSlide,
-  updatePlayerScore,
-  savePlayerAnswer,
-  getScoreboard,
   getFullLobbyData,
   createLobbyWithCode,
   joinLobbyByCode,
@@ -250,7 +239,7 @@ app.post('/api/auth/delete-account', requireAuth, async (req, res) => {
 });
 
 app.post("/initiateGeneration", async (req, res) => {
-  const presentationLanguage = /*req.body.presentationLanguage*/ 'en';
+  const presentationLanguage = req.body.presentationLanguage;
   const accountID = req.user.id;
   const presentations = req.body.presentations;
   const gameMode = parseInt(req.body.gameMode);
@@ -511,6 +500,10 @@ app.post("/initiateGeneration", async (req, res) => {
 app.get("/user", requireAuth, async (req, res) => {
   const rounds = await getRoundsFromAccountID(req.user.id);
   res.send(eta.render("account", { user: req.user, rounds: rounds }));
+});
+
+app.get("/imprint", async (req, res) => {
+  res.send(eta.render("imprint", {}));
 });
 
 // Startseite Route (aktualisiert)
@@ -811,11 +804,11 @@ async function insertImages(content) {
   const dom = new JSDOM(content);
   const document = dom.window.document;
 
-  // Finde alle <img>-Elemente mit data-motif
-  const imgElements = Array.from(document.querySelectorAll("img[data-motif]"));
+  // Finde alle <img>-Elemente mit alt
+  const imgElements = Array.from(document.querySelectorAll("img[alt]"));
 
-  // Extrahiere alle data-motif-Werte
-  const dataContents = imgElements.map((el) => el.getAttribute("data-motif"));
+  // Extrahiere alle alt-Werte
+  const dataContents = imgElements.map((el) => el.getAttribute("alt"));
 
   // fetchImages ist deine eigene Methode, die ein Array von Links zurückgibt
   const images = await fetchImages(dataContents);
@@ -1112,304 +1105,6 @@ app.post("/api/multiplayer/join", async (req, res) => {
       .json({ error: error.message || "Fehler beim Beitreten der Lobby" });
   }
 });
-
-// Vollständige Lobby-Daten abrufen (mit Chat, Spielern, Folien)
-app.get("/api/multiplayer/lobby/:lobbyId/full", async (req, res) => {
-  try {
-    const { lobbyId } = req.params;
-
-    const data = await getFullLobbyData(lobbyId);
-
-    if (!data) {
-      return res.status(404).json({ error: "Lobby nicht gefunden" });
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Lobby-Daten:", error);
-    res.status(500).json({ error: "Fehler beim Abrufen der Lobby-Daten" });
-  }
-});
-
-// Spiel starten (nur Host)
-app.post("/api/multiplayer/lobby/:lobbyId/start", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { lobbyId } = req.params;
-
-    const result = await startGame(lobbyId, req.user.id);
-
-    if (!result) {
-      return res
-        .status(403)
-        .json({ error: "Nur der Host kann das Spiel starten" });
-    }
-
-    res.json({ success: true, lobby: result });
-  } catch (error) {
-    console.error("Fehler beim Starten des Spiels:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Fehler beim Starten des Spiels" });
-  }
-});
-
-// Nächste Folie (nur Host)
-app.post("/api/multiplayer/lobby/:lobbyId/next-slide", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { lobbyId } = req.params;
-
-    const result = await nextSlide(lobbyId, req.user.id);
-
-    if (!result) {
-      return res
-        .status(403)
-        .json({ error: "Nur der Host kann Folien wechseln" });
-    }
-
-    res.json({ success: true, lobby: result });
-  } catch (error) {
-    console.error("Fehler beim Wechseln zur nächsten Folie:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Fehler beim Wechseln der Folie" });
-  }
-});
-
-// Vorherige Folie (nur Host)
-app.post("/api/multiplayer/lobby/:lobbyId/previous-slide", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { lobbyId } = req.params;
-
-    const result = await previousSlide(lobbyId, req.user.id);
-
-    if (!result) {
-      return res
-        .status(403)
-        .json({ error: "Nur der Host kann Folien wechseln" });
-    }
-
-    res.json({ success: true, lobby: result });
-  } catch (error) {
-    console.error("Fehler beim Wechseln zur vorherigen Folie:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Fehler beim Wechseln der Folie" });
-  }
-});
-
-// Chat-Nachricht senden
-app.post("/api/multiplayer/lobby/:lobbyId/chat", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { lobbyId } = req.params;
-    const { message, playerId } = req.body;
-
-    if (!message || !playerId) {
-      return res
-        .status(400)
-        .json({ error: "Nachricht und Spieler-ID sind erforderlich" });
-    }
-
-    const result = await sendChatMessage(lobbyId, playerId, message.trim());
-
-    if (!result) {
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Senden der Nachricht" });
-    }
-
-    res.json({ success: true, message: result });
-  } catch (error) {
-    console.error("Fehler beim Senden der Chat-Nachricht:", error);
-    res.status(500).json({ error: "Fehler beim Senden der Nachricht" });
-  }
-});
-
-// Chat-Nachrichten abrufen
-app.get("/api/multiplayer/lobby/:lobbyId/chat", async (req, res) => {
-  try {
-    const { lobbyId } = req.params;
-    const limit = parseInt(req.query.limit) || 50;
-
-    const messages = await getChatMessages(lobbyId, limit);
-
-    res.json({ messages });
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Chat-Nachrichten:", error);
-    res.status(500).json({ error: "Fehler beim Abrufen der Nachrichten" });
-  }
-});
-
-// Folien für Lobby speichern
-app.post("/api/multiplayer/lobby/:lobbyId/slides", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { lobbyId } = req.params;
-    const { slides } = req.body;
-
-    if (!slides || !Array.isArray(slides)) {
-      return res.status(400).json({ error: "Folien-Array ist erforderlich" });
-    }
-
-    // Prüfe, ob der User der Host ist
-    const lobby = await getLobbyDetails(lobbyId);
-    if (!lobby || lobby.host_id !== req.user.id) {
-      return res
-        .status(403)
-        .json({ error: "Nur der Host kann Folien speichern" });
-    }
-
-    const result = await saveLobbySlides(lobbyId, slides);
-
-    if (!result) {
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Speichern der Folien" });
-    }
-
-    res.json({ success: true, slides: result });
-  } catch (error) {
-    console.error("Fehler beim Speichern der Folien:", error);
-    res.status(500).json({ error: "Fehler beim Speichern der Folien" });
-  }
-});
-
-// Folien für Lobby abrufen
-app.get("/api/multiplayer/lobby/:lobbyId/slides", async (req, res) => {
-  try {
-    const { lobbyId } = req.params;
-
-    const slides = await getLobbySlides(lobbyId);
-
-    res.json({ slides });
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Folien:", error);
-    res.status(500).json({ error: "Fehler beim Abrufen der Folien" });
-  }
-});
-
-// Aktuelle Folie abrufen
-app.get("/api/multiplayer/lobby/:lobbyId/current-slide", async (req, res) => {
-  try {
-    const { lobbyId } = req.params;
-
-    const slide = await getCurrentSlide(lobbyId);
-
-    res.json({ slide });
-  } catch (error) {
-    console.error("Fehler beim Abrufen der aktuellen Folie:", error);
-    res.status(500).json({ error: "Fehler beim Abrufen der aktuellen Folie" });
-  }
-});
-
-// Scoreboard abrufen
-app.get("/api/multiplayer/lobby/:lobbyId/scoreboard", async (req, res) => {
-  try {
-    const { lobbyId } = req.params;
-
-    const scoreboard = await getScoreboard(lobbyId);
-
-    res.json({ scoreboard });
-  } catch (error) {
-    console.error("Fehler beim Abrufen des Scoreboards:", error);
-    res.status(500).json({ error: "Fehler beim Abrufen des Scoreboards" });
-  }
-});
-
-// Spieler-Antwort speichern
-app.post("/api/multiplayer/lobby/:lobbyId/answer", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { lobbyId } = req.params;
-    const { playerId, slideId, answer, points } = req.body;
-
-    if (!playerId || !slideId || !answer) {
-      return res
-        .status(400)
-        .json({ error: "Spieler-ID, Folien-ID und Antwort sind erforderlich" });
-    }
-
-    const result = await savePlayerAnswer(
-      lobbyId,
-      playerId,
-      slideId,
-      answer,
-      points || 0
-    );
-
-    if (!result) {
-      return res
-        .status(500)
-        .json({ error: "Fehler beim Speichern der Antwort" });
-    }
-
-    res.json({ success: true, answer: result });
-  } catch (error) {
-    console.error("Fehler beim Speichern der Antwort:", error);
-    res.status(500).json({ error: "Fehler beim Speichern der Antwort" });
-  }
-});
-
-// Spieler-Score aktualisieren
-app.post(
-  "/api/multiplayer/lobby/:lobbyId/player/:playerId/score",
-  async (req, res) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ error: "Nicht authentifiziert" });
-      }
-
-      const { lobbyId, playerId } = req.params;
-      const { score } = req.body;
-
-      if (typeof score !== "number") {
-        return res.status(400).json({ error: "Score muss eine Zahl sein" });
-      }
-
-      // Prüfe, ob der User der Host ist
-      const lobby = await getLobbyDetails(lobbyId);
-      if (!lobby || lobby.host_id !== req.user.id) {
-        return res
-          .status(403)
-          .json({ error: "Nur der Host kann Scores aktualisieren" });
-      }
-
-      const result = await updatePlayerScore(playerId, score);
-
-      if (!result) {
-        return res
-          .status(500)
-          .json({ error: "Fehler beim Aktualisieren des Scores" });
-      }
-
-      res.json({ success: true, player: result });
-    } catch (error) {
-      console.error("Fehler beim Aktualisieren des Scores:", error);
-      res.status(500).json({ error: "Fehler beim Aktualisieren des Scores" });
-    }
-  }
-);
 
 // ===== ERWEITERTE LOBBY-ROUTES =====
 

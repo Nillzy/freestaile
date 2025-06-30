@@ -19,27 +19,6 @@
             height: 100vh;
         }
 
-        .header {
-            background: #1976d2;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .lobby-info {
-            font-size: 14px;
-        }
-
-        .participants-count {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-        }
-
         .center-container {
             flex: 1;
             display: flex;
@@ -53,7 +32,6 @@
             flex-direction: column;
         }
 
-
         .presentation-container {
             height: 100%;
         }
@@ -62,71 +40,41 @@
             height: 100% !important;
         }
 
-        .status-bar {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 8px 15px;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .status-bar.error {
-            background: #ffebee;
-            color: #c62828;
-        }
-
         .emoji-fly {
             position: fixed;
-            font-size: 40px;
+            font-size: 80px; /* GRÖSSERES EMOJI */
             animation: flyUp 1.2s ease-in-out forwards;
             z-index: 9999;
-            left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateY(-50%);
             pointer-events: none;
         }
 
         @keyframes flyUp {
             0% {
                 opacity: 0;
-                transform: translate(-50%, 0) scale(1);
+                transform: translateY(0) scale(1);
             }
             25% {
                 opacity: 1;
-                transform: translate(-50%, -80px) scale(1.3);
+                transform: translateY(-80px) scale(1.3);
             }
             75% {
-                transform: translate(-50%, 50px) scale(0.8);
+                transform: translateY(50px) scale(0.8);
             }
             100% {
                 opacity: 0;
-                transform: translate(-50%, 150px) scale(0.6);
+                transform: translateY(150px) scale(0.6);
             }
         }
     </style>
 </head>
 <body>
-<div class="header">
-    <div class="lobby-info">
-        <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 8) %>...
-        <% if (it.isHost) { %>
-        <span style="margin-left: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px;">HOST</span>
-        <% } %>
-    </div>
-    <div class="participants-count" id="participants-count">
-        <span id="participant-number"><%= it.players?.length || 0 %></span> Teilnehmer
-    </div>
-</div>
-
-<div class="status-bar" id="status-bar">
-    Verbunden mit Multiplayer-Session
-</div>
 
 <div class="center-container">
     <%~ it.content %>
 </div>
 
-<!-- Reveal.js JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/sse-client.js"></script>
@@ -136,8 +84,7 @@
         lobbyId: '<%= it.lobbyId %>',
         userId: '<%= it.userId %>',
         userName: '<%= it.userName %>',
-        isHost: <%= it.isHost ? 'true' : 'false' %>,
-        players: []
+        isHost: <%= it.isHost ? 'true' : 'false' %>
     };
 
     try {
@@ -151,24 +98,19 @@
     }
 
     Reveal.initialize({
-        hash: true,
-        controls: matchData.isHost,
-        keyboard: matchData.isHost,
-        touch: matchData.isHost,
-        progress: true,
+        width: 1792,
+        height: 1008,
+        margin: 0,
+        controls: false,
+        progress: false,
         center: true,
-        transition: 'slide'
+        hash: true,
+        transition: 'slide',
+        viewDistance: 3,
+        autoPlayMedia: true,
+        preloadIframes: true,
+        plugins: []
     });
-
-    function updateParticipantCount(count) {
-        document.getElementById('participant-number').textContent = count;
-    }
-
-    function updateStatus(message, isError = false) {
-        const bar = document.getElementById('status-bar');
-        bar.textContent = message;
-        bar.className = isError ? 'status-bar error' : 'status-bar';
-    }
 
     function extractEmojis(text) {
         const regex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
@@ -179,8 +121,13 @@
         const span = document.createElement('span');
         span.className = 'emoji-fly';
         span.textContent = emoji;
-        document.body.appendChild(span);
+
+        // ZUFÄLLIGE POSITION ZWISCHEN 20% UND 80% BREITE
+        const randomLeft = Math.floor(Math.random() * 60) + 20;
+        span.style.left = `${randomLeft}%`;
         span.style.animationDelay = `${delay}s`;
+
+        document.body.appendChild(span);
 
         setTimeout(() => {
             span.remove();
@@ -189,25 +136,24 @@
 
     function animateEmojiSequence(message) {
         const emojis = extractEmojis(message);
-        emojis.forEach((emoji, index) => {
-            animateEmoji(emoji, index * 0.5);
+        emojis.forEach((emoji) => {
+            animateEmoji(emoji);
         });
     }
+
 
     let realtimeClient = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
-        updateParticipantCount(matchData.players.length || 0);
-
         try {
             realtimeClient = new SupabaseRealtimeClient();
 
             realtimeClient.on('connect', () => {
-                updateStatus('Verbunden mit Multiplayer-Session (Realtime)', false);
+                console.log('Verbunden mit Multiplayer-Session (Realtime)');
             });
 
             realtimeClient.on('connect_error', (error) => {
-                updateStatus('Verbindungsfehler: ' + error.message, true);
+                console.error('Verbindungsfehler: ' + error.message);
             });
 
             realtimeClient.on('chatMessage', (data) => {
@@ -239,7 +185,6 @@
 
         } catch (err) {
             console.error('Fehler bei Init:', err);
-            updateStatus('Fehler beim Verbinden mit Realtime', true);
         }
 
         // Willkommensanimation
