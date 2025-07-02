@@ -64,6 +64,12 @@
             color: #a0aec0;
         }
 
+        body.darkmode .auth-button span,
+        body.darkmode .auth-button svg {
+            color: #ffffff;
+            stroke: #ffffff;
+        }
+
         /* NEU: Styling für den Footer-Link */
         .features-container footer a {
             color: inherit; /* Erbt die Farbe vom Footer (funktioniert auch im Darkmode) */
@@ -256,7 +262,29 @@
     const topicInput = document.getElementById('topic');
     const placeholderElement = document.querySelector('.typing-placeholder');
     const tabHint = document.getElementById('tabHint');
-    const suggestions = [ "The Socioeconomic Impact of Coco-Cola Zero", "Why Giraffes Don't Exist: A Conspiracy Theory", "Quantum Physics for Toddlers", "The Secret Life of Office Plants", "Time Travel and Its Effect on Retirement Planning" ];
+    const suggestions = [
+        "The Socioeconomic Impact of Coca-Cola Zero",
+        "Why Giraffes Don't Exist: A Conspiracy Theory",
+        "Quantum Physics for Toddlers",
+        "The Secret Life of Office Plants",
+        "Time Travel and Its Effect on Retirement Planning",
+        "How to Train Your Housecat to Code in Python",
+        "A Brief History of Cheese-Based Economies",
+        "The Hidden Politics of Umbrella Sharing",
+        "Why Your Toaster Might Be Plotting Against You",
+        "The Rise and Fall of the Nap Empire",
+        "Lunar Real Estate: Investing Beyond Earth",
+        "How Dinosaurs Would Use Social Media Today",
+        "Why Meetings Should Be Held in Bouncy Castles",
+        "The Great Avocado Shortage of 2047",
+        "Teleportation Etiquette for First-Time Users",
+        "The Truth Behind Left-Handed Lightbulbs",
+        "How Aliens Invented the Fidget Spinner",
+        "Sleepwalking Your Way to Corporate Success",
+        "The Secret Linguistics of Dog Barks",
+        "Why Ice Cream Trucks Are the Ultimate Surveillance Vehicles"
+    ];
+
     let currentText = "", charIndex = 0, suggestionIndex = 0, typingInterval, typing = true, isPlaceholderActive = true;
     function typePlaceholder() { if (!isPlaceholderActive) return; if (charIndex < suggestions[suggestionIndex].length) { currentText += suggestions[suggestionIndex][charIndex]; placeholderElement.innerHTML = currentText + '<span class="cursor"></span>'; charIndex++; } else { typing = false; setTimeout(() => { if (isPlaceholderActive) { typingInterval = setInterval(erasePlaceholder, 50); } }, 1000); clearInterval(typingInterval); } }
     function erasePlaceholder() { if (!isPlaceholderActive) return; if (charIndex > 0) { currentText = currentText.slice(0, -1); placeholderElement.innerHTML = currentText + '<span class="cursor"></span>'; charIndex--; } else { suggestionIndex = (suggestionIndex + 1) % suggestions.length; typing = true; clearInterval(typingInterval); if (isPlaceholderActive) { typingInterval = setInterval(typePlaceholder, 100); } } }

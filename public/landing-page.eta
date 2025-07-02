@@ -54,14 +54,14 @@
                 <label for="presentationLanguage">Select presentation language</label>
                 <div class="input-wrapper">
                     <select name="presentationLanguage" id="presentationLanguage">
-                        <option value="en">🇬🇧 English</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="pt">🇵🇹 Português</option>
-                        <option value="ru">🇷🇺 Русский</option>
-                        <option value="zh">🇨🇳 中文</option>
+                        <option value="English">🇬🇧 English</option>
+                        <option value="German">🇩🇪 Deutsch</option>
+                        <option value="French">🇫🇷 Français</option>
+                        <option value="Spanish">🇪🇸 Español</option>
+                        <option value="Italian">🇮🇹 Italiano</option>
+                        <option value="Portuguese">🇵🇹 Português</option>
+                        <option value="Russian">🇷🇺 Русский</option>
+                        <option value="Mandarin">🇨🇳 中文</option>
                     </select>
                 </div>
                 <button type="submit">

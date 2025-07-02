@@ -49,6 +49,12 @@
             transition: color 0.3s;
         }
 
+        body.darkmode .auth-button span,
+        body.darkmode .auth-button svg {
+            color: #ffffff;
+            stroke: #ffffff;
+        }
+
         /* KORREKTUR: Button-Stil auf rechteckig mit abgerundeten Ecken geändert */
         .mode-button {
             width: 100%;

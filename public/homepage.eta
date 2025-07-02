@@ -23,6 +23,12 @@
         .features-container footer a:hover {
             text-decoration: underline;
         }
+
+        body.darkmode .auth-button span,
+        body.darkmode .auth-button svg {
+            color: #ffffff;
+            stroke: #ffffff;
+        }
     </style>
 </head>
 

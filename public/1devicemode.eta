@@ -987,6 +987,12 @@
             border-color: #b1dae7;
         }
 
+        body.darkmode .auth-button span,
+        body.darkmode .auth-button svg {
+            color: #ffffff;
+            stroke: #ffffff;
+        }
+
         /* === CSS FÜR DAS LADE-OVERLAY === */
         #loadingOverlay {
             position: fixed;
@@ -1366,16 +1372,17 @@
             </div>
         </div>
 
-        <!-- NEU: Language Chooser -->
         <div class="language-selector-container">
             <label for="languageChooser">Sprache der Präsentation</label>
-            <select id="languageChooser">
-                <option value="de">🇩🇪 Deutsch</option>
-                <option value="en">🇬🇧 English</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="fr">🇫🇷 Français</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="ru">🇷🇺 Русский</option>
+            <select name="presentationLanguage" id="languageChooser">
+                <option value="English">🇬🇧 English</option>
+                <option value="German">🇩🇪 Deutsch</option>
+                <option value="French">🇫🇷 Français</option>
+                <option value="Spanish">🇪🇸 Español</option>
+                <option value="Italian">🇮🇹 Italiano</option>
+                <option value="Portuguese">🇵🇹 Português</option>
+                <option value="Russian">🇷🇺 Русский</option>
+                <option value="Mandarin">🇨🇳 中文</option>
             </select>
         </div>
         <button id="startGameButton" class="start-game-button" disabled>
