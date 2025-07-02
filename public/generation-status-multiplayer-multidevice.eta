@@ -331,7 +331,9 @@
             <div class="generation-grid">
                 <% it.presentationIDs.forEach(function(presentationID, index) { %>
                 <div class="generation-card" data-presentation-id="<%= presentationID %>">
-                    <h3><%= it.players[index].player %><%= (it.players[index].player.endsWith('s') || it.players[index].player.endsWith('z') || it.players[index].player.endsWith('x')) ? "'" : "'s" %> Präsentation</h3>
+                    <h3>
+                        <%= it.players[index].player %><%= (it.players[index].player.toLowerCase().endsWith('s') || it.players[index].player.toLowerCase().endsWith('z') || it.players[index].player.toLowerCase().endsWith('x')) ? "'" : "'s" %> Präsentation
+                    </h3>
                     <div class="status-icon">
                         <div class="wheel-and-hamster loading-animation" role="img" aria-label="Hamster im Laufrad">
                             <div class="wheel"></div>
