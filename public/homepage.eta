@@ -124,7 +124,7 @@
     </div>
     <!-- KORREKTUR: Link zum Impressum hinzugefügt -->
     <footer>
-        © 2025 FreestAIle | Das ultimative Tool für PowerPoint-Karaoke | <a href="/imprint">Impressum</a> | Alle Bilder aus den Präsentationen stammen von <a href="https://www.pixabay.com">Pixabay</a>
+        © 2025 FreestAIle | Das ultimative Tool für PowerPoint-Karaoke | <a href="/imprint" style="text-decoration: underline;">Impressum</a> | Alle Bilder aus den Präsentationen stammen von <a href="https://www.pixabay.com" style="text-decoration: underline;">Pixabay</a>
     </footer>
 </div>
 
