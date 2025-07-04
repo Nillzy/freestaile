@@ -53,16 +53,29 @@
                 </div>
                 <label for="presentationLanguage">Select presentation language</label>
                 <div class="input-wrapper">
-                    <select name="presentationLanguage" id="presentationLanguage">
-                        <option value="English">🇬🇧 English</option>
-                        <option value="German">🇩🇪 Deutsch</option>
-                        <option value="French">🇫🇷 Français</option>
-                        <option value="Spanish">🇪🇸 Español</option>
-                        <option value="Italian">🇮🇹 Italiano</option>
-                        <option value="Portuguese">🇵🇹 Português</option>
-                        <option value="Russian">🇷🇺 Русский</option>
-                        <option value="Mandarin">🇨🇳 中文</option>
+                    <select name="presentationLanguage" id="languageChooser">
+                      <option value="en">🇬🇧 English</option>
+
+                      <optgroup label="🇩🇪 Deutsch">
+                        <option value="Deutsch">Hochdeutsch</option>
+                        <option value="Bayerisch">🥨 Bayerisch</option>
+                        <option value="Schwaebisch">🏰 Schwäbisch</option>
+                        <option value="Koelsch">🍺 Kölsch</option>
+                        <option value="Plattdeutsch">🌾 Plattdeutsch</option>
+                        <option value="Hessisch">🍎 Hessisch</option>
+                        <option value="Saechsisch">🏭 Sächsisch</option>
+                        <option value="Berlinerisch">🐻 Berlinerisch</option>
+                        <option value="Rheinisch">🍷 Rheinisch</option>
+                      </optgroup>
+
+                      <option value="Franzoesisch">🇫🇷 Français</option>
+                      <option value="Spanisch">🇪🇸 Español</option>
+                      <option value="Italienisch">🇮🇹 Italiano</option>
+                      <option value="Portugiesisch">🇵🇹 Português</option>
+                      <option value="Russisch">🇷🇺 Русский</option>
+                      <option value="Chinesisch">🇨🇳 中文</option>
                     </select>
+
                 </div>
                 <button type="submit">
                     <i class="fas fa-magic"></i>

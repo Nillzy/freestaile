@@ -144,9 +144,28 @@
 
                 <label for="presentationLanguage">Wähle die Sprache der Präsentation</label>
                 <div class="input-wrapper">
-                    <select name="presentationLanguage" id="presentationLanguage">
-                        <option value="en">🇬🇧 English</option><option value="de">🇩🇪 Deutsch</option><option value="fr">🇫🇷 Français</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="pt">🇵🇹 Português</option><option value="ru">🇷🇺 Русский</option><option value="zh">🇨🇳 中文</option>
+                    <select name="presentationLanguage" id="languageChooser">
+                      <option value="en">🇬🇧 English</option>
+                      <optgroup label="🇩🇪 Deutsch">
+                        <option value="Deutsch">Hochdeutsch</option>
+                        <option value="Bayerisch">🥨 Bayerisch</option>
+                        <option value="Schwaebisch">🏰 Schwäbisch</option>
+                        <option value="Koelsch">🍺 Kölsch</option>
+                        <option value="Plattdeutsch">🌾 Plattdeutsch</option>
+                        <option value="Hessisch">🍎 Hessisch</option>
+                        <option value="Saechsisch">🏭 Sächsisch</option>
+                        <option value="Berlinerisch">🐻 Berlinerisch</option>
+                        <option value="Rheinisch">🍷 Rheinisch</option>
+                      </optgroup>
+
+                      <option value="Franzoesisch">🇫🇷 Français</option>
+                      <option value="Spanisch">🇪🇸 Español</option>
+                      <option value="Italienisch">🇮🇹 Italiano</option>
+                      <option value="Portugiesisch">🇵🇹 Português</option>
+                      <option value="Russisch">🇷🇺 Русский</option>
+                      <option value="Chinesisch">🇨🇳 中文</option>
                     </select>
+
                 </div>
                 <button type="submit" id="generateButton">
                     <i class="fas fa-magic"></i>
