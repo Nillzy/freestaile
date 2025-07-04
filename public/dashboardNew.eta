@@ -145,7 +145,7 @@
                 <label for="presentationLanguage">Wähle die Sprache der Präsentation</label>
                 <div class="input-wrapper">
                     <select name="presentationLanguage" id="presentationLanguage">
-                        <option value="en">🇬🇧 English</option><option value="de">🇩🇪 Deutsch</option><option value="fr">🇫🇷 Français</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="pt">🇵🇹 Português</option><option value="ru">🇷🇺 Русский</option><option value="zh">🇨🇳 中文</option>
+                       <option value="en">🇬🇧 English</option><option value="de">🇩🇪 Deutsch</option><option value="de-bavarian">🥨 Bayerisch</option><option value="de-swabian">🏰 Schwäbisch</option><option value="de-cologne">🍺 Kölsch</option><option value="de-plattdeutsch">🌾 Plattdeutsch</option><option value="de-hessian">🍎 Hessisch</option><option value="de-saxon">🏭 Sächsisch</option><option value="de-berlin">🐻 Berlinerisch</option><option value="de-rhineland">🍷 Rheinisch</option><option value="fr">🇫🇷 Français</option><option value="es">🇪🇸 Español</option><option value="it">🇮🇹 Italiano</option><option value="pt">🇵🇹 Português</option><option value="ru">🇷🇺 Русский</option><option value="zh">🇨🇳 中文</option>
                     </select>
                 </div>
                 <button type="submit" id="generateButton">
