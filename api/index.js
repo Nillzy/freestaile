@@ -815,8 +815,12 @@ async function insertImages(content) {
 
   // Setze die src-Attribute entsprechend
   imgElements.forEach((img, index) => {
-    if (images[index]) {
+    if (images[index] !== "NO_LINK") {
       img.setAttribute("src", images[index]);
+    } else {
+      if (img.parentNode) {
+        img.parentNode.removeChild(img);
+      }
     }
   });
 

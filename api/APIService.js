@@ -207,7 +207,7 @@ export async function fetchImages(motifs) {
     let images = [];
     for (const motif of motifs) {
         let i = await fetchImage(motif);
-        images.push(i || "");
+        images.push(i || "NO_LINK");
     }
     console.log(images);
     return images;
