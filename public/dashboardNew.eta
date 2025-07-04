@@ -144,9 +144,8 @@
 
                 <label for="presentationLanguage">Wähle die Sprache der Präsentation</label>
                 <div class="input-wrapper">
-                    <select name="presentationLanguage" id="presentationLanguage">
+                    <select name="presentationLanguage" id="languageChooser">
                       <option value="en">🇬🇧 English</option>
-
                       <optgroup label="🇩🇪 Deutsch">
                         <option value="Deutsch">Hochdeutsch</option>
                         <option value="Bayerisch">🥨 Bayerisch</option>

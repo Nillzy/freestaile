@@ -1374,7 +1374,7 @@
 
         <div class="language-selector-container">
             <label for="languageChooser">Sprache der Präsentation</label>
-            <select name="presentationLanguage" id="presentationLanguage">
+            <select name="presentationLanguage" id="languageChooser">
               <option value="en">🇬🇧 English</option>
 
               <optgroup label="🇩🇪 Deutsch">
