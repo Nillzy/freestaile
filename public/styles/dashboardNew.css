@@ -18,8 +18,8 @@
             left: 0;
             display: block;
             border-radius: 50px;
-            width: 45px;
-            height: 45px;
+            width: 35px;
+            height: 35px;
             transition: all 0.3s ease;
         }
 
@@ -76,8 +76,8 @@
         /* Spezifische Styles für Logout (rot) */
         .auth-button-logout {
             position: relative;
-            margin: auto;
-            padding: 12px 18px;
+            margin: 0;
+            padding: 8px 16px;
             transition: all 0.2s ease;
             border: none;
             background: none;
@@ -92,8 +92,8 @@
             display: block;
             border-radius: 50px;
             background: #e7b1b1;
-            width: 45px;
-            height: 45px;
+            width: 35px;
+            height: 35px;
             transition: all 0.3s ease;
         }
 
@@ -858,4 +858,18 @@
         .container-wrapper.loading {
             opacity: 0.5;
             pointer-events: none;
+        }
+
+        /* Styling for the flex container in the header */
+        .flex.items-center {
+            display: flex;
+            align-items: center;
+        }
+
+        .space-x-4 > * {
+            margin-left: 1rem;
+        }
+
+        .space-x-4 > *:first-child {
+            margin-left: 0;
         }

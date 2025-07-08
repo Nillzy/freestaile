@@ -1,0 +1,446 @@
+/* Basis-Styles für alle Buttons */
+.auth-button {
+    position: relative;
+    margin: 0;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.auth-button:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    border-radius: 50px;
+    width: 35px;
+    height: 35px;
+    transition: all 0.3s ease;
+}
+
+.auth-button span {
+    position: relative;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #234567;
+}
+
+.auth-button svg {
+    position: relative;
+    top: 0;
+    margin-left: 10px;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: #234567;
+    stroke-width: 2;
+    transform: translateX(-5px);
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover:before {
+    width: 100%;
+}
+
+.auth-button:hover svg {
+    transform: translateX(0);
+}
+
+.auth-button:active {
+    transform: scale(0.95);
+}
+
+/* Spezifische Styles für Login (blau) */
+.auth-button-login:before {
+    background: #b1dae7;
+}
+.auth-button-login:hover:before {
+    background: #b1dae7;
+}
+
+/* Spezifische Styles für Register (grün) */
+.auth-button-register:before {
+    background: #b1e7c8;
+}
+.auth-button-register:hover:before {
+    background: #b1e7c8;
+}
+
+/* Spezifische Styles für Logout (rot) */
+.auth-button-logout:before {
+    background: #e7b1b1;
+}
+.auth-button-logout:hover:before {
+    background: #e7b1b1;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-right: 1rem;
+}
+
+.profile-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #b1dae7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #234567;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Apply dark mode styles to profile circle immediately with class on html element */
+html.darkmode .profile-circle {
+    background: #3d3d3d;
+    color: #ffffff;
+}
+
+.profile-email {
+    font-family: "Ubuntu", sans-serif;
+    font-size: 16px;
+    color: #234567;
+    white-space: nowrap;
+}
+
+html.darkmode .profile-email {
+    color: #ffffff;
+}
+
+.profile-circle:hover {
+    background: #9bc8d7;
+    transform: scale(1.05);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Account Container Styles */
+.account-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.account-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.profile-circle-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #b1dae7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: #234567;
+}
+
+.account-info {
+    flex: 1;
+}
+
+.account-info h1 {
+    font-family: "Ubuntu", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #234567;
+    margin-bottom: 0.5rem;
+}
+
+.account-info p {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    color: #666;
+}
+
+.account-details {
+    margin-top: 2rem;
+}
+
+.detail-group {
+    margin-bottom: 1.5rem;
+}
+
+.detail-group label {
+    display: block;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.detail-group .value {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    color: #234567;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+body.darkmode .account-container {
+    background: #2d2d2d;
+}
+
+body.darkmode .account-info h1,
+body.darkmode .detail-group .value {
+    color: #ffffff;
+}
+
+body.darkmode .account-info p,
+body.darkmode .detail-group label {
+    color: #a0aec0;
+}
+
+body.darkmode .detail-group .value {
+    background: #3d3d3d;
+}
+
+body.darkmode .account-header {
+    border-bottom-color: #3d3d3d;
+}
+
+body.darkmode .profile-circle,
+body.darkmode .profile-circle-large {
+    background: #3d3d3d;
+    color: #ffffff;
+}
+
+body.darkmode .profile-email {
+    color: #ffffff;
+}
+
+body.darkmode .auth-button span,
+body.darkmode .auth-button svg {
+    color: #ffffff;
+    stroke: #ffffff;
+}
+
+/* Styles für den Lösch-Button */
+.delete-account-button {
+    margin-top: 2rem;
+    padding: 12px 24px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-account-button:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+.delete-account-button:active {
+    transform: translateY(0);
+}
+
+body.darkmode .delete-account-button {
+    background: #e74c3c;
+}
+
+body.darkmode .delete-account-button:hover {
+    background: #c0392b;
+}
+
+.rounds-container {
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.round-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+.round-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.round-id {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.presentations-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.presentation-item {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.player-name {
+    font-weight: 600;
+    color: #234567;
+}
+
+.presentation-link {
+    color: #4a5568;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.presentation-link:hover {
+    color: #2d3748;
+    text-decoration: underline;
+}
+
+.presentation-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.share-button {
+    background: none;
+    border: none;
+    color: #4a5568;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-left: auto;
+}
+
+.share-button:hover {
+    color: #2d3748;
+    background: #f8f9fa;
+}
+
+.share-button i {
+    font-size: 0.9rem;
+}
+
+.copy-feedback {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2ecc71;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.copy-feedback.show {
+    opacity: 1;
+}
+
+body.darkmode .round-card {
+    background: #2d2d2d;
+    color: #fff;
+}
+
+body.darkmode .round-header {
+    border-bottom-color: #4a5568;
+}
+
+body.darkmode .round-id {
+    color: #a0aec0;
+}
+
+body.darkmode .presentation-item {
+    background: #3d3d3d;
+}
+
+body.darkmode .player-name {
+    color: #fff;
+}
+
+body.darkmode .presentation-link {
+    color: #a0aec0;
+}
+
+body.darkmode .presentation-link:hover {
+    color: #fff;
+}
+
+body.darkmode .share-button:hover {
+    background: #3d3d3d;
+}
+
+body.darkmode .copy-feedback {
+    background: #27ae60;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Styling for the flex container in the header */
+.flex.items-center {
+    display: flex;
+    align-items: center;
+}
+
+.space-x-4 > * {
+    margin-left: 1rem;
+}
+
+.space-x-4 > *:first-child {
+    margin-left: 0;
+}
