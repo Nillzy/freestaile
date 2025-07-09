@@ -40,7 +40,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
                 if (attempt < maxAttempts) {
                     await delay(5000);
                 } else {
-                    throw new Error("Gemini API failed after multiple attempts.");
+                    await delay(60000);        // After 5 fails, sleep for the rest of the generation process
                 }
             }
         }
@@ -98,7 +98,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
                 if (attempt < maxAttempts) {
                     await delay(5000);
                 } else {
-                    throw new Error("DeepSeek API failed after multiple attempts.");
+                    await delay(60000);     // After 5 fails, sleep for the rest of the generation process
                 }
             }
         }
@@ -112,7 +112,7 @@ export async function fetchSlides(topic, presentationLanguage, tryCount = 1) {
         geminiAPI(),
         deepSeekAPI(),
         new Promise((resolve) =>
-            setTimeout(() => resolve(timeoutHandler()), 120000)
+            setTimeout(() => resolve(timeoutHandler()), 60000)
         )
     ]);
 }
