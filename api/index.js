@@ -1038,78 +1038,6 @@ app.get("/chat", async (req, res) => {
   }
 });
 
-// ===== NEUE MULTIPLAYER-API-ENDPUNKTE =====
-
-// Host Game - Erstelle Lobby mit 6-stelligem Code
-app.post("/api/multiplayer/host", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { name } = req.body;
-    const hostName = name || req.user.email.split("@")[0];
-
-    const result = await createLobbyWithCode(req.user.id, hostName);
-
-    if (!result) {
-      return res.status(500).json({ error: "Fehler beim Erstellen der Lobby" });
-    }
-
-    res.json({
-      success: true,
-      code: result.code,
-      lobbyId: result.lobby.id,
-      playerId: result.player.id,
-      isHost: true,
-    });
-  } catch (error) {
-    console.error("Fehler beim Hosten des Spiels:", error);
-    res.status(500).json({ error: "Fehler beim Erstellen der Lobby" });
-  }
-});
-
-// Join Game - Trete Lobby über 6-stelligen Code bei
-app.post("/api/multiplayer/join", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Nicht authentifiziert" });
-    }
-
-    const { code, name } = req.body;
-
-    if (!code || !name) {
-      return res.status(400).json({ error: "Code und Name sind erforderlich" });
-    }
-
-    const playerName = name.trim();
-
-    const result = await joinLobbyByCode(
-      code.toUpperCase(),
-      req.user.id,
-      playerName
-    );
-
-    if (!result) {
-      return res
-        .status(404)
-        .json({ error: "Lobby nicht gefunden oder Fehler beim Beitreten" });
-    }
-
-    res.json({
-      success: true,
-      lobbyId: result.lobby.id,
-      playerId: result.player.id,
-      isHost: false,
-    });
-  } catch (error) {
-    console.error("Fehler beim Beitreten des Spiels:", error);
-    res
-      .status(500)
-      .json({ error: error.message || "Fehler beim Beitreten der Lobby" });
-  }
-});
-
 // ===== ERWEITERTE LOBBY-ROUTES =====
 
 // Match/Präsentations-Route mit Reveal.js und Chat
@@ -1269,6 +1197,25 @@ app.post("/api/lobby/:lobbyId/action", async (req, res) => {
 
     switch (action) {
       case "joinLobby":
+
+        const players = await getLobbyPlayers(lobbyId);
+
+        if (!players) {
+          const errorMsg = "Invalid lobby";
+          console.error("API: Join failed:", errorMsg);
+          return res.status(400).json({ success: false, error: errorMsg });
+        }
+
+        console.log("!!!!!" + players);
+
+        if (players.length >= 7) {
+          const errorMsg = "Max number of players reached";
+          console.error("API: Join failed:", errorMsg);
+          return res.status(400).json({ success: false, error: errorMsg });
+        }
+
+
+
         const { userId, userName } = data;
         console.log(
           `API: User ${userId} (${userName}) trying to join lobby ${lobbyId}`

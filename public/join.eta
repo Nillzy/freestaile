@@ -224,15 +224,6 @@
                     // Event-Listener für erfolgreiche Verbindung
                     realtimeClient.on('connect', () => {
                         console.log('Supabase Realtime verbunden');
-                        updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
-                        joinButton.textContent = 'Beigetreten!';
-                        
-                        // Weiterleitung zur Lobby-Seite nach kurzer Verzögerung
-                        setTimeout(() => {
-                            const lobbyUrl = `/lobby-multidevicemode?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
-                            console.log('Weiterleitung zu:', lobbyUrl);
-                            window.location.href = lobbyUrl;
-                        }, 1500);
                     });
 
                     realtimeClient.on('connect_error', (error) => {
@@ -251,6 +242,12 @@
                     if (!joinResult.success) {
                         throw new Error(joinResult.error || 'Unbekannter Fehler beim Beitreten');
                     }
+
+                    const lobbyUrl = `/lobby-multidevicemode?id=${lobbyData.lobbyId}&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(playerName)}&isHost=false`;
+                    updateStatus('Erfolgreich der Lobby beigetreten! Weiterleitung...', 'connected');
+                    joinButton.textContent = 'Beigetreten!';
+                    console.log('Weiterleitung zu:', lobbyUrl);
+                    window.location.href = lobbyUrl;
 
                     console.log('Erfolgreich beigetreten:', joinResult);
 
