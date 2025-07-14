@@ -1,414 +1,425 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreestAIle - PowerPoint Karaoke</title>
-    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
-    <script src="darkmode-init.js"></script>
+    <title>FreestAIle - The Future of PowerPoint Karaoke</title>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles/homepage.css">
-    <link rel="stylesheet" href="styles/landing-page.css">
-    <link rel="stylesheet" href="styles/dashboardNew.css">
+
     <style>
-        /* Styling für den Footer-Link */
-        .features-container footer a {
-            color: inherit;
+        /* --- CSS Variables based on your logo palette --- */
+        :root, [data-theme="light"] {
+            --bg-color: #F4F7FC;
+            --text-color: #1a1a2e;
+            --card-bg: #FFFFFF;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #2A2D3A;
+            --text-color: #f0f0f0;
+            --card-bg: #353849;
+            --header-bg: rgba(42, 45, 58, 0.7);
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Global Reset & Body Styling --- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* --- Animated Background --- */
+        #particles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; opacity: 0; animation: rise 15s infinite linear; }
+        @keyframes rise {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* --- Main-Layout Container --- */
+        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+        /* --- Header --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 2rem; z-index: 1000; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.3s ease; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .header-logo b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent; }
+        .header-nav { display: flex; align-items: center; gap: 1rem; }
+        .dark-mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--text-color); opacity: 0.8; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { opacity: 1; transform: scale(1.1) rotate(15deg); }
+
+        /* === USER PROFILE STYLES (mit neuem Link) === */
+        .user-profile-link {
             text-decoration: none;
+            color: inherit;
+            border-radius: 50px;
+            padding: 4px; /* Kleiner Puffer für den Hover-Effekt */
+            transition: background-color 0.3s ease;
+            margin-right: 0.5rem; /* Etwas Abstand zum Logout-Button */
         }
+        .user-profile-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .profile-avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #F5A623; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+        .profile-email { opacity: 0.8; font-weight: 500; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .features-container footer a:hover {
-            text-decoration: underline;
+        /* --- Auth Button Style --- */
+        .cta {
+            position: relative;
+            margin: auto;
+            padding: 12px 18px;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
         }
+        .cta:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            border-radius: 50px;
+            width: 45px;
+            height: 45px;
+            transition: all 0.3s ease;
+        }
+        .cta span {
+            position: relative;
+            font-family: "Poppins", sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        .cta svg {
+            position: relative;
+            top: 0;
+            margin-left: 10px;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2;
+            transform: translateX(-5px);
+            transition: all 0.3s ease;
+        }
+        .cta:hover:before { width: 100%; }
+        .cta:hover svg { transform: translateX(0); }
+        .cta:active { transform: scale(0.95); }
+        .cta--login:before { background: rgba(34, 197, 94, 0.3); }
+        .cta--login span { color: #22c55e; }
+        .cta--login svg { stroke: #22c55e; }
+        .cta--login:hover:before { background: #22c55e; }
+        .cta--login:hover span, .cta--login:hover svg { color: #fff; stroke: #fff; }
+        .cta--logout:before { background: rgba(239, 68, 68, 0.3); }
+        .cta--logout span { color: #ef4444; }
+        .cta--logout svg { stroke: #ef4444; }
+        .cta--logout:hover:before { background: #ef4444; }
+        .cta--logout:hover span, .cta--logout:hover svg { color: #fff; stroke: #fff; }
 
-        body.darkmode .auth-button span,
-        body.darkmode .auth-button svg {
-            color: #ffffff;
-            stroke: #ffffff;
-        }
+        /* --- Hero Section --- */
+        .hero-section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6rem 2rem 2rem; position: relative; }
+        .hero-section .logo-main { font-size: clamp(2.5rem, 10vw, 5.5rem); font-weight: 700; margin-bottom: 1rem; animation: fadeInDown 1s ease-out forwards; }
+        .hero-section .logo-main b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent; }
+        .hero-section .tagline { font-size: clamp(1rem, 4vw, 1.5rem); max-width: 700px; margin-bottom: 2.5rem; color: var(--text-color); opacity: 0.8; animation: fadeInUp 1s ease-out 0.3s forwards; animation-fill-mode: both; }
+        .cta-button { font-size: 1.2rem; font-weight: 700; color: #fff; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 10px 20px var(--accent-glow); animation: fadeInUp 1s ease-out 0.6s forwards; animation-fill-mode: both; }
+        .cta-button:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 30px var(--accent-glow); }
+
+        /* --- Features Section --- */
+        .features-section { padding: 6rem 0; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section-header h2 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .section-header p { font-size: 1.2rem; opacity: 0.7; max-width: 600px; margin: 0 auto; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .feature-card { background: var(--card-bg); padding: 2.5rem 2rem; border-radius: 15px; border: 1px solid transparent; text-align: center; opacity: 0; transform: translateY(50px); transition: opacity 0.6s ease-out, transform 0.6s ease-out, border-color 0.4s ease, box-shadow 0.4s ease; }
+        .feature-card.is-visible { opacity: 1; transform: translateY(0); }
+        .feature-card:hover { transform: translateY(-10px); border-color: var(--secondary-color); box-shadow: 0 20px 40px var(--shadow-color); }
+        .feature-card .icon { font-size: 2.5rem; margin-bottom: 1.5rem; display: inline-block; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent; }
+        .feature-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .feature-card p { opacity: 0.8; }
+
+        /* --- Footer --- */
+        .main-footer { text-align: center; padding: 3rem 2rem; margin-top: 4rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; opacity: 0.7; }
+        .main-footer a { color: var(--secondary-color); text-decoration: none; font-weight: 600; }
+        .main-footer a:hover { text-decoration: underline; }
+
+        /* --- Modal for Login/Register --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 20, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; animation: fadeIn 0.3s ease; }
+        .modal-content { background: var(--card-bg); padding: 2.5rem; border-radius: 15px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: slideIn 0.4s ease-out; border: 1px solid rgba(255,255,255,0.1); }
+        .modal-close { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; font-size: 2rem; color: var(--text-color); opacity: 0.6; cursor: pointer; transition: all 0.2s ease; }
+        .modal-close:hover { opacity: 1; transform: rotate(90deg); }
+        .modal-tabs { display: flex; margin-bottom: 2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .modal-tab { flex: 1; text-align: center; padding: 1rem; cursor: pointer; font-weight: 600; color: var(--text-color); opacity: 0.6; transition: all 0.3s ease; border-bottom: 3px solid transparent; }
+        .modal-tab.active { opacity: 1; border-bottom-color: var(--secondary-color); }
+        .modal-form { display: none; } .modal-form.active { display: block; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; opacity: 0.8; }
+        .form-group input { width: 100%; padding: 0.8rem 1rem; background: var(--bg-color); border: 1px solid transparent; border-radius: 8px; color: var(--text-color); font-size: 1rem; transition: all 0.3s ease; }
+        .form-group input:focus { outline: none; border-color: var(--secondary-color); box-shadow: 0 0 10px var(--accent-glow); }
+        .submit-button { width: 100%; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); color: white; opacity: 0.7; }
+        .submit-button.active { opacity: 1; box-shadow: 0 5px 15px var(--accent-glow); }
+        .submit-button.active:hover { transform: translateY(-3px); }
+        .error-message, .success-message { padding: 0.8rem; border-radius: 5px; margin-bottom: 1rem; text-align: center; }
+        .error-message { color: #ff8a8a; background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.3); }
+        .success-message { color: #90ee90; background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); }
+
+        /* --- Animations --- */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-50px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) { .page-wrapper, .main-header { padding: 0 1rem; } .header-content { padding: 1rem 0; } .main-header { padding: 0 1rem; } .hero-section { padding-top: 8rem; } .features-section { padding: 4rem 0; } .section-header h2 { font-size: 2rem; } .profile-email { display: none; } }
     </style>
 </head>
 
 <body>
+<div id="particles-bg"></div>
 
 <header class="main-header">
     <div class="header-content">
         <a href="/" style="text-decoration: none;">
             <span class="header-logo">Freest<b>AI</b>le</span>
         </a>
-        <div class="flex items-center space-x-4">
+        <div class="header-nav">
             <% if (it.user) { %>
-            <!-- Eingeloggter Benutzer -->
-            <div class="profile-container">
-                <a href="/user" style="text-decoration: none;">
-                    <div class="profile-circle">
+            <!-- === GEÄNDERTER BEREICH START === -->
+            <a href="/user" class="user-profile-link">
+                <div class="user-profile">
+                    <div class="profile-avatar">
                         <%= it.user.email.charAt(0).toUpperCase() %>
                     </div>
-                </a>
-                <div class="profile-email"><%= it.user.email %></div>
-                <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
-                    <span>Abmelden</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-            </div>
-            <% } else { %>
-            <!-- Nicht eingeloggter Benutzer -->
-            <div class="auth-buttons">
-                <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
-                    <span>Anmelden</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-                <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
-                    <span>Registrieren</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-            </div>
-            <% } %>
-            <label class="switch">
-                <input id="darkmode-toggle" type="checkbox">
-                <span class="slider">
-                <span class="star star_1"></span>
-                <span class="star star_2"></span>
-                <span class="star star_3"></span>
-                <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-                    <path
-                            transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                            fill="#fff"
-                            d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-                    ></path>
+                    <span class="profile-email"><%= it.user.email %></span>
+                </div>
+            </a>
+            <!-- === GEÄNDERTER BEREICH ENDE === -->
+            <button class="cta cta--logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST' }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout error:', error); } })(event)">
+                <span>Logout</span>
+                <svg width="15px" height="10px" viewBox="0 0 13 10">
+                    <path d="M1,5 L11,5"></path>
+                    <polyline points="8 1 12 5 8 9"></polyline>
                 </svg>
-            </span>
-            </label>
+            </button>
+            <% } else { %>
+            <button class="cta cta--login" onclick="openAuthModal('login'); return false;">
+                <span>Login</span>
+                <svg width="15px" height="10px" viewBox="0 0 13 10">
+                    <path d="M1,5 L11,5"></path>
+                    <polyline points="8 1 12 5 8 9"></polyline>
+                </svg>
+            </button>
+            <% } %>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme">
+                <i class="fa-solid fa-moon"></i>
+            </div>
         </div>
     </div>
 </header>
 
-<div class="container-row">
-    <div class="container">
-        <div class="header">
-            <h1 class="logo">Freest<b>AI</b>le</h1>
-            <p class="tagline">PowerPoint Karaoke neu definiert – übe spontan, beeindrucke dein Publikum!</p>
-        </div>
-    </div>
-    <div class="container">
-        <form class="main-form" action="/main" method="get">
-            <i class="fa-solid fa-rocket"></i>
-            <div class="input-group" style="text-align:center;">
-                <button type="submit">Jetzt starten!</button>
-            </div>
+<main class="page-wrapper">
+    <section class="hero-section">
+        <h1 class="logo-main">Freest<b>AI</b>le</h1>
+        <p class="tagline">PowerPoint Karaoke redefined – improvise with confidence, impress your audience with the power of AI!</p>
+        <form action="/main" method="get">
+            <button type="submit" class="cta-button">
+                <i class="fa-solid fa-rocket"></i> Get Started!
+            </button>
         </form>
-    </div>
-</div>
+    </section>
 
-<div class="container features-container">
-    <div class="header">
-        <h1 class="logo">Features</h1>
-        <p class="tagline">Entdecken Sie, was FreestAIle so besonders macht</p>
-    </div>
-    <div class="features">
-        <div class="feature"><i class="fas fa-bolt"></i><h3>Sofortige Erstellung</h3><p>Thema wählen, kurz warten und los geht's! Bekomme PowerPoint-Karaoke Präsentationen in Sekunden</p></div>
-        <div class="feature"><i class="fa-solid fa-face-laugh-squint"></i><h3>Spaß vorprogrammiert!</h3><p>Stelle Dich selbst neuen Herausforderungen mit zufällig generierten Slides für maximalen Spaß!</p></div>
-        <div class="feature"><i class="fas fa-users"></i><h3>Bring' Deine Freunde mit!</h3><p>Werdet ein Team oder spielt gegeneinander für gemeinsame Zeit auf höchstem Level!</p></div>
-    </div>
-    <!-- KORREKTUR: Link zum Impressum hinzugefügt -->
-    <footer>
-        © 2025 FreestAIle | Das ultimative Tool für PowerPoint-Karaoke | <a href="/imprint" style="text-decoration: underline;">Impressum</a> | Alle Bilder aus den Präsentationen stammen von <a href="https://www.pixabay.com" style="text-decoration: underline;">Pixabay</a>
-    </footer>
-</div>
+    <section class="features-section" id="features">
+        <div class="section-header">
+            <h2>Features</h2>
+            <p>Discover what makes FreestAIle so special.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card" style="transition-delay: 0s;">
+                <i class="fas fa-bolt icon"></i>
+                <h3>Instant Creation</h3>
+                <p>Pick a topic, wait a moment, and you're ready! Get AI-generated presentations in seconds.</p>
+            </div>
+            <div class="feature-card" style="transition-delay: 0.1s;">
+                <i class="fa-solid fa-face-laugh-squint icon"></i>
+                <h3>Guaranteed Fun</h3>
+                <p>Challenge yourself with randomly generated slides designed for maximum entertainment.</p>
+            </div>
+            <div class="feature-card" style="transition-delay: 0.2s;">
+                <i class="fas fa-users icon"></i>
+                <h3>Bring Your Friends</h3>
+                <p>Play as a team or compete against each other for a next-level social experience.</p>
+            </div>
+        </div>
+    </section>
+</main>
 
-<!-- Modal für Login/Register -->
+<footer class="main-footer">
+    © 2025 FreestAIle | The ultimate tool for PowerPoint Karaoke | <a href="/imprint">Imprint</a> | Images by <a href="https://www.pixabay.com" target="_blank" rel="noopener">Pixabay</a>
+</footer>
+
 <div id="authModal" class="modal-overlay">
     <div class="modal-content">
         <button class="modal-close" onclick="closeAuthModal()">×</button>
         <div class="modal-tabs">
-            <div class="modal-tab active" onclick="switchTab('login')">Anmelden</div>
-            <div class="modal-tab" onclick="switchTab('register')">Registrieren</div>
+            <div class="modal-tab active" onclick="switchTab('login')">Login</div>
+            <div class="modal-tab" onclick="switchTab('register')">Register</div>
         </div>
 
-        <!-- Login Form -->
         <form id="modalLoginForm" class="modal-form active" onsubmit="handleModalLogin(event)">
             <div class="form-group">
-                <label for="modalEmail">E-Mail</label>
+                <label for="modalEmail">Email</label>
                 <input type="email" id="modalEmail" name="email" required>
             </div>
             <div class="form-group">
-                <label for="modalPassword">Passwort</label>
+                <label for="modalPassword">Password</label>
                 <input type="password" id="modalPassword" name="password" required>
             </div>
             <div class="error-message" id="modalLoginError" style="display: none;"></div>
-            <div class="success-message" id="modalLoginSuccess" style="display: none; color: #4CAF50; margin-bottom: 1rem;"></div>
-            <button type="submit" class="submit-button" style="background: #b1dae7;" disabled>Anmelden</button>
+            <div class="success-message" id="modalLoginSuccess" style="display: none;"></div>
+            <button type="submit" class="submit-button" disabled>Login</button>
         </form>
 
-        <!-- Register Form -->
         <form id="modalRegisterForm" class="modal-form" onsubmit="handleModalRegister(event)">
             <div class="form-group">
-                <label for="modalRegisterEmail">E-Mail</label>
+                <label for="modalRegisterEmail">Email</label>
                 <input type="email" id="modalRegisterEmail" name="email" required>
             </div>
             <div class="form-group">
-                <label for="modalRegisterPassword">Passwort</label>
+                <label for="modalRegisterPassword">Password</label>
                 <input type="password" id="modalRegisterPassword" name="password" required>
             </div>
             <div class="form-group">
-                <label for="modalConfirmPassword">Passwort bestätigen</label>
+                <label for="modalConfirmPassword">Confirm Password</label>
                 <input type="password" id="modalConfirmPassword" name="confirmPassword" required>
             </div>
             <div class="error-message" id="modalRegisterError" style="display: none;"></div>
-            <button type="submit" class="submit-button" style="background: #b1e7c8;" disabled>Registrieren</button>
+            <button type="submit" class="submit-button" disabled>Register</button>
         </form>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('darkmode-toggle');
-
-        // Get current dark mode status (already set by darkmode-init.js)
-        const isDark = document.documentElement.classList.contains('darkmode');
-
-        // Set toggle position based on current dark mode status
-        toggle.checked = !isDark;
-
-        // Ensure body also has the class for backward compatibility
-        document.body.classList.toggle('darkmode', isDark);
-
-        toggle.addEventListener('change', function() {
-            const dark = !toggle.checked;
-            document.documentElement.classList.toggle('darkmode', dark);
-            document.body.classList.toggle('darkmode', dark);
-            localStorage.setItem('darkmode', dark.toString());
+        const particlesContainer = document.getElementById('particles-bg');
+        if (particlesContainer) {
+            const particleCount = 50;
+            for (let i = 0; i < particleCount; i++) {
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.width = `${Math.random() * 3 + 1}px`;
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = `${Math.random() * 15}s`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.feature-card').forEach(card => observer.observe(card));
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleIcon = themeToggle.querySelector('i');
+        const htmlEl = document.documentElement;
+        function setTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            themeToggleIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        themeToggle.addEventListener('click', () => {
+            const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        });
+        const loginForm = document.getElementById('modalLoginForm');
+        const registerForm = document.getElementById('modalRegisterForm');
+        function validateForm(form) {
+            if (!form) return;
+            const inputs = form.querySelectorAll('input[required]');
+            const submitButton = form.querySelector('.submit-button');
+            const isValid = Array.from(inputs).every(input => input.value.trim() !== '');
+            submitButton.classList.toggle('active', isValid);
+            submitButton.disabled = !isValid;
+        }
+        [loginForm, registerForm].forEach(form => {
+            if (form) {
+                form.addEventListener('input', () => validateForm(form));
+                validateForm(form);
+            }
         });
     });
-
-    // Modal Funktionen
-    function openAuthModal(tab = 'login') {
-        document.getElementById('authModal').style.display = 'flex';
-        switchTab(tab);
-    }
-
+    function openAuthModal(tab = 'login') { document.getElementById('authModal').style.display = 'flex'; switchTab(tab); }
     function closeAuthModal() {
-        document.getElementById('authModal').style.display = 'none';
-        // Reset forms
-        document.getElementById('modalLoginForm').reset();
-        document.getElementById('modalRegisterForm').reset();
-        document.getElementById('modalLoginError').style.display = 'none';
-        document.getElementById('modalRegisterError').style.display = 'none';
+        const modal = document.getElementById('authModal');
+        if(modal) modal.style.display = 'none';
+        ['modalLoginForm', 'modalRegisterForm'].forEach(id => { const form = document.getElementById(id); if (form) form.reset(); });
+        ['modalLoginError', 'modalRegisterError', 'modalLoginSuccess'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     }
-
     function switchTab(tab) {
-        // Update tabs
         document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
         document.querySelector(`.modal-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
-
-        // Update forms
         document.querySelectorAll('.modal-form').forEach(f => f.classList.remove('active'));
         document.getElementById(`modal${tab.charAt(0).toUpperCase() + tab.slice(1)}Form`).classList.add('active');
     }
-
     async function handleModalLogin(event) {
         event.preventDefault();
         const email = document.getElementById('modalEmail').value;
         const password = document.getElementById('modalPassword').value;
         const errorDiv = document.getElementById('modalLoginError');
-
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (response.ok) {
-                window.location.reload(); // Seite neu laden statt Weiterleitung
-            } else {
-                const error = await response.json();
-                errorDiv.textContent = error.message || 'Anmeldung fehlgeschlagen';
-                errorDiv.style.display = 'block';
-            }
-        } catch (error) {
-            console.error('Login-Fehler:', error);
-            errorDiv.textContent = 'Ein Fehler ist aufgetreten';
-            errorDiv.style.display = 'block';
-        }
+            const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+            if (response.ok) { window.location.reload(); } else { const error = await response.json(); errorDiv.textContent = error.message || 'Login failed. Please check your credentials.'; errorDiv.style.display = 'block'; }
+        } catch (error) { errorDiv.textContent = 'An error occurred. Please try again.'; errorDiv.style.display = 'block'; }
     }
-
     async function handleModalRegister(event) {
         event.preventDefault();
         const email = document.getElementById('modalRegisterEmail').value;
         const password = document.getElementById('modalRegisterPassword').value;
         const confirmPassword = document.getElementById('modalConfirmPassword').value;
         const errorDiv = document.getElementById('modalRegisterError');
-
-        if (password !== confirmPassword) {
-            errorDiv.textContent = 'Die Passwörter stimmen nicht überein';
-            errorDiv.style.display = 'block';
-            return;
-        }
-
+        if (password !== confirmPassword) { errorDiv.textContent = 'Passwords do not match.'; errorDiv.style.display = 'block'; return; }
         try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
+            const response = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
             const data = await response.json();
-
             if (response.ok) {
-                // Nach erfolgreicher Registrierung zum Login-Tab wechseln
                 switchTab('login');
                 document.getElementById('modalEmail').value = email;
-                errorDiv.style.display = 'none';
-                document.getElementById('modalRegisterError').style.display = 'none';
-                // Zeige Erfolgsmeldung
+                ['modalLoginError', 'modalRegisterError'].forEach(id => document.getElementById(id).style.display = 'none');
                 const successDiv = document.getElementById('modalLoginSuccess');
-                successDiv.textContent = 'Wenn Sie noch nicht registriert sind, haben Sie jetzt eine Bestätigungs-E-Mail erhalten.';
+                successDiv.textContent = 'Registration successful! Please check your email for confirmation.';
                 successDiv.style.display = 'block';
-            } else {
-                errorDiv.textContent = data.message || 'Registrierung fehlgeschlagen';
-                errorDiv.style.display = 'block';
-            }
-        } catch (error) {
-            console.error('Registrierungs-Fehler:', error);
-            errorDiv.textContent = 'Ein Fehler ist aufgetreten';
-            errorDiv.style.display = 'block';
-        }
+            } else { errorDiv.textContent = data.message || 'Registration failed.'; errorDiv.style.display = 'block'; }
+        } catch (error) { errorDiv.textContent = 'An error occurred. Please try again.'; errorDiv.style.display = 'block'; }
     }
-
-    // Event Listener für Login/Register Links
-    document.addEventListener('DOMContentLoaded', function() {
-        // Login Links
-        document.querySelectorAll('a[href="/login"]').forEach(link => {
-            link.href = '#';
-            link.onclick = (e) => {
-                e.preventDefault();
-                openAuthModal('login');
-            };
-        });
-
-        // Register Links
-        document.querySelectorAll('a[href="/register"]').forEach(link => {
-            link.href = '#';
-            link.onclick = (e) => {
-                e.preventDefault();
-                openAuthModal('register');
-            };
-        });
-
-        // Schließen des Modals bei Klick außerhalb
-        document.getElementById('authModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('authModal')) {
-                closeAuthModal();
-            }
-        });
-
-        // Schließen des Modals mit Escape-Taste
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('authModal').style.display === 'flex') {
-                closeAuthModal();
-            }
-        });
-    });
-
-    // Formular-Validierung für Login
-    document.getElementById('modalLoginForm').addEventListener('input', function() {
-        const email = document.getElementById('modalEmail').value;
-        const password = document.getElementById('modalPassword').value;
-        const submitButton = this.querySelector('.submit-button');
-
-        if (email && password) {
-            submitButton.classList.add('active');
-            submitButton.disabled = false;
-        } else {
-            submitButton.classList.remove('active');
-            submitButton.disabled = true;
-        }
-    });
-
-    // Formular-Validierung für Register
-    document.getElementById('modalRegisterForm').addEventListener('input', function() {
-        const email = document.getElementById('modalRegisterEmail').value;
-        const password = document.getElementById('modalRegisterPassword').value;
-        const confirmPassword = document.getElementById('modalConfirmPassword').value;
-        const submitButton = this.querySelector('.submit-button');
-
-        if (email && password && confirmPassword) {
-            submitButton.classList.add('active');
-            submitButton.disabled = false;
-        } else {
-            submitButton.classList.remove('active');
-            submitButton.disabled = true;
-        }
-    });
-
-    // Enter-Taste Handler für Login
-    document.getElementById('modalLoginForm').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const email = document.getElementById('modalEmail').value;
-            const password = document.getElementById('modalPassword').value;
-            if (!email || !password) {
-                e.preventDefault();
-            }
-        }
-    });
-
-    // Enter-Taste Handler für Register
-    document.getElementById('modalRegisterForm').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const email = document.getElementById('modalRegisterEmail').value;
-            const password = document.getElementById('modalRegisterPassword').value;
-            const confirmPassword = document.getElementById('modalConfirmPassword').value;
-            if (!email || !password || !confirmPassword) {
-                e.preventDefault();
-            }
-        }
-    });
-
-    // Initiale Validierung beim Laden
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginForm = document.getElementById('modalLoginForm');
-        const registerForm = document.getElementById('modalRegisterForm');
-
-        if (loginForm) {
-            const email = document.getElementById('modalEmail').value;
-            const password = document.getElementById('modalPassword').value;
-            const submitButton = loginForm.querySelector('.submit-button');
-
-            if (email && password) {
-                submitButton.classList.add('active');
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
-            }
-        }
-
-        if (registerForm) {
-            const email = document.getElementById('modalRegisterEmail').value;
-            const password = document.getElementById('modalRegisterPassword').value;
-            const confirmPassword = document.getElementById('modalConfirmPassword').value;
-            const submitButton = registerForm.querySelector('.submit-button');
-
-            if (email && password && confirmPassword) {
-                submitButton.classList.add('active');
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
-            }
-        }
-    });
+    const authModal = document.getElementById('authModal');
+    if (authModal) { authModal.addEventListener('click', (e) => { if (e.target === authModal) { closeAuthModal(); } }); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && authModal && authModal.style.display === 'flex') { closeAuthModal(); } });
 </script>
 </body>
 </html>
