@@ -47,7 +47,7 @@
                         <div class="input-wrapper"><input type="text" name="topic" id="topic" autocomplete="off"><div class="typing-placeholder"></div></div>
                         <div id="topicError" class="error-text" style="display: none;">The topic must be between 3 and 50 characters.</div>
                         <div id="tabHint" class="input-hint"><i class="fas fa-lightbulb"></i><span>Press "Tab" to accept the suggestion</span></div>
-                        <label for="presentationLanguage">Choose the presentation language</label>
+                        <label for="languageChooser">Choose the presentation language</label>
                         <div class="input-wrapper"><select name="presentationLanguage" id="languageChooser"><option value="en">🇬🇧 English</option><optgroup label="🇩🇪 German"><option value="Deutsch">Standard German</option><option value="Bayerisch">🥨 Bavarian</option><option value="Schwaebisch">🏰 Swabian</option><option value="Koelsch">🍺 Kölsch</option></optgroup><option value="Franzoesisch">🇫🇷 French</option><option value="Spanisch">🇪🇸 Spanish</option><option value="Italienisch">🇮🇹 Italian</option><option value="Portugiesisch">🇵🇹 Portuguese</option><option value="Russisch">🇷🇺 Russian</option><option value="Chinesisch">🇨🇳 Chinese</option></select></div>
                         <button type="submit" class="generate-button" id="generateButton"><i class="fas fa-magic"></i>Generate Presentation</button>
                     </div>

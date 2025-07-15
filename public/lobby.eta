@@ -1,699 +1,261 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lobby - FreestAIle</title>
-    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
-    <script src="darkmode-init.js"></script>
+    <title>Multiplayer Lobby - FreestAIle</title>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/landing-page.css"> <!-- Wiederverwendung der Haupt-Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* ... (alle bisherigen CSS-Stile bleiben unverändert) ... */
+        /* --- CSS Variables --- */
+        :root, [data-theme="light"] {
+            --bg-color: #F4F7FC;
+            --text-color: #1a1a2e;
+            --text-color-light: #6c757d;
+            --card-bg: #FFFFFF;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --input-bg: #e9ecef;
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --error-color: #e74c3c;
+        }
 
-        /* Basis-Styles für alle Buttons */
-        .auth-button {
-            position: relative; margin: auto; padding: 12px 18px; transition: all 0.2s ease;
-            border: none; background: none; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+        [data-theme="dark"] {
+            --bg-color: #2A2D3A;
+            --text-color: #f0f0f0;
+            --text-color-light: #a0aec0;
+            --card-bg: #353849;
+            --header-bg: rgba(42, 45, 58, 0.7);
+            --input-bg: #2A2D3A;
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --error-color: #ff8a8a;
         }
-        .auth-button:before {
-            content: ""; position: absolute; top: 0; left: 0; display: block;
-            border-radius: 50px; width: 45px; height: 45px; transition: all 0.3s ease;
-        }
-        .auth-button span {
-            position: relative; font-family: "Ubuntu", sans-serif; font-size: 18px; font-weight: 700;
-            letter-spacing: 0.05em; color: #234567;
-        }
-        .auth-button svg {
-            position: relative; top: 0; margin-left: 10px; fill: none; stroke-linecap: round;
-            stroke-linejoin: round; stroke: #234567; stroke-width: 2; transform: translateX(-5px); transition: all 0.3s ease;
-        }
-        .auth-button:hover:before { width: 100%; }
-        .auth-button:hover svg { transform: translateX(0); }
-        .auth-button:active { transform: scale(0.95); }
-        .auth-button-login:before { background: #b1dae7; }
-        .auth-button-login:hover:before { background: #b1dae7; }
-        .auth-button-register:before { background: #b1e7c8; }
-        .auth-button-register:hover:before { background: #b1e7c8; }
-        .profile-container { display: flex; align-items: center; gap: 1rem; margin-right: 1rem; }
-        .profile-circle {
-            width: 45px; height: 45px; border-radius: 50%; background: #b1dae7; display: flex;
-            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
-            font-size: 20px; font-weight: 700; color: #234567; transition: all 0.3s ease; flex-shrink: 0;
-        }
-        html.darkmode .profile-circle { background: #3d3d3d; color: #ffffff; }
-        .profile-email { font-family: "Ubuntu", sans-serif; font-size: 16px; color: #234567; white-space: nowrap; }
-        html.darkmode .profile-email { color: #ffffff; }
 
-        /* Lobby-spezifische Styles */
-        .lobby-info {
-            background: #ffffff; border-radius: 10px; padding: 1.5rem 2rem;
-            margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 2rem; flex-wrap: wrap;
+        /* --- Global Reset & Body --- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
         }
-        body.darkmode .lobby-info { background: #2d2d2d; }
-        .lobby-details { flex: 1; min-width: 250px; }
-        .lobby-id-display {
-            font-family: "Ubuntu", sans-serif; font-size: 22px; font-weight: 700;
-            color: #234567; margin-bottom: 0.5rem;
-        }
-        body.darkmode .lobby-id-display { color: #ffffff; }
+
+        /* --- Animated Background --- */
+        #particles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; opacity: 0; animation: rise 15s infinite linear; }
+        @keyframes rise { 0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
+
+        /* --- Main-Layout --- */
+        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrap { flex: 1; }
+
+        /* --- Header --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 2rem; z-index: 1000; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.3s ease; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .header-logo b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-nav { display: flex; align-items: center; gap: 1rem; }
+        .dark-mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--text-color); opacity: 0.8; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { opacity: 1; transform: scale(1.1) rotate(15deg); }
+        .user-profile-link { text-decoration: none; color: inherit; border-radius: 50px; padding: 4px; transition: background-color 0.3s ease; margin-right: 0.5rem; }
+        .user-profile-link:hover { background-color: rgba(255, 255, 255, 0.08); }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .profile-avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #F5A623; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+        .profile-email { opacity: 0.8; font-weight: 500; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cta { position: relative; margin: auto; padding: 12px 18px; transition: all 0.2s ease; border: none; background: none; cursor: pointer; }
+        .cta:before { content: ""; position: absolute; top: 0; left: 0; display: block; border-radius: 50px; width: 45px; height: 45px; transition: all 0.3s ease; }
+        .cta span { position: relative; font-family: "Poppins", sans-serif; font-size: 16px; font-weight: 600; letter-spacing: 0.05em; }
+        .cta svg { position: relative; top: 0; margin-left: 10px; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; transform: translateX(-5px); transition: all 0.3s ease; }
+        .cta:hover:before { width: 100%; }
+        .cta:hover svg { transform: translateX(0); }
+        .cta:active { transform: scale(0.95); }
+        .cta--login:before { background: rgba(34, 197, 94, 0.3); } .cta--login span { color: #22c55e; } .cta--login svg { stroke: #22c55e; } .cta--login:hover:before { background: #22c55e; } .cta--login:hover span, .cta--login:hover svg { color: #fff; stroke: #fff; }
+        .cta--logout:before { background: rgba(239, 68, 68, 0.3); } .cta--logout span { color: #ef4444; } .cta--logout svg { stroke: #ef4444; } .cta--logout:hover:before { background: #ef4444; } .cta--logout:hover span, .cta--logout:hover svg { color: #fff; stroke: #fff; }
+
+        /* --- Page-Specific Styles --- */
+        .page-header { text-align: center; margin-bottom: 2rem; }
+        .page-header h1 { font-size: 2.5rem; font-weight: 700; }
+        .page-header h1 b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header p { font-size: 1.1rem; opacity: 0.8; }
+
+        .lobby-info { display: grid; grid-template-columns: 1fr auto; gap: 2rem; background: var(--card-bg); padding: 2rem; border-radius: 15px; margin-bottom: 2rem; align-items: center; }
+        .lobby-id-display { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
         .join-link-container { display: flex; align-items: center; margin-top: 1rem; }
-        .join-link-input {
-            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-right: none;
-            border-radius: 8px 0 0 8px; font-family: "Inter", sans-serif;
-            font-size: 14px; background: #f8fafc; color: #333;
-        }
-        body.darkmode .join-link-input { background: #3d3d3d; border-color: #4d4d4d; color: #e2e8f0; }
-        .copy-button {
-            padding: 0.75rem 0.75rem; border: 2px solid #b1e7c8; background: #b1e7c8;
-            color: #234567; border-radius: 0 8px 8px 0; cursor: pointer;
-            font-family: "Ubuntu", sans-serif; font-size: 14px; font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        .copy-button:hover { background: #9bd7b8; border-color: #9bd7b8; }
-        body.darkmode .copy-button { background: #2d5a3f; border-color: #2d5a3f; color: #ffffff; }
-        body.darkmode .copy-button:hover { background: #3d6a4f; border-color: #3d6a4f; }
-        .qr-code-container { padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .qr-code-container img { display: block; max-width: 150px; max-height: 150px; }
-        .player-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Breite angepasst */
-            gap: 1.5rem; margin-top: 2rem;
-        }
-
-        /* Angepasste Spieler-Karte */
-        .player-card {
-            background: #ffffff; border-radius: 10px; padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
-            position: relative; overflow: hidden; border: 2px solid transparent;
-        }
-        .player-card.is-host { border-color: #b1dae7; }
-        .player-card.is-you { border-color: #b1e7c8; }
-        .player-card.is-host.is-you { border-color: #b1e7c8; }
-        body.darkmode .player-card { background: #2d2d2d; }
-        body.darkmode .player-card.is-host { border-color: #b1dae7; }
-        body.darkmode .player-card.is-you { border-color: #2d5a3f; }
-
-        .player-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .player-avatar {
-            width: 50px; height: 50px; border-radius: 50%; background: #b1dae7; display: flex;
-            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
-            font-size: 24px; font-weight: 700; color: #234567; flex-shrink: 0;
-        }
-        body.darkmode .player-avatar { background: #3d3d3d; color: #ffffff; }
-        .player-name {
-            font-family: "Ubuntu", sans-serif; font-size: 18px; font-weight: 700;
-            color: #234567; margin: 0;
-        }
-        body.darkmode .player-name { color: #ffffff; }
-        .player-badge {
-            position: absolute; top: 10px; right: 10px; padding: 4px 8px; border-radius: 12px;
-            font-size: 12px; font-weight: 600; font-family: "Inter", sans-serif;
-        }
-        .player-badge.host-badge { background-color: #b1dae7; color: #234567; }
-        .player-badge.you-badge { background-color: #b1e7c8; color: #234567; }
-        body.darkmode .player-badge.host-badge { background-color: #4a4a4a; color: #e0e0e0; }
-        body.darkmode .player-badge.you-badge { background-color: #2d5a3f; color: #ffffff; }
-
-        /* ========================================= */
-        /* === NEU: Verbesserte "Random Topic" Slider === */
-        /* ========================================= */
-        .topic-control {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .topic-input {
-            flex-grow: 1;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 5px;
-            font-family: "Inter", sans-serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .topic-input:focus {
-            outline: none;
-            border-color: #b1dae7;
-        }
-
-        .topic-input:disabled {
-            background: #f0f0f0;
-            color: #999;
-            cursor: not-allowed;
-        }
-
-        body.darkmode .topic-input {
-            background: #3d3d3d;
-            border-color: #4d4d4d;
-            color: #ffffff;
-        }
-
-        body.darkmode .topic-input:focus {
-            border-color: #b1dae7;
-        }
-
-        body.darkmode .topic-input:disabled {
-            background: #333;
-            color: #888;
-        }
-
-        .pretty-switch {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .pretty-switch .random-switch {
-            opacity: 0;
-            width: 0;
-            height: 0;
-            position: absolute;
-        }
-
-        .pretty-switch-label {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            color: #666;
-            transition: color 0.3s ease;
-        }
-
-        .pretty-switch-slider {
-            width: 40px;
-            height: 22px;
-            background-color: #e2e8f0;
-            border-radius: 22px;
-            position: relative;
-            transition: background-color 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .pretty-switch-knob {
-            width: 16px;
-            height: 16px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            transition: transform 0.3s ease, box-shadow 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .pretty-switch .random-switch:checked + .pretty-switch-slider {
-            background-color: #b1e7c8;
-        }
-
-        .pretty-switch .random-switch:checked + .pretty-switch-slider .pretty-switch-knob {
-            transform: translateX(18px);
-        }
-
-        .pretty-switch:hover .pretty-switch-knob {
-            box-shadow: 0 0 0 4px rgba(177, 218, 231, 0.3);
-        }
-
-        .pretty-switch .random-switch:checked:hover + .pretty-switch-slider .pretty-switch-knob {
-            box-shadow: 0 0 0 4px rgba(177, 231, 200, 0.4);
-        }
-
-        .pretty-switch .random-switch:checked ~ .pretty-switch-label {
-            color: #234567;
-        }
-
-        .pretty-switch .random-switch:disabled + .pretty-switch-slider {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Dark Mode für den neuen Switch */
-        body.darkmode .pretty-switch-slider {
-            background-color: #4d4d4d;
-        }
-        body.darkmode .pretty-switch .random-switch:checked + .pretty-switch-slider {
-            background-color: #2d5a3f;
-        }
-        body.darkmode .pretty-switch .random-switch:disabled + .pretty-switch-slider {
-            background: #555;
-        }
-        body.darkmode .pretty-switch-knob {
-            background-color: #d1d5db;
-        }
-        body.darkmode .pretty-switch-label {
-            color: #a0aec0;
-        }
-        body.darkmode .pretty-switch .random-switch:checked ~ .pretty-switch-label {
-            color: #ffffff;
-        }
-        /* ========================================= */
-        /* === Ende der neuen Slider-Styles === */
-        /* ========================================= */
-
-        .error-message { color: #e53e3e; font-family: "Inter", sans-serif; font-size: 12px; margin-top: 0.5rem; min-height: 1.2em; }
-        body.darkmode .error-message { color: #fc8181; }
-        .topic-input.error { border-color: #e53e3e; }
-        body.darkmode .topic-input.error { border-color: #fc8181; }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .shake { animation: shake 0.5s ease-in-out; }
-
-        /* Sonstige Styles */
-        .placeholder-card {
-            border: 2px dashed #e2e8f0; background: rgba(255, 255, 255, 0.5); display: flex;
-            align-items: center; justify-content: center; text-align: center; color: #a0aec0;
-            font-family: "Inter", sans-serif; min-height: 150px; border-radius: 10px; box-shadow: none;
-        }
-        body.darkmode .placeholder-card { border-color: #4d4d4d; background: #2d2d2d; color: #718096; }
-
-        .start-game-button {
-            width: 100%; padding: 1rem; margin-top: 2rem; background: #b1dae7; color: #234567;
-            border: none; border-radius: 5px; font-family: "Ubuntu", sans-serif; font-size: 18px;
-            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
-        }
-        .start-game-button:hover { background: #9bc8d7; }
-        .start-game-button:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
-        body.darkmode .start-game-button:disabled { background: #3d3d3d; color: #666; }
-
-        .status {
-            margin-top: 1rem; padding: 10px; border-radius: 5px; text-align: center;
-            font-family: "Inter", sans-serif; font-size: 14px;
-        }
+        .join-link-input { flex-grow: 1; padding: 0.75rem; border: none; border-radius: 8px 0 0 8px; background: var(--input-bg); font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        .copy-button { padding: 0.75rem 1rem; border: none; background: var(--secondary-color); color: #fff; border-radius: 0 8px 8px 0; cursor: pointer; font-weight: 600; transition: background-color 0.2s; }
+        .copy-button:hover { background: #38c18d; }
+        .qr-code-container { padding: 0.5rem; background: white; border-radius: 8px; }
+        .qr-code-container img { display: block; width: 140px; height: 140px; }
+        .status { padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem; font-weight: 500; text-align: center; margin-top: 1rem; transition: all 0.3s; }
         .status.waiting { background: #fff3cd; color: #856404; }
         .status.connected { background: #d4edda; color: #155724; }
         .status.error { background: #f8d7da; color: #721c24; }
-        body.darkmode .status.waiting { background: #4a4023; color: #ffeaa7; }
-        body.darkmode .status.connected { background: #1c3c24; color: #c3e6cb; }
-        body.darkmode .status.error { background: #4a2124; color: #f5c6cb; }
+        [data-theme="dark"] .status.waiting { background: #4a4023; color: #ffeaa7; }
+        [data-theme="dark"] .status.connected { background: #1c3c24; color: #c3e6cb; }
+        [data-theme="dark"] .status.error { background: #4a2124; color: #f5c6cb; }
 
-        /* NEU: Language Chooser Styles */
-        .language-selector-container {
-            margin-top: 2rem;
-            margin-bottom: 0rem;
-        }
-        .language-selector-container label {
-            display: block;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            color: #234567;
-            margin-bottom: 0.75rem;
-        }
-        .language-selector-container select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 5px;
-            font-family: "Inter", sans-serif;
-            font-size: 16px;
-            background-color: #fff;
-            color: #234567;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .language-selector-container select:focus {
-            outline: none;
-            border-color: #b1dae7;
-        }
-        body.darkmode .language-selector-container label {
-            color: #ffffff;
-        }
-        body.darkmode .language-selector-container select {
-            background: #3d3d3d;
-            border-color: #4d4d4d;
-            color: #ffffff;
-        }
-        body.darkmode .language-selector-container select:focus {
-            border-color: #b1dae7;
-        }
+        h3.section-title { font-size: 1.5rem; margin-bottom: 1rem; font-weight: 600; }
+        .player-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .player-card { background: var(--card-bg); border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 6px var(--shadow-color); position: relative; }
+        .player-card.is-host { border: 2px solid var(--primary-color); }
+        .player-card.is-you { border: 2px solid var(--secondary-color); }
+        .player-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .player-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600; color: var(--text-color); flex-shrink: 0; }
+        .player-name { font-size: 1.25rem; font-weight: 600; }
+        .player-badge { position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.6rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+        .player-badge.host-badge { background: var(--primary-color); color: #fff; }
+        .player-badge.you-badge { background: var(--secondary-color); color: #fff; }
+        .topic-input { width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: none; background: var(--input-bg); color: var(--text-color); font-size: 1rem; transition: background-color 0.2s; }
+        .topic-input:focus { outline: none; box-shadow: 0 0 0 2px var(--secondary-color); }
+        .topic-input:disabled { background: var(--input-bg); opacity: 0.6; cursor: not-allowed; }
+        .topic-input.error { box-shadow: 0 0 0 2px var(--error-color); animation: shake 0.5s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .pretty-switch { display: flex; align-items: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .pretty-switch .random-switch { opacity: 0; width: 0; height: 0; position: absolute; }
+        .pretty-switch-label { font-size: 0.9rem; font-weight: 500; color: var(--text-color-light); transition: color 0.3s ease; }
+        .pretty-switch-slider { width: 40px; height: 22px; background-color: var(--input-bg); border-radius: 22px; position: relative; transition: background-color 0.3s ease; flex-shrink: 0; }
+        .pretty-switch-knob { width: 16px; height: 16px; background-color: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        [data-theme="dark"] .pretty-switch-knob { background-color: #9ca3af; }
+        .pretty-switch .random-switch:checked + .pretty-switch-slider { background-color: var(--secondary-color); }
+        .pretty-switch .random-switch:checked + .pretty-switch-slider .pretty-switch-knob { transform: translateX(18px); }
+        .pretty-switch .random-switch:checked ~ .pretty-switch-label { color: var(--text-color); }
+        .pretty-switch .random-switch:disabled + .pretty-switch-slider { opacity: 0.5; cursor: not-allowed; }
+        .topic-control { display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem; }
 
+        .game-controls { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; margin-top: 2rem; background: var(--card-bg); padding: 2rem; border-radius: 15px; }
+        .language-selector { width: 100%; max-width: 400px; padding: 0.8rem 1rem; background: var(--input-bg); border: 1px solid transparent; border-radius: 8px; color: var(--text-color); font-size: 1rem; }
+        .start-game-button { font-size: 1.2rem; font-weight: 700; color: #fff; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 10px 20px var(--accent-glow); }
+        .start-game-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px var(--accent-glow); }
+        .start-game-button:disabled { background: var(--text-color-light); box-shadow: none; cursor: not-allowed; transform: none; }
 
-        /* === CSS FÜR DAS LADE-OVERLAY === */
-        #loadingOverlay {
-            position: fixed;
-            display: none; /* Standardmäßig ausgeblendet */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100vh;
-            top: 0;
-            left: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-        }
+        .waiting-card { background: var(--card-bg); padding: 3rem; border-radius: 15px; text-align: center; }
+        .waiting-card p { font-size: 1.25rem; font-weight: 500; opacity: 0.9; }
 
-        .loading-text {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 1.5rem;
-            color: #ffffff;
-            margin-top: 2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; background: rgba(42, 45, 58, 0.5); backdrop-filter: blur(5px); }
+        body.loading-active .loading-overlay { display: flex; }
+        body.loading-active .page-wrapper { pointer-events: none; }
+        .loading-text { color: #fff; font-size: 1.5rem; font-weight: 600; margin-top: 2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .wheel-and-hamster { --dur: 1s; position: relative; width: 12em; height: 12em; font-size: 14px; }
+        .wheel, .hamster, .hamster div, .spoke { position: absolute; }
+        .wheel, .spoke { border-radius: 50%; top: 0; left: 0; width: 100%; height: 100%; }
+        .wheel { background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%); z-index: 2; }
+        .hamster { animation: hamster var(--dur) ease-in-out infinite; top: 50%; left: calc(50% - 3.5em); width: 7em; height: 3.75em; transform: rotate(4deg) translate(-0.8em,1.85em); transform-origin: 50% 0; z-index: 1; }
+        .hamster__head { animation: hamsterHead var(--dur) ease-in-out infinite; background: hsl(30,90%,55%); border-radius: 70% 30% 0 100% / 40% 25% 25% 60%; box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset, 0.75em -1.55em 0 hsl(30,90%,90%) inset; top: 0; left: -2em; width: 2.75em; height: 2.5em; transform-origin: 100% 50%; }
+        .hamster__ear { animation: hamsterEar var(--dur) ease-in-out infinite; background: hsl(0,90%,85%); border-radius: 50%; box-shadow: -0.25em 0 hsl(30,90%,55%) inset; top: -0.25em; right: -0.25em; width: 0.75em; height: 0.75em; transform-origin: 50% 75%; }
+        .hamster__eye { animation: hamsterEye var(--dur) linear infinite; background-color: hsl(0,0%,0%); border-radius: 50%; top: 0.375em; left: 1.25em; width: 0.5em; height: 0.5em; }
+        .hamster__nose { background: hsl(0,90%,75%); border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%; top: 0.75em; left: 0; width: 0.2em; height: 0.25em; }
+        .hamster__body { animation: hamsterBody var(--dur) ease-in-out infinite; background: hsl(30,90%,90%); border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%; box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset, 0.15em -0.5em 0 hsl(30,90%,80%) inset; top: 0.25em; left: 2em; width: 4.5em; height: 3em; transform-origin: 17% 50%; transform-style: preserve-3d; }
+        .hamster__limb--fr, .hamster__limb--fl { clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%); top: 2em; left: 0.5em; width: 1em; height: 1.5em; transform-origin: 50% 0; }
+        .hamster__limb--fr { animation: hamsterFRLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%); transform: rotate(15deg) translateZ(-1px); }
+        .hamster__limb--fl { animation: hamsterFLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%); transform: rotate(15deg); }
+        .hamster__limb--br, .hamster__limb--bl { border-radius: 0.75em 0.75em 0 0; clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%); top: 1em; left: 2.8em; width: 1.5em; height: 2.5em; transform-origin: 50% 30%; }
+        .hamster__limb--br { animation: hamsterBRLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%); transform: rotate(-25deg) translateZ(-1px); }
+        .hamster__limb--bl { animation: hamsterBLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%); transform: rotate(-25deg); }
+        .hamster__tail { animation: hamsterTail var(--dur) linear infinite; background: hsl(0,90%,85%); border-radius: 0.25em 50% 50% 0.25em; box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset; top: 1.5em; right: -0.5em; width: 1em; height: 0.5em; transform: rotate(30deg) translateZ(-1px); transform-origin: 0.25em 0.25em; }
+        .spoke { animation: spoke var(--dur) linear infinite; background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%), linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat; }
+        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,1.85em); } 50% { transform: rotate(0) translate(-0.8em,1.85em); } } @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } } @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } } @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } } @keyframes hamsterBody { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); } } @keyframes hamsterFRLimb { from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); } } @keyframes hamsterFLLimb { from, 25%, 50%, 75%, to { transform: rotate(-30deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); } } @keyframes hamsterBRLimb { from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); } } @keyframes hamsterBLLimb { from, 25%, 50%, 75%, to { transform: rotate(20deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); } } @keyframes hamsterTail { from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); } } @keyframes spoke { from { transform: rotate(0); } to { transform: rotate(-1turn); } }
 
-        /* === CSS-CODE FÜR DIE HAMSTER-ANIMATION === */
-        .wheel-and-hamster {
-            --dur: 1s;
-            position: relative;
-            width: 12em;
-            height: 12em;
-            font-size: 14px;
-        }
+        /* --- Footer --- */
+        .main-footer { text-align: center; padding: 3rem 2rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; opacity: 0.7; }
+        .main-footer a { color: var(--secondary-color); text-decoration: none; font-weight: 600; }
+        .main-footer a:hover { text-decoration: underline; }
+        [data-theme="dark"] .main-footer a { color: #f0f0f0; }
+        [data-theme="dark"] .main-footer a:hover { color: var(--secondary-color); }
 
-        .wheel,
-        .hamster,
-        .hamster div,
-        .spoke {
-            position: absolute;
-        }
-
-        .wheel,
-        .spoke {
-            border-radius: 50%;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .wheel {
-            background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%);
-            z-index: 2;
-        }
-
-        .hamster {
-            animation: hamster var(--dur) ease-in-out infinite;
-            top: 50%;
-            left: calc(50% - 3.5em);
-            width: 7em;
-            height: 3.75em;
-            transform: rotate(4deg) translate(-0.8em,1.85em);
-            transform-origin: 50% 0;
-            z-index: 1;
-        }
-
-        .hamster__head {
-            animation: hamsterHead var(--dur) ease-in-out infinite;
-            background: hsl(30,90%,55%);
-            border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
-            box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset,
-            0.75em -1.55em 0 hsl(30,90%,90%) inset;
-            top: 0;
-            left: -2em;
-            width: 2.75em;
-            height: 2.5em;
-            transform-origin: 100% 50%;
-        }
-
-        .hamster__ear {
-            animation: hamsterEar var(--dur) ease-in-out infinite;
-            background: hsl(0,90%,85%);
-            border-radius: 50%;
-            box-shadow: -0.25em 0 hsl(30,90%,55%) inset;
-            top: -0.25em;
-            right: -0.25em;
-            width: 0.75em;
-            height: 0.75em;
-            transform-origin: 50% 75%;
-        }
-
-        .hamster__eye {
-            animation: hamsterEye var(--dur) linear infinite;
-            background-color: hsl(0,0%,0%);
-            border-radius: 50%;
-            top: 0.375em;
-            left: 1.25em;
-            width: 0.5em;
-            height: 0.5em;
-        }
-
-        .hamster__nose {
-            background: hsl(0,90%,75%);
-            border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
-            top: 0.75em;
-            left: 0;
-            width: 0.2em;
-            height: 0.25em;
-        }
-
-        .hamster__body {
-            animation: hamsterBody var(--dur) ease-in-out infinite;
-            background: hsl(30,90%,90%);
-            border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
-            box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset,
-            0.15em -0.5em 0 hsl(30,90%,80%) inset;
-            top: 0.25em;
-            left: 2em;
-            width: 4.5em;
-            height: 3em;
-            transform-origin: 17% 50%;
-            transform-style: preserve-3d;
-        }
-
-        .hamster__limb--fr,
-        .hamster__limb--fl {
-            clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
-            top: 2em;
-            left: 0.5em;
-            width: 1em;
-            height: 1.5em;
-            transform-origin: 50% 0;
-        }
-
-        .hamster__limb--fr {
-            animation: hamsterFRLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
-            transform: rotate(15deg) translateZ(-1px);
-        }
-
-        .hamster__limb--fl {
-            animation: hamsterFLLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%);
-            transform: rotate(15deg);
-        }
-
-        .hamster__limb--br,
-        .hamster__limb--bl {
-            border-radius: 0.75em 0.75em 0 0;
-            clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
-            top: 1em;
-            left: 2.8em;
-            width: 1.5em;
-            height: 2.5em;
-            transform-origin: 50% 30%;
-        }
-
-        .hamster__limb--br {
-            animation: hamsterBRLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
-            transform: rotate(-25deg) translateZ(-1px);
-        }
-
-        .hamster__limb--bl {
-            animation: hamsterBLLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%);
-            transform: rotate(-25deg);
-        }
-
-        .hamster__tail {
-            animation: hamsterTail var(--dur) linear infinite;
-            background: hsl(0,90%,85%);
-            border-radius: 0.25em 50% 50% 0.25em;
-            box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset;
-            top: 1.5em;
-            right: -0.5em;
-            width: 1em;
-            height: 0.5em;
-            transform: rotate(30deg) translateZ(-1px);
-            transform-origin: 0.25em 0.25em;
-        }
-
-        .spoke {
-            animation: spoke var(--dur) linear infinite;
-            background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%),
-            linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
-        }
-
-        /* Animations */
-        @keyframes hamster {
-            from, to { transform: rotate(4deg) translate(-0.8em,1.85em); }
-            50% { transform: rotate(0) translate(-0.8em,1.85em); }
-        }
-        @keyframes hamsterHead {
-            from, 25%, 50%, 75%, to { transform: rotate(0); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); }
-        }
-        @keyframes hamsterEye {
-            from, 90%, to { transform: scaleY(1); }
-            95% { transform: scaleY(0); }
-        }
-        @keyframes hamsterEar {
-            from, 25%, 50%, 75%, to { transform: rotate(0); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); }
-        }
-        @keyframes hamsterBody {
-            from, 25%, 50%, 75%, to { transform: rotate(0); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); }
-        }
-        @keyframes hamsterFRLimb {
-            from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); }
-        }
-        @keyframes hamsterFLLimb {
-            from, 25%, 50%, 75%, to { transform: rotate(-30deg); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); }
-        }
-        @keyframes hamsterBRLimb {
-            from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); }
-        }
-        @keyframes hamsterBLLimb {
-            from, 25%, 50%, 75%, to { transform: rotate(20deg); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); }
-        }
-        @keyframes hamsterTail {
-            from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); }
-            12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); }
-        }
-        @keyframes spoke {
-            from { transform: rotate(0); }
-            to { transform: rotate(-1turn); }
-        }
+        /* --- Responsive Design --- */
+        @media (max-width: 992px) { .lobby-info { grid-template-columns: 1fr; } .qr-code-container { display: none; } }
+        @media (max-width: 768px) { .page-wrapper, .main-header { padding: 0 1rem; } .header-content { padding: 1rem 0; } .main-header { padding: 0.5rem 1rem; } .page-wrapper { padding-top: 6rem; } .profile-email { display: none; } }
     </style>
 </head>
-
 <body data-user-id="<%= it.userId || '' %>">
-<!-- ... (Rest des HTML-Bodys bleibt unverändert) ... -->
+
+<div id="particles-bg"></div>
+
 <header class="main-header">
     <div class="header-content">
-        <a href="/" style="text-decoration: none; color: inherit;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-        <div class="flex items-center space-x-4">
+        <a href="/" style="text-decoration: none;"><span class="header-logo">Freest<b>AI</b>le</span></a>
+        <div class="header-nav">
             <% if (it.user) { %>
-            <div class="profile-container">
-                <a href="/user" style="text-decoration: none;">
-                    <div class="profile-circle"><%= it.user.email.charAt(0).toUpperCase() %></div>
-                </a>
-                <div class="profile-email"><%= it.user.email %></div>
-            </div>
+            <a href="/user" class="user-profile-link"><div class="user-profile"><div class="profile-avatar"><%= it.user.email.charAt(0).toUpperCase() %></div><span class="profile-email"><%= it.user.email %></span></div></a>
             <% } %>
-            <label class="switch">
-                <input id="darkmode-toggle" type="checkbox">
-                <span class="slider">
-                    <span class="star star_1"></span>
-                    <span class="star star_2"></span>
-                    <span class="star star_3"></span>
-                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-                        <path
-                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                                fill="#fff"
-                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-                        ></path>
-                    </svg>
-                </span>
-            </label>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></div>
         </div>
     </div>
 </header>
 
-<div class="container-wrapper">
-    <div class="container">
-        <div class="header">
-            <h1 class="logo"><b>Multiplayer</b>-Lobby</h1>
-            <p class="tagline">Lade deine Freunde ein und startet gemeinsam eine Präsentation.</p>
-        </div>
+<div class="loading-overlay" id="loadingOverlay">
+    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster"><div class="wheel"></div><div class="hamster"><div class="hamster__body"><div class="hamster__head"><div class="hamster__ear"></div><div class="hamster__eye"></div><div class="hamster__nose"></div></div><div class="hamster__limb hamster__limb--fr"></div><div class="hamster__limb hamster__limb--fl"></div><div class="hamster__limb hamster__limb--br"></div><div class="hamster__limb hamster__limb--bl"></div><div class="hamster__tail"></div></div></div><div class="spoke"></div></div>
+    <p class="loading-text">Starting Game...</p>
+</div>
 
-        <div class="lobby-info">
-            <div class="lobby-details">
-                <div class="lobby-id-display" id="lobby-id-display">Lade deine Mitspieler ein!</div>
-                <div class="join-link-container">
-                    <input type="text" id="join-link" class="join-link-input" value="<%= it.joinUrl %>" readonly>
-                    <button class="copy-button" onclick="copyJoinLink()">Kopieren</button>
-                </div>
-                <div class="status waiting" id="connection-status">Verbindung wird hergestellt...</div>
-            </div>
-            <% if (it.qrCode) { %>
-            <div class="qr-code-container" id="qr-code-container">
-                <img src="<%= it.qrCode %>" alt="QR-Code zum Beitreten">
-            </div>
+<div class="page-wrapper">
+    <div class="content-wrap">
+        <div class="page-header">
+            <h1><b>Multiplayer</b> Lobby</h1>
+            <% if (it.isHost) { %>
+            <p>Invite your friends and start the presentation together!</p>
             <% } %>
         </div>
 
         <% if (it.isHost) { %>
-        <h3>Teilnehmer (<span id="participant-count">0</span>)</h3>
+        <div class="lobby-info">
+            <div class="lobby-details">
+                <div class="lobby-id-display" id="lobby-id-display">Invite your friends!</div>
+                <div class="join-link-container">
+                    <input type="text" id="join-link" class="join-link-input" value="<%= it.joinUrl %>" readonly>
+                    <button class="copy-button" onclick="copyJoinLink()">Copy</button>
+                </div>
+            </div>
+            <% if (it.qrCode) { %>
+            <div class="qr-code-container" id="qr-code-container">
+                <img src="<%= it.qrCode %>" alt="QR Code to join lobby">
+            </div>
+            <% } %>
+        </div>
+
+        <h3 class="section-title">Participants (<span id="participant-count">0</span>)</h3>
         <div class="player-grid" id="playerGrid">
-            <div class="placeholder-card">Lobby-Daten werden geladen...</div>
+            <!-- Player cards are dynamically inserted here -->
         </div>
 
-        <!-- NEU: Language Chooser für den Host -->
-        <div class="language-selector-container">
-            <label for="languageChooser">Sprache der Präsentation</label>
-           <select name="presentationLanguage" id="languageChooser">
-             <option value="en">🇬🇧 English</option>
-
-             <optgroup label="🇩🇪 Deutsch">
-               <option value="Deutsch">Hochdeutsch</option>
-               <option value="Bayerisch">🥨 Bayerisch</option>
-               <option value="Schwaebisch">🏰 Schwäbisch</option>
-               <option value="Koelsch">🍺 Kölsch</option>
-               <option value="Plattdeutsch">🌾 Plattdeutsch</option>
-               <option value="Hessisch">🍎 Hessisch</option>
-               <option value="Saechsisch">🏭 Sächsisch</option>
-               <option value="Berlinerisch">🐻 Berlinerisch</option>
-               <option value="Rheinisch">🍷 Rheinisch</option>
-             </optgroup>
-
-             <option value="Franzoesisch">🇫🇷 Français</option>
-             <option value="Spanisch">🇪🇸 Español</option>
-             <option value="Italienisch">🇮🇹 Italiano</option>
-             <option value="Portugiesisch">🇵🇹 Português</option>
-             <option value="Russisch">🇷🇺 Русский</option>
-             <option value="Chinesisch">🇨🇳 中文</option>
-           </select>
-
+        <div class="game-controls">
+            <select class="language-selector" id="languageChooser">
+                <option value="en">🇬🇧 English</option>
+                <optgroup label="🇩🇪 German"><option value="Deutsch">Standard German</option><option value="Bayerisch">🥨 Bavarian</option><option value="Schwaebisch">🏰 Swabian</option><option value="Koelsch">🍺 Kölsch</option></optgroup>
+                <option value="Franzoesisch">🇫🇷 French</option>
+                <option value="Spanisch">🇪🇸 Spanish</option>
+                <option value="Italienisch">🇮🇹 Italian</option>
+                <option value="Portugiesisch">🇵🇹 Portuguese</option>
+                <option value="Russisch">🇷🇺 Russian</option>
+                <option value="Chinesisch">🇨🇳 Chinese</option>
+            </select>
+            <button id="startGameButton" class="start-game-button" disabled>Start Game</button>
         </div>
-
-        <button id="startGameButton" class="start-game-button" disabled>Spiel starten</button>
+        <% } else { %>
+        <div class="waiting-card">
+            <p>Waiting for the host to start the game...</p>
+            <div class="status waiting" id="connection-status">Connecting to lobby...</div>
+        </div>
         <% } %>
     </div>
-</div>
 
-<!-- HTML-ELEMENT FÜR DAS LADE-OVERLAY -->
-<div id="loadingOverlay">
-    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
-        <div class="wheel"></div>
-        <div class="hamster">
-            <div class="hamster__body">
-                <div class="hamster__head">
-                    <div class="hamster__ear"></div>
-                    <div class="hamster__eye"></div>
-                    <div class="hamster__nose"></div>
-                </div>
-                <div class="hamster__limb hamster__limb--fr"></div>
-                <div class="hamster__limb hamster__limb--fl"></div>
-                <div class="hamster__limb hamster__limb--br"></div>
-                <div class="hamster__limb hamster__limb--bl"></div>
-                <div class="hamster__tail"></div>
-            </div>
-        </div>
-        <div class="spoke"></div>
-    </div>
-    <p class="loading-text">Spiel wird gestartet...</p>
+    <footer class="main-footer">
+        © 2025 FreestAIle | The ultimate tool for PowerPoint Karaoke | <a href="/imprint">Imprint</a> | Images by <a href="https://www.pixabay.com" target="_blank" rel="noopener">Pixabay</a>
+    </footer>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/sse-client.js"></script>
@@ -709,16 +271,15 @@
     const IS_HOST = <%= it.isHost ? 'true' : 'false' %>;
 
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('darkmode-toggle');
-        const isDark = document.documentElement.classList.contains('darkmode');
-        toggle.checked = !isDark;
-        document.body.classList.toggle('darkmode', isDark);
-        toggle.addEventListener('change', function() {
-            const dark = !toggle.checked;
-            document.documentElement.classList.toggle('darkmode', dark);
-            document.body.classList.toggle('darkmode', dark);
-            localStorage.setItem('darkmode', dark.toString());
-        });
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const themeToggleIcon = themeToggle.querySelector('i');
+            const htmlEl = document.documentElement;
+            const setTheme = (theme) => { htmlEl.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'; };
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            themeToggle.addEventListener('click', () => { const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; setTheme(newTheme); });
+        }
         initializeLobby();
     });
 
@@ -1002,5 +563,6 @@
         }
     }
 </script>
+
 </body>
 </html>
