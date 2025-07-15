@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="banner-freestaile.jpg" alt="FreestAIle Banner" width="100%" style="max-width: 800px; border-radius: 8px;"/>
+  <img src="banner.png" alt="FreestAIle Banner" width="100%" style="max-width: 800px; border-radius: 8px;"/>
 
   <p align="center">
     <strong>FreestAIle – KI-gestützte PowerPoint-Karaoke</strong>
@@ -128,6 +128,8 @@ Die Multiplayer-Funktionen basieren auf einer Kombination aus serverseitiger Log
 
 4. **Spiel starten**  
    Sobald alle Präsentationen bereit sind, startet der Host das Spiel. Alle Spieler wechseln synchron in den Präsentationsmodus, wobei ihre individuellen Inhalte angezeigt werden.
+
+   <img src="generation" alt="FreestAIle Banner" width="100%" style="max-width: 800px; border-radius: 8px;"/>
 
 ---
 
