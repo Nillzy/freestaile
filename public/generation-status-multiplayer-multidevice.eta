@@ -1,237 +1,149 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Präsentation - FreestAIle</title>
-    <!-- Dark mode initialization script -->
-    <script src="darkmode-init.js"></script>
+    <title>Multiplayer – FreestAIle</title>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/landing-page.css"> <!-- Wiederverwendung der Haupt-Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* === ALLGEMEINE SEITENSTRUKTUR === */
-        html, body {
-            height: 100%;
-            overflow: hidden; /* Verhindert doppelte Scrollbalken auf der obersten Ebene */
+        /* --- CSS Variables --- */
+        :root, [data-theme="light"] {
+            --bg-color: #F4F7FC;
+            --text-color: #1a1a2e;
+            --text-color-light: #6c757d;
+            --card-bg: #FFFFFF;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --input-bg: #e9ecef;
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
+
+        [data-theme="dark"] {
+            --bg-color: #2A2D3A;
+            --text-color: #f0f0f0;
+            --text-color-light: #a0aec0;
+            --card-bg: #353849;
+            --header-bg: rgba(42, 45, 58, 0.7);
+            --input-bg: #2A2D3A;
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Global Reset & Body --- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden; /* Verhindert Scrollen auf Body-Ebene */
             display: flex;
             flex-direction: column;
+            height: 100vh;
         }
 
-        /* === NEUER LAYOUT-CONTAINER FÜR DESKTOP-ANSICHT === */
-        .page-layout-container {
+        /* --- Animated Background --- */
+        #particles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; opacity: 0; animation: rise 15s infinite linear; }
+        @keyframes rise { 0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
+
+        /* --- Header --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 2rem; z-index: 1000; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.3s ease; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .header-logo b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-nav { display: flex; align-items: center; gap: 1rem; }
+        .dark-mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--text-color); opacity: 0.8; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { opacity: 1; transform: scale(1.1) rotate(15deg); }
+        .user-profile-link { text-decoration: none; color: inherit; border-radius: 50px; padding: 4px; transition: background-color 0.3s ease; margin-right: 0.5rem; }
+        .user-profile-link:hover { background-color: rgba(255, 255, 255, 0.08); }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .profile-avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #F5A623; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+
+        /* --- Page-Specific Layout --- */
+        .page-container {
+            padding-top: 6rem; /* Platz für Header */
             display: flex;
-            flex-grow: 1; /* Füllt den verbleibenden Platz im Body */
-            overflow: hidden; /* Wichtig, um internes Scrollen zu ermöglichen */
-            gap: 1.5rem; /* Abstand zwischen Inhalt und Chat */
-            padding: 0 1.5rem 1.5rem 1.5rem; /* Seitenabstand für den Container */
+            flex-grow: 1;
+            gap: 1.5rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+            padding-bottom: 1.5rem; /* KORRIGIERT: Abstand nach unten */
+            overflow: hidden;
         }
 
-        .main-content-area {
-            flex: 1; /* Nimmt den meisten Platz ein */
-            overflow-y: auto; /* Hauptinhalt wird scrollbar */
-            min-width: 0; /* Verhindert Flexbox-Überlaufprobleme */
-        }
-
-        .container-wrapper {
-            max-width: none; /* Überschreibt eventuelle alte max-width */
-            padding: 0; /* Padding wird vom page-layout-container gehandhabt */
-        }
-
-        /* === ÜBERNOMMENE STYLES (HEADER, ETC.) === */
-        .profile-container { display: flex; align-items: center; gap: 1rem; margin-right: 1rem; }
-        .profile-circle {
-            width: 45px; height: 45px; border-radius: 50%; background: #b1dae7; display: flex;
-            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
-            font-size: 20px; font-weight: 700; color: #234567; flex-shrink: 0;
-        }
-        html.darkmode .profile-circle { background: #3d3d3d; color: #ffffff; }
-
-        /* === SEITENSPEZIFISCHE STYLES IM NEUEN DESIGN === */
-
-        /* Info-Leiste für Lobby-Details */
-        .multiplayer-info-bar {
-            background: #ffffff; border-radius: 10px; padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 1.5rem; flex-wrap: wrap; font-family: "Inter", sans-serif;
-        }
-        body.darkmode .multiplayer-info-bar { background: #2d2d2d; }
-        .info-section { color: #234567; font-size: 14px; }
-        body.darkmode .info-section { color: #e0e0e0; }
-        .info-section strong { font-weight: 600; }
-        .host-badge {
-            background: #b1dae7; color: #234567; padding: 3px 10px; border-radius: 12px;
-            font-size: 12px; font-weight: 700; margin-left: 0.5rem; display: inline-block;
-        }
-        body.darkmode .host-badge { background: #4a4a4a; color: #e0e0e0; }
-        .participants-count {
-            display: flex; align-items: center; gap: 0.5rem; font-size: 14px;
-            color: #234567;
-        }
-        body.darkmode .participants-count { color: #e0e0e0; }
-        .participants-count i { color: #234567; }
-        body.darkmode .participants-count i { color: #b1e7c8; }
-
-        /* Status-Leiste (ersetzt .status-bar) */
-        .status {
-            padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 1.5rem;
-            font-family: "Inter", sans-serif; font-size: 14px;
-        }
-        .status.connected { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-        body.darkmode .status.connected { background: #1c3c24; color: #c3e6cb; }
-        body.darkmode .status.error { background: #4a2124; color: #f5c6cb; }
-
-        /* Präsentations-Grid */
-        .generation-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem; margin-top: 1rem; width: 100%;
-        }
-        .generation-card {
-            background: #ffffff; border-radius: 10px; padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); text-align: center;
-        }
-        body.darkmode .generation-card { background: #2d2d2d; }
-        .generation-card h3 {
-            font-family: "Ubuntu", sans-serif; font-size: 18px; font-weight: 700;
-            color: #234567; margin: 0 0 1rem 0;
-        }
-        body.darkmode .generation-card h3 { color: #ffffff; }
-
-        .status-icon { width: 10em; height: 10em; margin: 1rem auto; position: relative; font-size: 10px; }
-        .view-button {
-            display: inline-block; padding: 12px 24px; margin-top: 1rem; background: #b1dae7;
-            color: #234567; border: none; border-radius: 5px; font-family: "Ubuntu", sans-serif;
-            font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none;
-            transition: all 0.2s ease; opacity: 0; transform: translateY(10px);
-        }
-        .view-button.show { opacity: 1; transform: translateY(0); }
-        .view-button:hover { background: #9bc8d7; }
-
-        /* === CHAT-BEREICH FÜR DESKTOP-ANSICHT ANGEPASST === */
-        .chat-container {
-            background: #ffffff;
-            border-left: 1px solid #e2e8f0; /* Rand links statt oben */
+        .main-content {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
-            flex-basis: 400px; /* Feste Breite für den Chat */
-            height: 100%; /* Füllt die Höhe des .page-layout-container */
-            border-radius: 10px; /* Abgerundete Ecken */
-            overflow: hidden; /* Stellt sicher, dass Inhalte nicht überlaufen */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        body.darkmode .chat-container {
-            background: #242424;
-            border-left-color: #3d3d3d;
-            box-shadow: none;
+            overflow-y: auto;
+            padding-right: 1rem; /* Platz für Scrollbar */
         }
 
-        .chat-header {
-            padding: 0.75rem 1.5rem; border-bottom: 1px solid #e2e8f0;
-            font-family: "Ubuntu", sans-serif; font-weight: 700; font-size: 16px;
-            color: #234567; flex-shrink: 0;
-        }
-        body.darkmode .chat-header { border-bottom-color: #3d3d3d; color: #ffffff; }
+        .page-header { text-align: center; margin-bottom: 1.5rem; flex-shrink: 0; }
+        .page-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .page-header h1 b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header p { font-size: 1.1rem; opacity: 0.8; }
 
-        .chat-messages { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; font-family: "Inter", sans-serif; }
-        .chat-messages::after { content: ""; display: table; clear: both; }
+        .status-bar { padding: 0.75rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem; font-weight: 500; flex-shrink: 0; }
+        .status-bar.connected { background-color: #d4edda; color: #155724; }
+        [data-theme="dark"] .status-bar.connected { background-color: #1c3c24; color: #c3e6cb; }
+        .status-bar.error { background-color: #f8d7da; color: #721c24; }
+        [data-theme="dark"] .status-bar.error { background: #4a2124; color: #f5c6cb; }
 
-        .chat-message { margin-bottom: 0.75rem; padding: 0.5rem 1rem; border-radius: 12px; max-width: 80%; line-height: 1.5; }
-        .chat-message .sender { font-weight: 600; display: block; margin-bottom: 2px; font-size: 13px; }
-        .chat-message .content { font-size: 14px; word-wrap: break-word; }
+        .generation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .generation-card { background: var(--card-bg); border-radius: 15px; padding: 2rem 1.5rem; box-shadow: 0 4px 6px var(--shadow-color); text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+        .generation-card h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+        .status-icon { width: 12em; height: 12em; margin: 0.5rem auto 1.5rem; position: relative; font-size: 10px; }
+        .view-button { display: inline-block; padding: 0.8rem 1.5rem; margin-top: 1rem; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); color: #fff; border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; opacity: 0; transform: translateY(10px) scale(0.9); pointer-events: none; }
+        .view-button.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .view-button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 20px var(--accent-glow); }
+        .checkmark-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; transform: scale(0.5); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); display: flex; align-items: center; justify-content: center; }
+        .checkmark-container.show { opacity: 1; transform: scale(1); }
+        .checkmark-icon { font-size: 5rem; color: var(--secondary-color); }
 
-        .chat-message.other { background: #f1f5f9; color: #333; float: left; clear: both; border-radius: 12px 12px 12px 0; }
-        body.darkmode .chat-message.other { background: #3d3d3d; color: #e0e0e0; }
-        .chat-message.other .sender { color: #63b3ed; }
-
-        .chat-message.own { background: #b1e7c8; color: #234567; float: right; clear: both; border-radius: 12px 12px 0 12px; }
-        body.darkmode .chat-message.own { background: #2d5a3f; color: #ffffff; }
+        /* --- Chat Sidebar --- */
+        .chat-sidebar { flex-basis: 380px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--card-bg); border-radius: 15px; box-shadow: 0 4px 6px var(--shadow-color); overflow: hidden; }
+        .chat-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--input-bg); font-weight: 600; font-size: 1.1rem; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .chat-message { display: flex; flex-direction: column; max-width: 85%; }
+        .chat-message .sender { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.25rem; }
+        .chat-message .content { padding: 0.6rem 1rem; border-radius: 12px; line-height: 1.5; word-wrap: break-word; }
+        .chat-message.other { align-self: flex-start; }
+        .chat-message.other .content { background: var(--input-bg); }
+        .chat-message.other .sender { color: var(--primary-color); }
+        .chat-message.own { align-self: flex-end; }
+        .chat-message.own .content { background: var(--secondary-color); color: #1a1a2e; }
         .chat-message.own .sender { display: none; }
+        .chat-message.system { align-self: center; font-size: 0.8rem; color: var(--text-color-light); font-style: italic; }
+        .chat-input-area { padding: 1rem 1.5rem; border-top: 1px solid var(--input-bg); }
+        .chat-form { display: flex; gap: 0.5rem; }
+        .chat-input { flex-grow: 1; padding: 0.75rem 1rem; border-radius: 8px; border: none; background: var(--input-bg); color: var(--text-color); }
+        .chat-input:focus { outline: none; box-shadow: 0 0 0 2px var(--primary-color); }
+        .chat-send-button { background: var(--primary-color); color: #fff; border: none; border-radius: 8px; padding: 0 1rem; font-size: 1.1rem; cursor: pointer; transition: background-color 0.2s; }
+        .chat-send-button:hover { background: #4a4aff; }
 
-        .chat-message.host:not(.own) { border-left: 4px solid #b1dae7; }
-        body.darkmode .chat-message.host:not(.own) { border-left-color: #63b3ed; }
-
-        .chat-message.system { clear: both; text-align: center; background: none; color: #a0aec0; font-size: 12px; font-style: italic; width: 100%; padding: 0.5rem 0; float: none; }
-        body.darkmode .chat-message.system { color: #718096; }
-        .chat-message.system .sender { display: none; }
-
-        .chat-input-container { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc; flex-shrink: 0; }
-        body.darkmode .chat-input-container { background: #2d2d2d; border-top-color: #3d3d3d; }
-        .chat-input-form { display: flex; gap: 0.75rem; }
-        .chat-input {
-            flex-grow: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 5px;
-            font-family: "Inter", sans-serif; font-size: 14px; transition: border-color 0.3s ease;
-        }
-        .chat-input:focus { outline: none; border-color: #b1dae7; }
-        body.darkmode .chat-input { background: #3d3d3d; border-color: #4d4d4d; color: #ffffff; }
-        body.darkmode .chat-input:focus { border-color: #b1dae7; }
-        .chat-send-btn {
-            padding: 0.75rem 1.25rem; background: #b1dae7; color: #234567;
-            border: none; border-radius: 5px; font-family: "Ubuntu", sans-serif;
-            font-weight: 700; cursor: pointer; transition: all 0.2s ease;
-        }
-        .chat-send-btn:hover { background: #9bc8d7; }
-        .chat-send-btn:disabled { background: #f0f0f0; color: #999; cursor: not-allowed; }
-        body.darkmode .chat-send-btn:disabled { background: #3d3d3d; color: #666; }
-
-        /* === RESPONSIVE ANPASSUNGEN FÜR MOBILGERÄTE === */
-        @media (max-width: 1024px) {
-            html, body {
-                height: auto; /* Erlaubt natürliches Scrollen auf Mobilgeräten */
-                overflow: auto;
-            }
-            body {
-                height: 100vh; /* Stellt sicher, dass der Viewport gefüllt wird, um Flexbox-Layout zu ermöglichen */
-            }
-            .page-layout-container {
-                flex-direction: column; /* Stapelt Inhalt und Chat vertikal */
-                gap: 0;
-                padding: 0; /* Kein extra Padding auf dem Container selbst */
-            }
-            .main-content-area {
-                flex-grow: 1; /* Nimmt den meisten Platz ein */
-                overflow-y: auto; /* Bleibt scrollbar */
-                padding: 0 1rem 1rem 1rem; /* Padding für den Inhalt */
-            }
-            .chat-container {
-                flex-basis: auto; /* Breite wird automatisch */
-                width: 100%;
-                max-height: 50vh; /* Begrenzt die Höhe des Chats wieder */
-                height: auto;
-                border-left: none; /* Linker Rand entfernen */
-                border-top: 1px solid #e2e8f0; /* Oberen Rand wieder hinzufügen */
-                border-radius: 0; /* Keine abgerundeten Ecken, da es unten andockt */
-                box-shadow: none;
-            }
-            body.darkmode .chat-container {
-                border-top-color: #3d3d3d;
-            }
-        }
-
-        /* === KORRIGIERTE HAMSTER-ANIMATION === */
+        /* --- Hamster Animation --- */
         .wheel-and-hamster { --dur: 1s; position: relative; width: 100%; height: 100%; }
         .wheel, .hamster, .hamster div, .spoke { position: absolute; }
         .wheel, .spoke { border-radius: 50%; top: 0; left: 0; width: 100%; height: 100%; }
         .wheel { background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%); z-index: 2; }
-
-        /* HIER IST DIE KORREKTUR: Der translate-Wert wurde angepasst, um den Hamster vertikal zu zentrieren. */
-        .hamster {
-            animation: hamster var(--dur) ease-in-out infinite;
-            top: 50%;
-            left: calc(50% - 3.5em);
-            width: 7em;
-            height: 3.75em;
-            transform: rotate(4deg) translate(-0.8em, 0.625em); /* KORRIGIERT */
-            transform-origin: 50% 0;
-            z-index: 1;
-        }
-
+        .hamster { animation: hamster var(--dur) ease-in-out infinite; top: 50%; left: calc(50% - 3.5em); width: 7em; height: 3.75em; transform: rotate(4deg) translate(-0.8em,1.85em); transform-origin: 50% 0; z-index: 1; }
         .hamster__head { animation: hamsterHead var(--dur) ease-in-out infinite; background: hsl(30,90%,55%); border-radius: 70% 30% 0 100% / 40% 25% 25% 60%; box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset, 0.75em -1.55em 0 hsl(30,90%,90%) inset; top: 0; left: -2em; width: 2.75em; height: 2.5em; transform-origin: 100% 50%; }
         .hamster__ear { animation: hamsterEar var(--dur) ease-in-out infinite; background: hsl(0,90%,85%); border-radius: 50%; box-shadow: -0.25em 0 hsl(30,90%,55%) inset; top: -0.25em; right: -0.25em; width: 0.75em; height: 0.75em; transform-origin: 50% 75%; }
         .hamster__eye { animation: hamsterEye var(--dur) linear infinite; background-color: hsl(0,0%,0%); border-radius: 50%; top: 0.375em; left: 1.25em; width: 0.5em; height: 0.5em; }
@@ -245,310 +157,178 @@
         .hamster__limb--bl { animation: hamsterBLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%); transform: rotate(-25deg); }
         .hamster__tail { animation: hamsterTail var(--dur) linear infinite; background: hsl(0,90%,85%); border-radius: 0.25em 50% 50% 0.25em; box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset; top: 1.5em; right: -0.5em; width: 1em; height: 0.5em; transform: rotate(30deg) translateZ(-1px); transform-origin: 0.25em 0.25em; }
         .spoke { animation: spoke var(--dur) linear infinite; background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%), linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat; }
+        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,1.85em); } 50% { transform: rotate(0) translate(-0.8em,1.85em); } } @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } } @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } } @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } } @keyframes hamsterBody { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); } } @keyframes hamsterFRLimb { from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); } } @keyframes hamsterFLLimb { from, 25%, 50%, 75%, to { transform: rotate(-30deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); } } @keyframes hamsterBRLimb { from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); } } @keyframes hamsterBLLimb { from, 25%, 50%, 75%, to { transform: rotate(20deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); } } @keyframes hamsterTail { from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); } } @keyframes spoke { from { transform: rotate(0); } to { transform: rotate(-1turn); } }
 
-        /* Checkmark CSS (unverändert) */
-        .checkmark { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; transform: scale(0); transition: all 0.3s ease-in-out; }
-        .checkmark.show { opacity: 1; transform: scale(1); }
-        .checkmark::before { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 10px; border-left: 4px solid #2ecc71; border-bottom: 4px solid #2ecc71; transform: translate(-50%, -50%) rotate(-45deg) scale(0); animation: checkmark 0.3s ease-in-out forwards; animation-delay: 0.2s; }
-
-        /* Animations (unverändert) */
-        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,0.625em); } 50% { transform: rotate(0) translate(-0.8em,0.625em); } } /* KORRIGIERT */
-        @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } }
-        @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } }
-        @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } }
-        @keyframes hamsterBody { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); } }
-        @keyframes hamsterFRLimb { from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); } }
-        @keyframes hamsterFLLimb { from, 25%, 50%, 75%, to { transform: rotate(-30deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); } }
-        @keyframes hamsterBRLimb { from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); } }
-        @keyframes hamsterBLLimb { from, 25%, 50%, 75%, to { transform: rotate(20deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); } }
-        @keyframes hamsterTail { from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); } }
-        @keyframes spoke { from { transform: rotate(0); } to { transform: rotate(-1turn); } }
-        @keyframes checkmark { 0% { transform: translate(-50%, -50%) rotate(-45deg) scale(0); } 100% { transform: translate(-50%, -50%) rotate(-45deg) scale(1); } }
+        /* --- Responsive Design --- */
+        @media (max-width: 1024px) {
+            body { overflow: auto; height: auto; }
+            .page-container { flex-direction: column; gap: 0; padding: 6rem 0 0 0; }
+            .main-content { padding: 1rem; overflow: visible; }
+            .chat-sidebar { flex-basis: auto; width: 100%; max-height: 40vh; border-radius: 0; border-top: 1px solid var(--input-bg); }
+        }
+        @media (max-width: 768px) { .header-content { padding: 1rem; } .main-header { padding: 0.5rem 0; } .profile-email { display: none; } }
     </style>
 </head>
 
 <body data-user-id="<%= it.userId %>">
 
+<div id="particles-bg"></div>
+
 <header class="main-header">
     <div class="header-content">
-        <a href="/" style="text-decoration: none; color: inherit;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-        <div class="flex items-center space-x-4">
+        <a href="/" style="text-decoration: none;"><span class="header-logo">Freest<b>AI</b>le</span></a>
+        <div class="header-nav">
             <% if (it.user) { %>
-            <div class="profile-container">
-                <a href="/user" style="text-decoration: none;">
-                    <div class="profile-circle"><%= it.user.email.charAt(0).toUpperCase() %></div>
-                </a>
-            </div>
+            <a href="/user" class="user-profile-link"><div class="user-profile"><div class="profile-avatar"><%= it.user.email.charAt(0).toUpperCase() %></div></div></a>
             <% } %>
-            <label class="switch">
-                <input id="darkmode-toggle" type="checkbox">
-                <span class="slider">
-                    <span class="star star_1"></span>
-                    <span class="star star_2"></span>
-                    <span class="star star_3"></span>
-                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-                        <path
-                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                                fill="#fff"
-                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-                        ></path>
-                    </svg>
-                </span>
-            </label>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></div>
         </div>
     </div>
 </header>
 
-<!-- NEUER LAYOUT-CONTAINER -->
-<div class="page-layout-container">
+<div class="page-container">
+    <div class="main-content">
+        <div class="page-header">
+            <h1><b>Multiplayer</b> Mode</h1>
+        </div>
 
-    <div class="main-content-area">
-        <!-- Der alte .container-wrapper ist hier nicht mehr nötig, aber wir behalten .container für die Zentrierung und das Padding -->
-        <div class="container">
-            <div class="header">
-                <h1 class="logo"><b>Live</b>-Präsentation</h1>
-            </div>
+        <div class="status-bar connected" id="status-bar">Connecting...</div>
 
-            <div class="status connected" id="status-bar">Verbindung wird hergestellt...</div>
-
-            <div class="multiplayer-info-bar">
-                <div class="info-section">
-                    <strong>Lobby:</strong> <%= it.lobbyId.substring(0, 12) %>...
-                    <% if (it.isHost) { %>
-                    <span class="host-badge">HOST</span>
-                    <% } %>
-                </div>
-                <% if (it.players) { %>
-                <div class="participants-count" id="participants-count">
-                    <i class="fas fa-users"></i>
-                    <span id="participant-number"><%= it.players.length %></span> Teilnehmer
-                </div>
-                <% } %>
-            </div>
-
-            <div class="generation-grid">
-                <% it.presentationIDs.forEach(function(presentationID, index) { %>
-                <div class="generation-card" data-presentation-id="<%= presentationID %>">
-                    <h3>
-                        <%= it.players[index].player %><%= (it.players[index].player.toLowerCase().endsWith('s') || it.players[index].player.toLowerCase().endsWith('z') || it.players[index].player.toLowerCase().endsWith('x')) ? "'" : "'s" %> Präsentation
-                    </h3>
-                    <div class="status-icon">
-                        <div class="wheel-and-hamster loading-animation" role="img" aria-label="Hamster im Laufrad">
-                            <div class="wheel"></div>
-                            <div class="hamster"><div class="hamster__body"><div class="hamster__head"><div class="hamster__ear"></div><div class="hamster__eye"></div><div class="hamster__nose"></div></div><div class="hamster__limb hamster__limb--fr"></div><div class="hamster__limb hamster__limb--fl"></div><div class="hamster__limb hamster__limb--br"></div><div class="hamster__limb hamster__limb--bl"></div><div class="hamster__tail"></div></div></div>
-                            <div class="spoke"></div>
-                        </div>
-                        <div class="checkmark"></div>
+        <div class="generation-grid">
+            <% it.presentationIDs.forEach(function(presentationID, index) { %>
+            <div class="generation-card" data-presentation-id="<%= presentationID %>">
+                <h3><%= it.players[index].player %>'s Presentation</h3>
+                <div class="status-icon">
+                    <div class="wheel-and-hamster loading-animation" role="img" aria-label="Hamster running in a wheel">
+                        <div class="wheel"></div>
+                        <div class="hamster"><div class="hamster__body"><div class="hamster__head"><div class="hamster__ear"></div><div class="hamster__eye"></div><div class="hamster__nose"></div></div><div class="hamster__limb hamster__limb--fr"></div><div class="hamster__limb hamster__limb--fl"></div><div class="hamster__limb hamster__limb--br"></div><div class="hamster__limb hamster__limb--bl"></div><div class="hamster__tail"></div></div></div>
+                        <div class="spoke"></div>
                     </div>
-                    <a href="/present3?presentationID=<%= presentationID %>&lobbyId=<%= it.lobbyId %>&userId=<%= it.userId %>&userName=<%= encodeURIComponent(it.userName) %>&isHost=<%= it.isHost %>"
-                       class="view-button" target="_blank" rel="noopener noreferrer">
-                        Zur Präsentation
-                    </a>
+                    <div class="checkmark-container">
+                        <i class="fas fa-circle-check checkmark-icon"></i>
+                    </div>
                 </div>
-                <% }); %>
+                <a href="/present3?presentationID=<%= presentationID %>&lobbyId=<%= it.lobbyId %>&userId=<%= it.userId %>&userName=<%= encodeURIComponent(it.userName) %>&isHost=<%= it.isHost %>"
+                   class="view-button" target="_blank" rel="noopener noreferrer">
+                    View Presentation
+                </a>
             </div>
+            <% }); %>
         </div>
     </div>
 
-    <div class="chat-container">
+    <aside class="chat-sidebar">
         <div class="chat-header">💬 Live Chat</div>
         <div class="chat-messages" id="chat-messages">
-            <!-- Chat-Nachrichten werden hier dynamisch eingefügt -->
+            <!-- Chat messages will be dynamically inserted here -->
         </div>
-        <div class="chat-input-container">
-            <form class="chat-input-form" id="chat-form">
-                <input type="text" class="chat-input" id="chat-input" placeholder="Nachricht eingeben..." maxlength="500">
-                <button type="submit" class="chat-send-btn" id="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+        <div class="chat-input-area">
+            <form class="chat-form" id="chat-form">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Enter message..." maxlength="500">
+                <button type="submit" class="chat-send-button" id="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
             </form>
         </div>
-    </div>
+    </aside>
+</div>
 
-</div> <!-- Ende .page-layout-container -->
-
-
-<!-- Externe Skripte -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/sse-client.js"></script>
-
-<!-- Inline Skripte (unverändert) -->
 <script>
-    // Dark-Mode-Logik
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('darkmode-toggle');
-        const isDark = document.documentElement.classList.contains('darkmode');
-        toggle.checked = !isDark;
-        document.body.classList.toggle('darkmode', isDark);
-        toggle.addEventListener('change', function() {
-            const dark = !toggle.checked;
-            document.documentElement.classList.toggle('darkmode', dark);
-            document.body.classList.toggle('darkmode', dark);
-            localStorage.setItem('darkmode', dark.toString());
-        });
-    });
+        // Dark Mode Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const themeToggleIcon = themeToggle.querySelector('i');
+            const htmlEl = document.documentElement;
+            const setTheme = (theme) => { htmlEl.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'; };
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            themeToggle.addEventListener('click', () => { const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; setTheme(newTheme); });
+        }
 
-    // UNVERÄNDERTE LOGIK FÜR STATUS-CHECK
-    const presentationIDsRaw = '<%= it.presentationIDs %>';
-    const presentationIDs = presentationIDsRaw.split(',');
-    const completedPresentations = new Set();
-    let checkInterval;
+        // Generation Status Check Logic
+        const presentationIDsRaw = '<%= it.presentationIDs %>';
+        const presentationIDs = presentationIDsRaw.split(',');
+        const completedPresentations = new Set();
+        let checkInterval;
 
-    async function checkGenerationStatus() {
-        for (const presentationID of presentationIDs) {
-            if (completedPresentations.has(presentationID)) continue;
-
-            try {
-                const response = await fetch(`/checkGenerationStatus`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ presentationID: presentationID })
-                });
-
-                if (!response.ok) {
-                    console.error(`Status-Check für ${presentationID} fehlgeschlagen mit Status: ${response.status}`);
-                    continue;
-                }
-
-                const data = await response.json();
-                const presentationItem = document.querySelector(`[data-presentation-id="${presentationID}"]`);
-                if (!presentationItem) continue;
-
-                const loadingAnimation = presentationItem.querySelector('.loading-animation');
-                const checkmark = presentationItem.querySelector('.checkmark');
-                const viewButton = presentationItem.querySelector('.view-button');
-
-                if (data.status === 'completed') {
-                    completedPresentations.add(presentationID);
-                    if (loadingAnimation) loadingAnimation.style.display = 'none';
-                    if (checkmark) checkmark.classList.add('show');
-                    if (viewButton) viewButton.classList.add('show');
-
-                    if (completedPresentations.size === presentationIDs.length && typeof checkInterval !== 'undefined') {
-                        clearInterval(checkInterval);
-                    }
-                } else if (data.status === 'error' && typeof checkInterval !== 'undefined') {
-                    clearInterval(checkInterval);
-                    window.location.href = '/error-page?message=' + encodeURIComponent(data.message);
-                }
-            } catch (error) {
-                console.error('Fehler beim Überprüfen des Status:', error);
+        async function checkGenerationStatus() {
+            if (completedPresentations.size === presentationIDs.length) { if (checkInterval) clearInterval(checkInterval); return; }
+            for (const presentationID of presentationIDs) {
+                if (completedPresentations.has(presentationID)) continue;
+                try {
+                    const response = await fetch(`/checkGenerationStatus`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ presentationID: presentationID }) });
+                    if (!response.ok) { console.error(`Status check for ${presentationID} failed with status: ${response.status}`); continue; }
+                    const data = await response.json();
+                    const presentationItem = document.querySelector(`[data-presentation-id="${presentationID}"]`);
+                    if (!presentationItem) continue;
+                    const loadingAnimation = presentationItem.querySelector('.loading-animation');
+                    const checkmark = presentationItem.querySelector('.checkmark-container');
+                    const viewButton = presentationItem.querySelector('.view-button');
+                    if (data.status === 'completed') {
+                        completedPresentations.add(presentationID);
+                        if (loadingAnimation) loadingAnimation.style.display = 'none';
+                        if (checkmark) checkmark.classList.add('show');
+                        if (viewButton) viewButton.classList.add('show');
+                    } else if (data.status === 'error') { if (checkInterval) clearInterval(checkInterval); window.location.href = '/error-page?message=' + encodeURIComponent(data.message); return; }
+                } catch (error) { console.error('Error checking status:', error); if (checkInterval) clearInterval(checkInterval); }
             }
         }
-    }
 
-    // UNVERÄNDERTE LOGIK FÜR CHAT UND REALTIME
-    const matchData = {
-        lobbyId: '<%= it.lobbyId %>',
-        userId: '<%= it.userId %>',
-        userName: '<%= it.userName %>',
-        isHost: <%= it.isHost ? 'true' : 'false' %>,
-    };
-
-    try {
-        const playersData = `<%- JSON.stringify(it.players2 || []) %>`;
-        if (playersData && playersData !== 'null' && playersData !== 'undefined') {
-            matchData.players = JSON.parse(playersData);
-        }
-    } catch (e) {
-        console.warn('Fehler beim Parsen der Spielerdaten:', e);
-        matchData.players = [];
-    }
-
-    let realtimeClient = null;
-
-    const chatMessages = document.getElementById('chat-messages');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const statusBar = document.getElementById('status-bar');
-
-    function updateStatus(message, isError = false) {
-        statusBar.textContent = message;
-        statusBar.className = isError ? 'status error' : 'status connected';
-    }
-
-    function addChatMessage(sender, message, isOwn, isHost, isSystem = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message';
-
-        if (isSystem) {
-            messageDiv.classList.add('system');
-        } else if (isOwn) {
-            messageDiv.classList.add('own');
-        } else {
-            messageDiv.classList.add('other');
-            if (isHost) messageDiv.classList.add('host');
-        }
-
-        const senderSpan = document.createElement('span');
-        senderSpan.className = 'sender';
-        senderSpan.textContent = sender;
-
-        const contentSpan = document.createElement('span');
-        contentSpan.className = 'content';
-        contentSpan.textContent = message;
-
-        messageDiv.appendChild(senderSpan);
-        messageDiv.appendChild(contentSpan);
-
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const message = chatInput.value.trim();
-        if (!message) return;
-
-        if (realtimeClient && realtimeClient.isConnected()) {
-            const result = await realtimeClient.sendChatMessage(message);
-            if (result.success) {
-                chatInput.value = '';
-            } else {
-                updateStatus('Fehler beim Senden der Nachricht', true);
-            }
-        } else {
-            updateStatus('Nicht mit Realtime verbunden', true);
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        // Initialer Status-Check
         checkGenerationStatus();
         checkInterval = setInterval(checkGenerationStatus, 2500);
 
-        try {
-            realtimeClient = new SupabaseRealtimeClient();
+        // Chat Logic
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const statusBar = document.getElementById('status-bar');
 
-            realtimeClient.on('connect', () => {
-                updateStatus('Verbunden mit Multiplayer-Session', false);
-            });
-
-            realtimeClient.on('connect_error', (error) => {
-                updateStatus('Verbindungsfehler: ' + error.message, true);
-            });
-
-            realtimeClient.on('chatMessage', (data) => {
-                const isOwnMessage = data.userId === matchData.userId;
-                addChatMessage(data.userName, data.message, isOwnMessage, data.isHost, false);
-            });
-
-            realtimeClient.on('playerJoined', (player) => {
-                addChatMessage('System', `${player.name} ist der Präsentation beigetreten`, false, false, true);
-            });
-
-            realtimeClient.on('playerLeft', (player) => {
-                addChatMessage('System', `${player.name} hat die Präsentation verlassen`, false, false, true);
-            });
-
-            await realtimeClient.connect(matchData.lobbyId, matchData.userId, matchData.userName, matchData.isHost);
-
-        } catch (error) {
-            console.error('Fehler beim Initialisieren von Realtime:', error);
-            updateStatus('Fehler beim Verbinden mit Realtime', true);
+        function updateStatus(message, isError = false) {
+            statusBar.textContent = message;
+            statusBar.className = isError ? 'status-bar error' : 'status-bar connected';
         }
+
+        function addChatMessage(sender, message, isOwn, isHost, isSystem = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+            if (isSystem) messageDiv.classList.add('system');
+            else if (isOwn) messageDiv.classList.add('own');
+            else { messageDiv.classList.add('other'); if (isHost) messageDiv.classList.add('host'); }
+
+            messageDiv.innerHTML = `<span class="sender">${sender}</span><div class="content">${message}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message || !realtimeClient || !realtimeClient.isConnected()) return;
+            const result = await realtimeClient.sendChatMessage(message);
+            if (result.success) chatInput.value = '';
+            else updateStatus('Failed to send message.', true);
+        });
+
+        const matchData = { lobbyId: '<%= it.lobbyId %>', userId: '<%= it.userId %>', userName: '<%= it.userName %>', isHost: <%= it.isHost %> };
+        let realtimeClient = null;
+
+        async function initializeRealtime() {
+            try {
+                realtimeClient = new SupabaseRealtimeClient();
+                realtimeClient.on('connect', () => updateStatus('Connected to live session.', false));
+                realtimeClient.on('connect_error', (error) => updateStatus(`Connection error: ${error.message}`, true));
+                realtimeClient.on('chatMessage', (data) => addChatMessage(data.userName, data.message, data.userId === matchData.userId, data.isHost));
+                realtimeClient.on('playerJoined', (player) => addChatMessage('System', `${player.name} joined the session.`, false, false, true));
+                realtimeClient.on('playerLeft', (player) => addChatMessage('System', `${player.name} left the session.`, false, false, true));
+                await realtimeClient.connect(matchData.lobbyId, matchData.userId, matchData.userName, matchData.isHost);
+            } catch (error) {
+                console.error('Failed to initialize Realtime:', error);
+                updateStatus('Failed to connect to live session.', true);
+            }
+        }
+        initializeRealtime();
     });
 </script>
-
 </body>
 </html>

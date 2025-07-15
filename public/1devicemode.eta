@@ -1,1863 +1,410 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreestAIle - Multiplayer Mode</title>
-    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
-    <script src="darkmode-init.js"></script>
+    <title>1-Device Multiplayer - FreestAIle</title>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/landing-page.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* ... (alle bisherigen CSS-Stile bis zum alten Switch bleiben unverändert) ... */
-
-        /* Basis-Styles für alle Buttons */
-        .auth-button {
-            position: relative;
-            margin: auto;
-            padding: 12px 18px;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
+        /* --- CSS Variables --- */
+        :root, [data-theme="light"] {
+            --bg-color: #F4F7FC;
+            --text-color: #1a1a2e;
+            --text-color-light: #6c757d;
+            --card-bg: #FFFFFF;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --input-bg: #e9ecef;
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --error-color: #e74c3c;
         }
 
-        .auth-button:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: block;
-            border-radius: 50px;
-            width: 45px;
-            height: 45px;
-            transition: all 0.3s ease;
+        [data-theme="dark"] {
+            --bg-color: #2A2D3A;
+            --text-color: #f0f0f0;
+            --text-color-light: #a0aec0;
+            --card-bg: #353849;
+            --header-bg: rgba(42, 45, 58, 0.7);
+            --input-bg: #2A2D3A;
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --error-color: #ff8a8a;
         }
 
-        .auth-button span {
-            position: relative;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            color: #234567;
+        /* --- Global Reset & Body --- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
         }
 
-        .auth-button svg {
-            position: relative;
-            top: 0;
-            margin-left: 10px;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke: #234567;
-            stroke-width: 2;
-            transform: translateX(-5px);
-            transition: all 0.3s ease;
+        /* --- Animated Background --- */
+        #particles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; opacity: 0; animation: rise 15s infinite linear; }
+        @keyframes rise {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
         }
 
-        .auth-button:hover:before {
+        /* --- Main-Layout --- */
+        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrap { flex: 1; }
+
+        /* --- Header --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 2rem; z-index: 1000; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.3s ease; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .header-logo b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-nav { display: flex; align-items: center; gap: 1rem; }
+        .dark-mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--text-color); opacity: 0.8; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { opacity: 1; transform: scale(1.1) rotate(15deg); }
+        .user-profile-link { text-decoration: none; color: inherit; border-radius: 50px; padding: 4px; transition: background-color 0.3s ease; margin-right: 0.5rem; }
+        .user-profile-link:hover { background-color: rgba(255, 255, 255, 0.08); }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .profile-avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #F5A623; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+        .profile-email { opacity: 0.8; font-weight: 500; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cta { position: relative; margin: auto; padding: 12px 18px; transition: all 0.2s ease; border: none; background: none; cursor: pointer; }
+        .cta:before { content: ""; position: absolute; top: 0; left: 0; display: block; border-radius: 50px; width: 45px; height: 45px; transition: all 0.3s ease; }
+        .cta span { position: relative; font-family: "Poppins", sans-serif; font-size: 16px; font-weight: 600; letter-spacing: 0.05em; }
+        .cta svg { position: relative; top: 0; margin-left: 10px; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; transform: translateX(-5px); transition: all 0.3s ease; }
+        .cta:hover:before { width: 100%; }
+        .cta:hover svg { transform: translateX(0); }
+        .cta:active { transform: scale(0.95); }
+        .cta--login:before { background: rgba(34, 197, 94, 0.3); } .cta--login span { color: #22c55e; } .cta--login svg { stroke: #22c55e; } .cta--login:hover:before { background: #22c55e; } .cta--login:hover span, .cta--login:hover svg { color: #fff; stroke: #fff; }
+        .cta--logout:before { background: rgba(239, 68, 68, 0.3); } .cta--logout span { color: #ef4444; } .cta--logout svg { stroke: #ef4444; } .cta--logout:hover:before { background: #ef4444; } .cta--logout:hover span, .cta--logout:hover svg { color: #fff; stroke: #fff; }
+
+        /* --- Page-Specific Styles --- */
+        .page-header { text-align: center; margin-bottom: 2rem; }
+        .page-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .page-header h1 b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header p { font-size: 1.1rem; opacity: 0.8; }
+
+        .player-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .player-card { background: var(--card-bg); border-radius: 15px; padding: 1.5rem; box-shadow: 0 4px 6px var(--shadow-color); transition: all 0.3s ease; display: flex; flex-direction: column; gap: 1rem; }
+        .player-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px var(--shadow-color); }
+        .player-header { display: flex; align-items: center; gap: 1rem; }
+        .player-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 600; color: var(--text-color); flex-shrink: 0; }
+        .player-info { flex-grow: 1; }
+
+        /* KORRIGIERT: Einheitliche Stile für beide Input-Felder */
+        .player-name-input, .topic-input {
             width: 100%;
-        }
-
-        .auth-button:hover svg {
-            transform: translateX(0);
-        }
-
-        .auth-button:active {
-            transform: scale(0.95);
-        }
-
-        /* Spezifische Styles für Login (blau) */
-        .auth-button-login:before {
-            background: #b1dae7;
-        }
-        .auth-button-login:hover:before {
-            background: #b1dae7;
-        }
-
-        /* Spezifische Styles für Register (grün) */
-        .auth-button-register:before {
-            background: #b1e7c8;
-        }
-        .auth-button-register:hover:before {
-            background: #b1e7c8;
-        }
-
-        /* Spezifische Styles für Logout (rot) */
-        .auth-button-logout {
-            position: relative;
-            margin: auto;
-            padding: 12px 18px;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            cursor: pointer;
-        }
-
-        .auth-button-logout:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: block;
-            border-radius: 50px;
-            background: #e7b1b1;
-            width: 45px;
-            height: 45px;
-            transition: all 0.3s ease;
-        }
-
-        .auth-button-logout span {
-            position: relative;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            color: #234567;
-        }
-
-        .auth-button-logout svg {
-            position: relative;
-            top: 0;
-            margin-left: 10px;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke: #234567;
-            stroke-width: 2;
-            transform: translateX(-5px);
-            transition: all 0.3s ease;
-        }
-
-        .auth-button-logout:hover:before {
-            width: 100%;
-            background: #e7b1b1;
-        }
-
-        .auth-button-logout:hover svg {
-            transform: translateX(0);
-        }
-
-        .auth-button-logout:active {
-            transform: scale(0.95);
-        }
-
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-right: 1rem;
-        }
-
-        .profile-circle {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: #b1dae7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: #234567;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        /* Apply dark mode styles to profile circle immediately with class on html element */
-        html.darkmode .profile-circle {
-            background: #3d3d3d;
-            color: #ffffff;
-        }
-
-        .profile-email {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 16px;
-            color: #234567;
-            white-space: nowrap;
-        }
-
-        html.darkmode .profile-email {
-            color: #ffffff;
-        }
-
-        .profile-circle:hover {
-            background: #9bc8d7;
-            transform: scale(1.05);
-        }
-
-        body.darkmode .profile-circle {
-            background: #3d3d3d;
-            color: #ffffff;
-        }
-
-        body.darkmode .profile-email {
-            color: #ffffff;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        /* Multiplayer-spezifische Styles */
-        .player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .player-card {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .player-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .player-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #b1dae7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #234567;
-        }
-
-        .player-info {
-            flex: 1;
-        }
-
-        .player-name {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: #234567;
-            margin: 0;
-        }
-
-        .player-topic {
-            font-family: "Inter", sans-serif;
-            font-size: 14px;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-
-        .player-input {
-            margin-top: 1rem;
-        }
-
-        .player-input input, .topic-control input.topic-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 5px;
-            font-family: "Inter", sans-serif;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .player-input input:focus, .topic-control input.topic-input:focus {
-            outline: none;
-            border-color: #b1dae7;
-        }
-
-        .topic-control {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .topic-control .topic-input {
-            flex-grow: 1; /* Nimmt den verfügbaren Platz ein */
-        }
-
-        /* ========================================= */
-        /* === NEU: Verbesserte "Random Topic" Slider === */
-        /* ========================================= */
-
-        .pretty-switch {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent; /* Verhindert blauen Blitz auf mobil */
-        }
-
-        /* Versteckt die originale Checkbox */
-        .pretty-switch .random-switch {
-            opacity: 0;
-            width: 0;
-            height: 0;
-            position: absolute;
-        }
-
-        .pretty-switch-label {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            color: #666;
-            transition: color 0.3s ease;
-        }
-
-        .pretty-switch-slider {
-            width: 40px;
-            height: 22px;
-            background-color: #e2e8f0;
-            border-radius: 22px;
-            position: relative;
-            transition: background-color 0.3s ease;
-            flex-shrink: 0; /* Verhindert, dass der Switch schrumpft */
-        }
-
-        .pretty-switch-knob {
-            width: 16px;
-            height: 16px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            transition: transform 0.3s ease, box-shadow 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        /* Zustand, wenn der Switch aktiviert ist (Checkbox ist :checked) */
-        .pretty-switch .random-switch:checked + .pretty-switch-slider {
-            background-color: #b1e7c8; /* Grüne Farbe für "Random" */
-        }
-
-        .pretty-switch .random-switch:checked + .pretty-switch-slider .pretty-switch-knob {
-            transform: translateX(18px);
-        }
-
-        .pretty-switch:hover .pretty-switch-knob {
-            box-shadow: 0 0 0 4px rgba(177, 218, 231, 0.3);
-        }
-
-        .pretty-switch .random-switch:checked:hover + .pretty-switch-slider .pretty-switch-knob {
-            box-shadow: 0 0 0 4px rgba(177, 231, 200, 0.4);
-        }
-
-        .pretty-switch .random-switch:checked ~ .pretty-switch-label {
-            color: #234567;
-        }
-
-        /* Dark Mode für den neuen Switch */
-        body.darkmode .pretty-switch-slider {
-            background-color: #4d4d4d;
-        }
-        body.darkmode .pretty-switch .random-switch:checked + .pretty-switch-slider {
-            background-color: #2d5a3f;
-        }
-        body.darkmode .pretty-switch-knob {
-            background-color: #d1d5db;
-        }
-        body.darkmode .pretty-switch-label {
-            color: #a0aec0;
-        }
-        body.darkmode .pretty-switch .random-switch:checked ~ .pretty-switch-label {
-            color: #ffffff;
-        }
-
-        /* ========================================= */
-        /* === Ende der neuen Slider-Styles === */
-        /* ========================================= */
-
-
-        .player-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .player-actions button {
-            padding: 0.4rem 0.6rem;
-            border: none;
-            border-radius: 4px;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.3rem;
-            min-width: 40px;
-            height: 32px;
-        }
-
-        .ready-button {
-            position: relative;
-            margin: auto;
-            padding: 8px 16px;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            cursor: pointer;
-            min-width: 60px;
-            height: 32px;
-        }
-
-        .ready-button:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: block;
-            border-radius: 50px;
-            background: #b1e7c8;
-            width: 45px;
-            height: 32px;
-            transition: all 0.3s ease;
-        }
-
-        .ready-button span {
-            position: relative;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            color: #234567;
-        }
-
-        .ready-button svg {
-            position: relative;
-            top: 0;
-            margin-left: 10px;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke: #234567;
-            stroke-width: 2;
-            transform: translateX(-5px);
-            transition: all 0.3s ease;
-        }
-
-        .ready-button:hover:before {
-            width: 100%;
-            background: #b1e7c8;
-        }
-
-        .ready-button:hover svg {
-            transform: translateX(0);
-        }
-
-        .ready-button:active {
-            transform: scale(0.95);
-        }
-
-        .ready-button.ready {
-            cursor: default;
-        }
-
-        .ready-button.ready:before {
-            width: 100%;
-            background: #b1e7c8;
-        }
-
-        .ready-button.ready svg {
-            transform: translateX(0);
-        }
-
-        /* Darkmode Styles */
-        body.darkmode .ready-button span {
-            color: #ffffff;
-        }
-
-        body.darkmode .ready-button:before {
-            background: #2d5a3f;
-        }
-
-        body.darkmode .ready-button.ready:before {
-            background: #2d5a3f;
-        }
-
-        body.darkmode .ready-button svg {
-            stroke: #ffffff;
-        }
-
-        /* Neuer Löschen-Button Style */
-        .delete-button {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #e2e8f0;
-            border: none;
-            font-weight: 600;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition-duration: 0.3s;
-            overflow: hidden;
-            position: relative;
-            gap: 1px;
-            padding: 0;
-        }
-
-        .delete-button .svgIcon {
-            width: 12px;
-            transition-duration: 0.3s;
-        }
-
-        .delete-button .svgIcon path {
-            fill: #234567;
-        }
-
-        .delete-button:hover {
-            background-color: #e7b1b1;
-        }
-
-        .delete-button:hover .bin-bottom {
-            width: 12px;
-            transition-duration: 0.3s;
-            transform: translateY(60%);
-        }
-
-        .delete-button .bin-top {
-            transform-origin: bottom right;
-        }
-
-        .delete-button:hover .bin-top {
-            width: 12px;
-            transition-duration: 0.3s;
-            transform: translateY(60%) rotate(160deg);
-        }
-
-        /* Darkmode Styles */
-        body.darkmode .delete-button {
-            background: #4d4d4d;
-        }
-
-        body.darkmode .delete-button .svgIcon path {
-            fill: #ffffff;
-        }
-
-        body.darkmode .delete-button:hover {
-            background: #e7b1b1;
-        }
-
-        .start-game-button {
-            width: 100%;
-            padding: 1rem;
-            margin-top: 2rem;
-            background: #b1dae7;
-            color: #234567;
-            border: none;
-            border-radius: 5px;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .start-game-button:hover {
-            background: #9bc8d7;
-        }
-
-        .start-game-button:disabled {
-            background: #f0f0f0;
-            color: #999;
-            cursor: not-allowed;
-        }
-
-        /* Darkmode Styles */
-        body.darkmode .player-card {
-            background: #2d2d2d;
-        }
-
-        body.darkmode .player-name {
-            color: #ffffff;
-        }
-
-        body.darkmode .player-topic {
-            color: #a0aec0;
-        }
-
-        body.darkmode .player-input input, body.darkmode .topic-control input.topic-input {
-            background: #3d3d3d;
-            border-color: #4d4d4d;
-            color: #ffffff;
-        }
-
-        body.darkmode .player-input input:focus, body.darkmode .topic-control input.topic-input:focus {
-            border-color: #b1dae7;
-        }
-
-        body.darkmode .status-waiting {
-            background: #3d3d3d;
-            color: #a0aec0;
-        }
-
-        body.darkmode .start-game-button:disabled {
-            background: #3d3d3d;
-            color: #666;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 0;
-            right: 0.5rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #666;
-            cursor: pointer;
-            padding: 0.5rem;
-            line-height: 1;
-            transition: color 0.2s ease;
-        }
-
-        .modal-close:hover {
-            color: #234567;
-        }
-
-        .modal-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 0.5rem;
-        }
-
-        .modal-tab {
-            padding: 0.5rem 1rem;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            position: relative;
-        }
-
-        .modal-tab.active {
-            color: #234567;
-        }
-
-        .modal-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -0.5rem;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #234567;
-        }
-
-        .modal-form {
-            display: none;
-        }
-
-        .modal-form.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-family: "Inter", sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            color: #234567;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
             border-radius: 8px;
-            font-family: "Inter", sans-serif;
-            font-size: 16px;
-            transition: all 0.2s ease;
-            background: #f8fafc;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #b1dae7;
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(177, 218, 231, 0.2);
-        }
-
-        .modal-submit {
-            width: 100%;
-            padding: 0.75rem;
-            background: #b1dae7;
-            color: #234567;
             border: none;
-            border-radius: 8px;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
             transition: all 0.2s ease;
-            margin-top: 1rem;
         }
-
-        .modal-submit:hover {
-            background: #9bc8d7;
-            transform: translateY(-1px);
+        .player-name-input {
+            font-size: 1.25rem;
+            font-weight: 600;
         }
-
-        .modal-submit:active {
-            transform: translateY(0);
+        .player-name-input:focus, .topic-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--secondary-color);
         }
-
-        .error-message {
-            color: #e53e3e;
-            font-family: "Inter", sans-serif;
-            font-size: 14px;
-            margin-top: 0.5rem;
-            display: none;
-        }
-
-        .error-message.active {
-            display: block;
-        }
-
-        /* Dark Mode Styles für Modal */
-        body.darkmode .modal-content {
-            background: #2d2d2d;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        body.darkmode .modal-close {
-            color: #a0aec0;
-        }
-
-        body.darkmode .modal-close:hover {
-            color: #ffffff;
-        }
-
-        body.darkmode .modal-tab {
-            color: #a0aec0;
-        }
-
-        body.darkmode .modal-tab.active {
-            color: #ffffff;
-        }
-
-        body.darkmode .modal-tab.active::after {
-            background: #b1dae7;
-        }
-
-        body.darkmode .modal-tabs {
-            border-bottom-color: #4d4d4d;
-        }
-
-        body.darkmode .form-group label {
-            color: #ffffff;
-        }
-
-        body.darkmode .form-group input {
-            background: #3d3d3d;
-            border-color: #4d4d4d;
-            color: #ffffff;
-        }
-
-        body.darkmode .form-group input:focus {
-            border-color: #b1dae7;
-            background: #2d2d2d;
-        }
-
-        body.darkmode .modal-submit {
-            background: #b1dae7;
-            color: #234567;
-        }
-
-        body.darkmode .modal-submit:hover {
-            background: #9bc8d7;
-        }
-
-        body.darkmode .error-message {
-            color: #fc8181;
-        }
-
-        .add-player-card {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            height: 100%;
-            min-height: 150px;
-            grid-column: auto;
-        }
-
-        .add-player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .add-player-card .plus-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #b1e7c8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #234567;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .add-player-card .plus-icon i {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            margin: 0;
-            padding: 0;
-            line-height: 1;
-        }
-
-        .add-player-card:hover .plus-icon {
-            transform: scale(1.1);
-            background: #9bd7b8;
-        }
-
-        /* Darkmode Styles */
-        body.darkmode .add-player-card {
-            background: #2d2d2d;
-        }
-
-        body.darkmode .add-player-card .plus-icon {
-            background: #2d5a3f;
-            color: #ffffff;
-        }
-
-        body.darkmode .add-player-card:hover .plus-icon {
-            background: #3d6a4f;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .player-input input.error, .topic-control input.error {
-            border-color: #e53e3e;
-        }
-
-        body.darkmode .player-input input.error, body.darkmode .topic-control input.error {
-            border-color: #fc8181;
-        }
-
-        @keyframes duplicate-shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        .player-input input.duplicate-error {
-            border-color: #e53e3e;
-        }
-
-        body.darkmode .player-input input.duplicate-error {
-            border-color: #fc8181;
-        }
-
-        .player-input input.shake, .topic-control input.shake {
+        .topic-input.error, .player-name-input.error {
+            box-shadow: 0 0 0 2px var(--error-color);
             animation: shake 0.5s ease-in-out;
         }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* NEU: Language Chooser Styles */
-        .language-selector-container {
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .language-selector-container label {
-            display: block;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            color: #234567;
-            margin-bottom: 0.75rem;
-        }
-        .language-selector-container select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 5px;
-            font-family: "Inter", sans-serif;
-            font-size: 16px;
-            background-color: #fff;
-            color: #234567;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .language-selector-container select:focus {
-            outline: none;
-            border-color: #b1dae7;
-        }
-        body.darkmode .language-selector-container label {
-            color: #ffffff;
-        }
-        body.darkmode .language-selector-container select {
-            background: #3d3d3d;
-            border-color: #4d4d4d;
-            color: #ffffff;
-        }
-        body.darkmode .language-selector-container select:focus {
-            border-color: #b1dae7;
-        }
+        .topic-control { display: flex; align-items: center; gap: 0.75rem; }
 
-        body.darkmode .auth-button span,
-        body.darkmode .auth-button svg {
-            color: #ffffff;
-            stroke: #ffffff;
-        }
+        .pretty-switch { display: flex; align-items: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .pretty-switch .random-switch { opacity: 0; width: 0; height: 0; position: absolute; }
+        .pretty-switch-label { font-size: 0.9rem; font-weight: 500; color: var(--text-color-light); transition: color 0.3s ease; }
+        .pretty-switch-slider { width: 40px; height: 22px; background-color: var(--input-bg); border-radius: 22px; position: relative; transition: background-color 0.3s ease; flex-shrink: 0; }
+        .pretty-switch-knob { width: 16px; height: 16px; background-color: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        [data-theme="dark"] .pretty-switch-knob { background-color: #9ca3af; }
+        .pretty-switch .random-switch:checked + .pretty-switch-slider { background-color: var(--secondary-color); }
+        .pretty-switch .random-switch:checked + .pretty-switch-slider .pretty-switch-knob { transform: translateX(18px); }
+        .pretty-switch .random-switch:checked ~ .pretty-switch-label { color: var(--text-color); }
 
-        /* === CSS FÜR DAS LADE-OVERLAY === */
-        #loadingOverlay {
-            position: fixed;
-            display: none; /* Standardmäßig ausgeblendet */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 100vh;
-            top: 0;
-            left: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-        }
+        .player-actions { display: flex; justify-content: flex-end; margin-top: -0.5rem; } /* Negativer Margin für kompaktes Layout */
+        .delete-button { background: none; border: none; cursor: pointer; color: var(--text-color-light); font-size: 1.2rem; transition: color 0.2s, transform 0.2s; padding: 0.25rem; }
+        .delete-button:hover { color: var(--error-color); transform: scale(1.1); }
 
-        .loading-text {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 1.5rem;
-            color: #ffffff;
-            margin-top: 2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
+        .add-player-card { background: var(--card-bg); border-radius: 15px; box-shadow: 0 4px 6px var(--shadow-color); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; min-height: 190px; }
+        .add-player-card:hover { transform: translateY(-5px); background-color: var(--secondary-color); }
+        .plus-icon { font-size: 3rem; color: var(--text-color); transition: color 0.3s; }
+        .add-player-card:hover .plus-icon { color: #fff; }
 
-        /* === KORREKTER CSS-CODE FÜR DIE HAMSTER-ANIMATION === */
-        .wheel-and-hamster {
-            --dur: 1s;
-            position: relative;
-            width: 12em;
-            height: 12em;
-            font-size: 14px;
-        }
+        .game-controls { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; margin-top: 2rem; }
+        .language-selector { width: 100%; max-width: 400px; padding: 0.8rem 1rem; background: var(--card-bg); border: 1px solid transparent; border-radius: 8px; color: var(--text-color); font-size: 1rem; }
+        .start-game-button { font-size: 1.2rem; font-weight: 700; color: #fff; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 10px 20px var(--accent-glow); }
+        .start-game-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px var(--accent-glow); }
+        .start-game-button:disabled { background: var(--text-color-light); box-shadow: none; cursor: not-allowed; transform: none; }
 
-        .wheel,
-        .hamster,
-        .hamster div,
-        .spoke {
-            position: absolute;
-        }
+        /* --- Loading Overlay & Hamster --- */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; background: rgba(42, 45, 58, 0.5); backdrop-filter: blur(5px); }
+        body.loading-active .loading-overlay { display: flex; }
+        body.loading-active .page-wrapper { pointer-events: none; }
+        .loading-text { color: #fff; font-size: 1.5rem; font-weight: 600; margin-top: 2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .wheel-and-hamster { --dur: 1s; position: relative; width: 12em; height: 12em; font-size: 14px; }
+        .wheel, .hamster, .hamster div, .spoke { position: absolute; }
+        .wheel, .spoke { border-radius: 50%; top: 0; left: 0; width: 100%; height: 100%; }
+        .wheel { background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%); z-index: 2; }
+        .hamster { animation: hamster var(--dur) ease-in-out infinite; top: 50%; left: calc(50% - 3.5em); width: 7em; height: 3.75em; transform: rotate(4deg) translate(-0.8em,1.85em); transform-origin: 50% 0; z-index: 1; }
+        .hamster__head { animation: hamsterHead var(--dur) ease-in-out infinite; background: hsl(30,90%,55%); border-radius: 70% 30% 0 100% / 40% 25% 25% 60%; box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset, 0.75em -1.55em 0 hsl(30,90%,90%) inset; top: 0; left: -2em; width: 2.75em; height: 2.5em; transform-origin: 100% 50%; }
+        .hamster__ear { animation: hamsterEar var(--dur) ease-in-out infinite; background: hsl(0,90%,85%); border-radius: 50%; box-shadow: -0.25em 0 hsl(30,90%,55%) inset; top: -0.25em; right: -0.25em; width: 0.75em; height: 0.75em; transform-origin: 50% 75%; }
+        .hamster__eye { animation: hamsterEye var(--dur) linear infinite; background-color: hsl(0,0%,0%); border-radius: 50%; top: 0.375em; left: 1.25em; width: 0.5em; height: 0.5em; }
+        .hamster__nose { background: hsl(0,90%,75%); border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%; top: 0.75em; left: 0; width: 0.2em; height: 0.25em; }
+        .hamster__body { animation: hamsterBody var(--dur) ease-in-out infinite; background: hsl(30,90%,90%); border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%; box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset, 0.15em -0.5em 0 hsl(30,90%,80%) inset; top: 0.25em; left: 2em; width: 4.5em; height: 3em; transform-origin: 17% 50%; transform-style: preserve-3d; }
+        .hamster__limb--fr, .hamster__limb--fl { clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%); top: 2em; left: 0.5em; width: 1em; height: 1.5em; transform-origin: 50% 0; }
+        .hamster__limb--fr { animation: hamsterFRLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%); transform: rotate(15deg) translateZ(-1px); }
+        .hamster__limb--fl { animation: hamsterFLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%); transform: rotate(15deg); }
+        .hamster__limb--br, .hamster__limb--bl { border-radius: 0.75em 0.75em 0 0; clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%); top: 1em; left: 2.8em; width: 1.5em; height: 2.5em; transform-origin: 50% 30%; }
+        .hamster__limb--br { animation: hamsterBRLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%); transform: rotate(-25deg) translateZ(-1px); }
+        .hamster__limb--bl { animation: hamsterBLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%); transform: rotate(-25deg); }
+        .hamster__tail { animation: hamsterTail var(--dur) linear infinite; background: hsl(0,90%,85%); border-radius: 0.25em 50% 50% 0.25em; box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset; top: 1.5em; right: -0.5em; width: 1em; height: 0.5em; transform: rotate(30deg) translateZ(-1px); transform-origin: 0.25em 0.25em; }
+        .spoke { animation: spoke var(--dur) linear infinite; background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%), linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat; }
+        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,1.85em); } 50% { transform: rotate(0) translate(-0.8em,1.85em); } } @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } } @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } } @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } } @keyframes hamsterBody { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); } } @keyframes hamsterFRLimb { from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); } } @keyframes hamsterFLLimb { from, 25%, 50%, 75%, to { transform: rotate(-30deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); } } @keyframes hamsterBRLimb { from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); } } @keyframes hamsterBLLimb { from, 25%, 50%, 75%, to { transform: rotate(20deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); } } @keyframes hamsterTail { from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); } } @keyframes spoke { from { transform: rotate(0); } to { transform: rotate(-1turn); } }
 
-        .wheel,
-        .spoke {
-            border-radius: 50%;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+        /* --- Footer --- */
+        .main-footer { text-align: center; padding: 3rem 2rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; opacity: 0.7; }
+        .main-footer a { color: var(--secondary-color); text-decoration: none; font-weight: 600; }
+        .main-footer a:hover { text-decoration: underline; }
 
-        .wheel {
-            background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%);
-            z-index: 2;
-        }
-
-        .hamster {
-            animation: hamster var(--dur) ease-in-out infinite;
-            top: 50%;
-            left: calc(50% - 3.5em);
-            width: 7em;
-            height: 3.75em;
-            transform: rotate(4deg) translate(-0.8em,1.85em);
-            transform-origin: 50% 0;
-            z-index: 1;
-        }
-
-        .hamster__head {
-            animation: hamsterHead var(--dur) ease-in-out infinite;
-            background: hsl(30,90%,55%);
-            border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
-            box-shadow: 0 -0.25em 0 hsl(30,90%,80%) inset,
-            0.75em -1.55em 0 hsl(30,90%,90%) inset;
-            top: 0;
-            left: -2em;
-            width: 2.75em;
-            height: 2.5em;
-            transform-origin: 100% 50%;
-        }
-
-        .hamster__ear {
-            animation: hamsterEar var(--dur) ease-in-out infinite;
-            background: hsl(0,90%,85%);
-            border-radius: 50%;
-            box-shadow: -0.25em 0 hsl(30,90%,55%) inset;
-            top: -0.25em;
-            right: -0.25em;
-            width: 0.75em;
-            height: 0.75em;
-            transform-origin: 50% 75%;
-        }
-
-        .hamster__eye {
-            animation: hamsterEye var(--dur) linear infinite;
-            background-color: hsl(0,0%,0%);
-            border-radius: 50%;
-            top: 0.375em;
-            left: 1.25em;
-            width: 0.5em;
-            height: 0.5em;
-        }
-
-        .hamster__nose {
-            background: hsl(0,90%,75%);
-            border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
-            top: 0.75em;
-            left: 0;
-            width: 0.2em;
-            height: 0.25em;
-        }
-
-        .hamster__body {
-            animation: hamsterBody var(--dur) ease-in-out infinite;
-            background: hsl(30,90%,90%);
-            border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
-            box-shadow: 0.1em 0.75em 0 hsl(30,90%,55%) inset,
-            0.15em -0.5em 0 hsl(30,90%,80%) inset;
-            top: 0.25em;
-            left: 2em;
-            width: 4.5em;
-            height: 3em;
-            transform-origin: 17% 50%;
-            transform-style: preserve-3d;
-        }
-
-        .hamster__limb--fr,
-        .hamster__limb--fl {
-            clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
-            top: 2em;
-            left: 0.5em;
-            width: 1em;
-            height: 1.5em;
-            transform-origin: 50% 0;
-        }
-
-        .hamster__limb--fr {
-            animation: hamsterFRLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
-            transform: rotate(15deg) translateZ(-1px);
-        }
-
-        .hamster__limb--fl {
-            animation: hamsterFLLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%);
-            transform: rotate(15deg);
-        }
-
-        .hamster__limb--br,
-        .hamster__limb--bl {
-            border-radius: 0.75em 0.75em 0 0;
-            clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
-            top: 1em;
-            left: 2.8em;
-            width: 1.5em;
-            height: 2.5em;
-            transform-origin: 50% 30%;
-        }
-
-        .hamster__limb--br {
-            animation: hamsterBRLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
-            transform: rotate(-25deg) translateZ(-1px);
-        }
-
-        .hamster__limb--bl {
-            animation: hamsterBLLimb var(--dur) linear infinite;
-            background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%);
-            transform: rotate(-25deg);
-        }
-
-        .hamster__tail {
-            animation: hamsterTail var(--dur) linear infinite;
-            background: hsl(0,90%,85%);
-            border-radius: 0.25em 50% 50% 0.25em;
-            box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset;
-            top: 1.5em;
-            right: -0.5em;
-            width: 1em;
-            height: 0.5em;
-            transform: rotate(30deg) translateZ(-1px);
-            transform-origin: 0.25em 0.25em;
-        }
-
-        .spoke {
-            animation: spoke var(--dur) linear infinite;
-            background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%),
-            linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
-        }
-
-        /* Animations */
-        @keyframes hamster {
-            from, to {
-                transform: rotate(4deg) translate(-0.8em,1.85em);
-            }
-
-            50% {
-                transform: rotate(0) translate(-0.8em,1.85em);
-            }
-        }
-
-        @keyframes hamsterHead {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(0);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(8deg);
-            }
-        }
-
-        @keyframes hamsterEye {
-            from, 90%, to {
-                transform: scaleY(1);
-            }
-
-            95% {
-                transform: scaleY(0);
-            }
-        }
-
-        @keyframes hamsterEar {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(0);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(12deg);
-            }
-        }
-
-        @keyframes hamsterBody {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(0);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(-2deg);
-            }
-        }
-
-        @keyframes hamsterFRLimb {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(50deg) translateZ(-1px);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(-30deg) translateZ(-1px);
-            }
-        }
-
-        @keyframes hamsterFLLimb {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(-30deg);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(50deg);
-            }
-        }
-
-        @keyframes hamsterBRLimb {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(-60deg) translateZ(-1px);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(20deg) translateZ(-1px);
-            }
-        }
-
-        @keyframes hamsterBLLimb {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(20deg);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(-60deg);
-            }
-        }
-
-        @keyframes hamsterTail {
-            from, 25%, 50%, 75%, to {
-                transform: rotate(30deg) translateZ(-1px);
-            }
-
-            12.5%, 37.5%, 62.5%, 87.5% {
-                transform: rotate(10deg) translateZ(-1px);
-            }
-        }
-
-        @keyframes spoke {
-            from {
-                transform: rotate(0);
-            }
-
-            to {
-                transform: rotate(-1turn);
-            }
-        }
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) { .page-wrapper, .main-header { padding: 0 1rem; } .header-content { padding: 1rem 0; } .main-header { padding: 0.5rem 1rem; } .page-wrapper { padding-top: 6rem; } .profile-email { display: none; } }
     </style>
 </head>
 
 <body>
-<!-- ... (Rest des HTML-Bodys bleibt unverändert) ... -->
+
+<div id="particles-bg"></div>
+
 <header class="main-header">
     <div class="header-content">
-        <a href="/" style="text-decoration: none; color: inherit;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-        <div class="flex items-center space-x-4">
+        <a href="/" style="text-decoration: none;"><span class="header-logo">Freest<b>AI</b>le</span></a>
+        <div class="header-nav">
             <% if (it.user) { %>
-            <!-- Eingeloggter Benutzer -->
-            <div class="profile-container">
-                <a href="/user" style="text-decoration: none;">
-                    <div class="profile-circle">
-                        <%= it.user.email.charAt(0).toUpperCase() %>
-                    </div>
-                </a>
-                <div class="profile-email"><%= it.user.email %></div>
-                <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
-                    <span>Abmelden</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-            </div>
+            <a href="/user" class="user-profile-link"><div class="user-profile"><div class="profile-avatar"><%= it.user.email.charAt(0).toUpperCase() %></div><span class="profile-email"><%= it.user.email %></span></div></a>
+            <button class="cta cta--logout" onclick="(async function(e) { e.preventDefault(); try { await fetch('/api/auth/logout', { method: 'POST' }); window.location.reload(); } catch (error) { console.error('Logout error:', error); } })(event)"><span>Logout</span><svg width="15px" height="10px" viewBox="0 0 13 10"><polyline points="8 1 12 5 8 9"></polyline></svg></button>
             <% } else { %>
-            <!-- Nicht eingeloggter Benutzer -->
-            <div class="auth-buttons">
-                <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
-                    <span>Anmelden</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-                <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
-                    <span>Registrieren</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-            </div>
+            <button class="cta cta--login" onclick="openAuthModal('login'); return false;"><span>Login</span><svg width="15px" height="10px" viewBox="0 0 13 10"><polyline points="8 1 12 5 8 9"></polyline></svg></button>
             <% } %>
-            <label class="switch">
-                <input id="darkmode-toggle" type="checkbox">
-                <span class="slider">
-                    <span class="star star_1"></span>
-                    <span class="star star_2"></span>
-                    <span class="star star_3"></span>
-                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-                        <path
-                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                                fill="#fff"
-                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-                        ></path>
-                    </svg>
-                </span>
-            </label>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></div>
         </div>
     </div>
 </header>
 
-<div class="container-wrapper">
-    <div class="container">
-        <div class="header">
-            <h1 class="logo"><b>1-DEVICE</b>-Mode</h1>
-            <p class="tagline">Spielt PowerPoint-Karaoke im Multiplayer mit nur einem Gerät!</p>
+<div class="loading-overlay" id="loadingOverlay">
+    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster"><div class="wheel"></div><div class="hamster"><div class="hamster__body"><div class="hamster__head"><div class="hamster__ear"></div><div class="hamster__eye"></div><div class="hamster__nose"></div></div><div class="hamster__limb hamster__limb--fr"></div><div class="hamster__limb hamster__limb--fl"></div><div class="hamster__limb hamster__limb--br"></div><div class="hamster__limb hamster__limb--bl"></div><div class="hamster__tail"></div></div></div><div class="spoke"></div></div>
+    <p class="loading-text">Creating Lobby...</p>
+</div>
+
+<div class="page-wrapper">
+    <div class="content-wrap">
+        <div class="page-header">
+            <h1><b>1-DEVICE</b>-Mode</h1>
+            <p class="tagline">Play PowerPoint Karaoke multiplayer with just one device!</p>
         </div>
 
         <div class="player-grid" id="playerGrid">
-            <!-- Spieler-Karten werden hier dynamisch eingefügt -->
-            <div id="addPlayerCard" class="add-player-card" onclick="addPlayer()" style="display: none;">
+            <!-- Player cards will be dynamically inserted here by JavaScript -->
+            <div id="addPlayerCard" class="add-player-card" onclick="addPlayer()">
                 <div class="plus-icon">
                     <i class="fas fa-plus"></i>
                 </div>
             </div>
         </div>
 
-        <div class="language-selector-container">
-            <label for="languageChooser">Sprache der Präsentation</label>
-            <select name="presentationLanguage" id="languageChooser">
-              <option value="en">🇬🇧 English</option>
-
-              <optgroup label="🇩🇪 Deutsch">
-                <option value="Deutsch">Hochdeutsch</option>
-                <option value="Bayerisch">🥨 Bayerisch</option>
-                <option value="Schwaebisch">🏰 Schwäbisch</option>
-                <option value="Koelsch">🍺 Kölsch</option>
-                <option value="Plattdeutsch">🌾 Plattdeutsch</option>
-                <option value="Hessisch">🍎 Hessisch</option>
-                <option value="Saechsisch">🏭 Sächsisch</option>
-                <option value="Berlinerisch">🐻 Berlinerisch</option>
-                <option value="Rheinisch">🍷 Rheinisch</option>
-              </optgroup>
-
-              <option value="Franzoesisch">🇫🇷 Français</option>
-              <option value="Spanisch">🇪🇸 Español</option>
-              <option value="Italienisch">🇮🇹 Italiano</option>
-              <option value="Portugiesisch">🇵🇹 Português</option>
-              <option value="Russisch">🇷🇺 Русский</option>
-              <option value="Chinesisch">🇨🇳 中文</option>
+        <div class="game-controls">
+            <select class="language-selector" name="presentationLanguage" id="languageChooser">
+                <option value="en">🇬🇧 English</option>
+                <optgroup label="🇩🇪 German">
+                    <option value="Deutsch">Standard German</option>
+                    <option value="Bayerisch">🥨 Bavarian</option>
+                    <option value="Schwaebisch">🏰 Swabian</option>
+                    <option value="Koelsch">🍺 Kölsch</option>
+                </optgroup>
+                <option value="Franzoesisch">🇫🇷 French</option>
+                <option value="Spanisch">🇪🇸 Spanish</option>
+                <option value="Italienisch">🇮🇹 Italian</option>
+                <option value="Portugiesisch">🇵🇹 Portuguese</option>
+                <option value="Russisch">🇷🇺 Russian</option>
+                <option value="Chinesisch">🇨🇳 Chinese</option>
             </select>
-
+            <button id="startGameButton" class="start-game-button" disabled>Start Game</button>
         </div>
-        <button id="startGameButton" class="start-game-button" disabled>
-            Spiel starten
-        </button>
     </div>
-</div>
 
-<!-- Modal HTML nach dem container-wrapper div -->
-<div class="modal-overlay" id="authModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeAuthModal()">×</button>
-        <div class="modal-tabs">
-            <button class="modal-tab active" onclick="switchTab('login')">Anmelden</button>
-            <button class="modal-tab" onclick="switchTab('register')">Registrieren</button>
-        </div>
-        <form id="loginForm" class="modal-form active" onsubmit="handleModalLogin(event)">
-            <div class="form-group">
-                <label for="loginEmail">E-Mail</label>
-                <input type="email" id="loginEmail" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="loginPassword">Passwort</label>
-                <input type="password" id="loginPassword" name="password" required>
-            </div>
-            <div class="error-message" id="loginError"></div>
-            <button type="submit" class="modal-submit">Anmelden</button>
-        </form>
-        <form id="registerForm" class="modal-form" onsubmit="handleModalRegister(event)">
-            <div class="form-group">
-                <label for="registerEmail">E-Mail</label>
-                <input type="email" id="registerEmail" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="registerPassword">Passwort</label>
-                <input type="password" id="registerPassword" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="confirmPassword">Passwort bestätigen</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required>
-            </div>
-            <div class="error-message" id="registerError"></div>
-            <button type="submit" class="modal-submit">Registrieren</button>
-        </form>
-    </div>
+    <footer class="main-footer">
+        © 2025 FreestAIle | The ultimate tool for PowerPoint Karaoke | <a href="/imprint">Imprint</a> | Images by <a href="https://www.pixabay.com" target="_blank" rel="noopener">Pixabay</a>
+    </footer>
 </div>
-
-<!-- KORRIGIERTES HTML FÜR DAS LADE-OVERLAY -->
-<div id="loadingOverlay">
-    <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
-        <div class="wheel"></div>
-        <div class="hamster">
-            <div class="hamster__body">
-                <div class="hamster__head">
-                    <div class="hamster__ear"></div>
-                    <div class="hamster__eye"></div>
-                    <div class="hamster__nose"></div>
-                </div>
-                <div class="hamster__limb hamster__limb--fr"></div>
-                <div class="hamster__limb hamster__limb--fl"></div>
-                <div class="hamster__limb hamster__limb--br"></div>
-                <div class="hamster__limb hamster__limb--bl"></div>
-                <div class="hamster__tail"></div>
-            </div>
-        </div>
-        <div class="spoke"></div>
-    </div>
-    <p class="loading-text">Lobby erstellen...</p>
-</div>
-
 
 <script>
-    // ... (vorheriger JavaScript-Code bleibt unverändert) ...
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('darkmode-toggle');
+        // Dark Mode Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const themeToggleIcon = themeToggle.querySelector('i');
+            const htmlEl = document.documentElement;
+            const setTheme = (theme) => { htmlEl.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'; };
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            themeToggle.addEventListener('click', () => { const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; setTheme(newTheme); });
+        }
 
-        const isDark = document.documentElement.classList.contains('darkmode');
-        toggle.checked = !isDark;
-        document.body.classList.toggle('darkmode', isDark);
-
-        toggle.addEventListener('change', function() {
-            const dark = !toggle.checked;
-            document.documentElement.classList.toggle('darkmode', dark);
-            document.body.classList.toggle('darkmode', dark);
-            localStorage.setItem('darkmode', dark.toString());
-        });
-
-        // Initial einen Spieler hinzufügen (den Host)
-        addPlayer(true);
+        // Initial player setup
+        addPlayer(true); // Add host player who cannot be removed
     });
 
-    // NEU: Event-Listener für das "pageshow"-Ereignis
-    // Dieser Code wird ausgeführt, wenn der Benutzer mit dem "Zurück"-Button des Browsers auf diese Seite navigiert.
+    // Reset on back navigation
     window.addEventListener('pageshow', function(event) {
-        // 'event.persisted' ist true, wenn die Seite aus dem Back-Forward-Cache geladen wird.
         if (event.persisted) {
-            // 1. Lade-Animation verstecken, falls sie noch sichtbar ist
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            loadingOverlay.style.display = 'none';
-
-            // 2. Spieler-Karten auf den Anfangszustand zurücksetzen
+            document.body.classList.remove('loading-active');
             const playerGrid = document.getElementById('playerGrid');
-            const playerCards = playerGrid.querySelectorAll('.player-card');
-
-            // Alle existierenden Spieler-Karten entfernen
-            playerCards.forEach(card => card.remove());
-
-            // Spielerzähler zurücksetzen
+            playerGrid.querySelectorAll('.player-card').forEach(card => card.remove());
             playerCount = 0;
-
-            // Den ersten Spieler wieder hinzufügen, um den Ursprungszustand herzustellen
             addPlayer(true);
         }
     });
 
     let playerCount = 0;
-    const maxPlayers = 7;
+    const maxPlayers = 7; // KORRIGIERT
     const minPlayers = 1;
 
     function addPlayer(isHost = false) {
-        if (playerCount >= maxPlayers) {
-            return;
-        }
+        if (playerCount >= maxPlayers) return;
 
+        playerCount++;
         const playerGrid = document.getElementById('playerGrid');
+        const addCard = document.getElementById('addPlayerCard');
         const playerCard = document.createElement('div');
         playerCard.className = 'player-card';
+        playerCard.id = `player-${playerCount}`;
 
-        // ================================================================ //
-        // === HIER WURDE DER HTML-CODE FÜR DEN SLIDER AKTUALISIERT === //
-        // ================================================================ //
         playerCard.innerHTML = `
-            <div class="player-header">
-                <div class="player-avatar">
-                    ?
-                </div>
-                <div class="player-info">
-                    <div class="player-input" style="margin-top: 0;">
-                        <input type="text" placeholder="Nutzername" required class="player-name-input" oninput="updateAvatar(this)">
+                <div class="player-header">
+                    <div class="player-avatar">?</div>
+                    <div class="player-info">
+                        <input type="text" placeholder="Player ${playerCount}" required class="player-name-input" oninput="updateAvatar(this)">
                     </div>
+                    ${!isHost ? '<button class="delete-button" onclick="removePlayer(this)"><i class="fas fa-times"></i></button>' : ''}
                 </div>
-            </div>
-            <!-- NEU: Verbesserter Slider für das Thema -->
-            <div class="topic-control">
-                <input type="text" placeholder="Präsentationsthema eingeben" required class="topic-input" maxlength="50">
-                <label class="pretty-switch">
-                     <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
-                     <div class="pretty-switch-slider">
-                         <div class="pretty-switch-knob"></div>
-                     </div>
-                     <span class="pretty-switch-label">Random</span>
-                 </label>
-            </div>
-            <div class="error-message topic-error" style="display:none;"></div>
-            <div class="player-actions">
-                <button class="delete-button" onclick="removePlayer(this)">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 69 14" class="svgIcon bin-top">
-                        <g clip-path="url(#clip0_35_24)"><path fill="currentColor" d="M20.8232 2.62734L19.9948 4.21304C19.8224 4.54309 19.4808 4.75 19.1085 4.75H4.92857C2.20246 4.75 0 6.87266 0 9.5C0 12.1273 2.20246 14.25 4.92857 14.25H64.0714C66.7975 14.25 69 12.1273 69 9.5C69 6.87266 66.7975 4.75 64.0714 4.75H49.8915C49.5192 4.75 49.1776 4.54309 49.0052 4.21305L48.1768 2.62734C47.3451 1.00938 45.6355 0 43.7719 0H25.2281C23.3645 0 21.6549 1.00938 20.8232 2.62734ZM64.0023 20.0648C64.0397 19.4882 63.5822 19 63.0044 19H5.99556C5.4178 19 4.96025 19.4882 4.99766 20.0648L8.19375 69.3203C8.44018 73.0758 11.6746 76 15.5712 76H53.4288C57.3254 76 60.5598 73.0758 60.8062 69.3203L64.0023 20.0648Z"></path></g><defs><clipPath id="clip0_35_24"><rect fill="white" height="14" width="69"></rect></clipPath></defs>
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 69 57" class="svgIcon bin-bottom">
-                        <g clip-path="url(#clip0_35_22)"><path fill="currentColor" d="M20.8232 -16.3727L19.9948 -14.787C19.8224 -14.4569 19.4808 -14.25 19.1085 -14.25H4.92857C2.20246 -14.25 0 -12.1273 0 -9.5C0 -6.8727 2.20246 -4.75 4.92857 -4.75H64.0714C66.7975 -4.75 69 -6.8727 69 -9.5C69 -12.1273 66.7975 -14.25 64.0714 -14.25H49.8915C49.5192 -14.25 49.1776 -14.4569 49.0052 -14.787L48.1768 -16.3727C47.3451 -17.9906 45.6355 -19 43.7719 -19H25.2281C23.3645 -19 21.6549 -17.9906 20.8232 -16.3727ZM64.0023 1.0648C64.0397 0.4882 63.5822 0 63.0044 0H5.99556C5.4178 0 4.96025 0.4882 4.99766 1.0648L8.19375 50.3203C8.44018 54.0758 11.6746 57 15.5712 57H53.4288C57.3254 57 60.5598 54.0758 60.8062 50.3203L64.0023 1.0648Z"></path></g><defs><clipPath id="clip0_35_22"><rect fill="white" height="57" width="69"></rect></clipPath></defs>
-                    </svg>
-                </button>
-            </div>
-        `;
+                <div class="topic-control">
+                    <input type="text" placeholder="Enter presentation topic" required class="topic-input" maxlength="50">
+                    <label class="pretty-switch">
+                         <input type="checkbox" class="random-switch" onchange="toggleRandomTopic(this)">
+                         <div class="pretty-switch-slider"><div class="pretty-switch-knob"></div></div>
+                         <span class="pretty-switch-label">Random</span>
+                     </label>
+                </div>
+            `;
 
-        playerGrid.insertBefore(playerCard, document.getElementById('addPlayerCard'));
-        playerCount++;
-        updateStartButton();
-        updateAddPlayerCard();
+        playerGrid.insertBefore(playerCard, addCard);
+        updateUI();
+    }
+
+    function removePlayer(button) {
+        button.closest('.player-card').remove();
+        playerCount--;
+        updateUI();
     }
 
     function updateAvatar(input) {
-        const playerCard = input.closest('.player-card');
-        const avatar = playerCard.querySelector('.player-avatar');
+        const avatar = input.closest('.player-card').querySelector('.player-avatar');
         const name = input.value.trim();
         avatar.textContent = name ? name.charAt(0).toUpperCase() : '?';
     }
 
-    function removePlayer(button) {
-        const playerCard = button.closest('.player-card');
-        playerCard.remove();
-        playerCount--;
-        updateStartButton();
-        updateAddPlayerCard();
+    function toggleRandomTopic(checkbox) {
+        const topicInput = checkbox.closest('.topic-control').querySelector('.topic-input');
+        topicInput.disabled = checkbox.checked;
+        topicInput.value = '';
+        topicInput.placeholder = checkbox.checked ? 'Random Topic' : 'Enter presentation topic';
+        topicInput.classList.remove('error');
     }
 
-    function updateStartButton() {
-        const startButton = document.getElementById('startGameButton');
-        startButton.disabled = playerCount < minPlayers;
-    }
-
-    function updateAddPlayerCard() {
-        const addPlayerCard = document.getElementById('addPlayerCard');
-        if (playerCount < maxPlayers) {
-            addPlayerCard.style.display = 'flex';
-        } else {
-            addPlayerCard.style.display = 'none';
-        }
+    function updateUI() {
+        document.getElementById('startGameButton').disabled = playerCount < minPlayers;
+        document.getElementById('addPlayerCard').style.display = playerCount < maxPlayers ? 'flex' : 'none';
     }
 
     document.getElementById('startGameButton').addEventListener('click', async function() {
-        const loadingOverlay = document.getElementById('loadingOverlay');
+        let isValid = true;
+        const presentations = [];
 
-        let hasError = false;
-        const allNameInputs = document.querySelectorAll('.player-name-input');
-        const allTopicControls = document.querySelectorAll('.topic-control');
-        let names = [];
-        let topics = [];
+        document.querySelectorAll('.player-card').forEach(card => {
+            const nameInput = card.querySelector('.player-name-input');
+            const topicInput = card.querySelector('.topic-input');
+            const randomSwitch = card.querySelector('.random-switch');
 
-        allNameInputs.forEach(input => {
-            const value = input.value.trim();
-            if (!value) {
-                input.classList.remove('shake');
-                void input.offsetWidth;
-                input.classList.add('error', 'shake');
-                hasError = true;
+            let name = nameInput.value.trim();
+            if (!name) name = nameInput.placeholder;
+
+            if (name.length < 1) {
+                nameInput.classList.add('error');
+                isValid = false;
             } else {
-                input.classList.remove('error');
+                nameInput.classList.remove('error');
             }
-            names.push(value);
-        });
 
-        allTopicControls.forEach(control => {
-            const topicInput = control.querySelector('.topic-input');
-            const randomSwitch = control.querySelector('.random-switch');
-            const errorDiv = control.parentElement.querySelector('.topic-error');
-            if (!randomSwitch.checked) {
-                const value = topicInput.value.trim();
-                if (value.length < 3 || value.length > 50) {
-                    topicInput.classList.remove('shake');
-                    void topicInput.offsetWidth;
-                    topicInput.classList.add('error', 'shake');
-                    errorDiv.textContent = 'Topic must be between 3 and 50 characters.';
-                    errorDiv.style.display = 'block';
-                    hasError = true;
-                } else {
-                    topicInput.classList.remove('error');
-                    errorDiv.style.display = 'none';
-                }
-                topics.push(value);
+            let topic = randomSwitch.checked ? '//RANDOM//' : topicInput.value.trim();
+
+            if (!randomSwitch.checked && (topic.length < 3 || topic.length > 50)) {
+                topicInput.classList.add('error');
+                isValid = false;
             } else {
                 topicInput.classList.remove('error');
-                if (errorDiv) errorDiv.style.display = 'none';
-                topics.push('//RANDOM//');
             }
+
+            presentations.push({ player: name, topic: topic });
         });
 
-        const nameCount = {};
-        names.forEach(name => {
-            if (name) {
-                nameCount[name] = (nameCount[name] || 0) + 1;
-            }
-        });
-        names.forEach((name, idx) => {
-            if (name && nameCount[name] > 1) {
-                allNameInputs[idx].classList.remove('shake');
-                void allNameInputs[idx].offsetWidth;
-                allNameInputs[idx].classList.add('duplicate-error', 'shake');
-                hasError = true;
-            } else {
-                allNameInputs[idx].classList.remove('duplicate-error');
-            }
-        });
-        setTimeout(() => {
-            document.querySelectorAll('.shake').forEach(el => el.classList.remove('shake'));
-        }, 600);
-
-        if (hasError) {
+        if (!isValid) {
+            document.querySelectorAll('.error').forEach(el => {
+                el.classList.add('shake');
+                setTimeout(() => el.classList.remove('shake'), 500);
+            });
             return;
         }
 
-        loadingOverlay.style.display = 'flex';
-
-        const presentations = Array.from(document.querySelectorAll('.player-card')).map(card => {
-            const nameInput = card.querySelector('.player-name-input');
-            const topicControl = card.querySelector('.topic-control');
-            const topicInput = topicControl.querySelector('.topic-input');
-            const randomSwitch = topicControl.querySelector('.random-switch');
-            return {
-                player: nameInput.value,
-                topic: randomSwitch.checked ? '//RANDOM//' : topicInput.value
-            };
-        });
+        document.body.classList.add('loading-active');
 
         const presentationLanguage = document.getElementById('languageChooser').value;
 
-        try {
-            const response = await fetch('/initiateGeneration', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    presentations,
-                    user: { id: '<%= it.user ? it.user.id : null %>' },
-                    gameMode: 1,
-                    presentationLanguage: presentationLanguage
-                })
-            });
-            const data = await response.json();
-            if (response.ok && data && data.url) {
-                window.location.href = data.url;
-            } else {
-                loadingOverlay.style.display = 'none';
-                console.error('Fehler bei der Generierung:', data.error || 'Unbekannter Fehler');
-            }
-        } catch (error) {
-            loadingOverlay.style.display = 'none';
-            console.error('Fehler beim Senden der Anfrage:', error);
-        }
-    });
-
-    function openAuthModal(tab) {
-        const modal = document.getElementById('authModal');
-        modal.classList.add('active');
-        switchTab(tab);
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeAuthModal() {
-        const modal = document.getElementById('authModal');
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        document.getElementById('loginForm').reset();
-        document.getElementById('registerForm').reset();
-        document.getElementById('loginError').classList.remove('active');
-        document.getElementById('registerError').classList.remove('active');
-    }
-
-    function switchTab(tab) {
-        const tabs = document.querySelectorAll('.modal-tab');
-        const forms = document.querySelectorAll('.modal-form');
-
-        tabs.forEach(t => t.classList.remove('active'));
-        forms.forEach(f => f.classList.remove('active'));
-
-        document.querySelector(`.modal-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
-        document.getElementById(`${tab}Form`).classList.add('active');
-    }
-
-    async function handleModalLogin(event) {
-        event.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        const errorElement = document.getElementById('loginError');
-
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (response.ok) {
-                window.location.reload();
-            } else {
+        setTimeout(async () => {
+            try {
+                const response = await fetch('/initiateGeneration', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ presentations, presentationLanguage, gameMode: 1 })
+                });
+                if (!response.ok) throw new Error('Network response was not ok.');
                 const data = await response.json();
-                errorElement.textContent = data.message || 'Anmeldung fehlgeschlagen';
-                errorElement.classList.add('active');
+                if (data.url) window.location.href = data.url;
+                else throw new Error('URL not received from server.');
+            } catch (error) {
+                console.error('Failed to start game:', error);
+                document.body.classList.remove('loading-active');
+                alert('Error starting the game. Please try again.');
             }
-        } catch (error) {
-            errorElement.textContent = 'Ein Fehler ist aufgetreten';
-            errorElement.classList.add('active');
-        }
-    }
-
-    async function handleModalRegister(event) {
-        event.preventDefault();
-        const email = document.getElementById('registerEmail').value;
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const errorElement = document.getElementById('registerError');
-
-        if (password !== confirmPassword) {
-            errorElement.textContent = 'Die Passwörter stimmen nicht überein';
-            errorElement.classList.add('active');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (response.ok) {
-                switchTab('login');
-                document.getElementById('loginEmail').value = email;
-                errorElement.classList.remove('active');
-            } else {
-                const data = await response.json();
-                errorElement.textContent = data.message || 'Registrierung fehlgeschlagen';
-                errorElement.classList.add('active');
-            }
-        } catch (error) {
-            errorElement.textContent = 'Ein Fehler ist aufgetreten';
-            errorElement.classList.add('active');
-        }
-    }
-
-    document.addEventListener('click', function(event) {
-        const modal = document.getElementById('authModal');
-        if (event.target === modal) {
-            closeAuthModal();
-        }
+        }, 500);
     });
 
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeAuthModal();
-        }
-    });
-
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('player-name-input') || (e.target.closest('.topic-control') && e.target.placeholder === 'Präsentationsthema eingeben')) {
-            updateStartButton();
-        }
-        if (e.target.classList.contains('topic-input')) {
-            const control = e.target.closest('.topic-control');
-            const randomSwitch = control.querySelector('.random-switch');
-            const errorDiv = control.parentElement.querySelector('.topic-error');
-            if (!randomSwitch.checked) {
-                const value = e.target.value.trim();
-                if (value.length >= 3 && value.length <= 50) {
-                    errorDiv.style.display = 'none';
-                    e.target.classList.remove('error');
-                }
-            } else {
-                errorDiv.style.display = 'none';
-                e.target.classList.remove('error');
-            }
-        }
-        if (e.target.classList.contains('error') || e.target.classList.contains('duplicate-error')) {
-            e.target.classList.remove('error', 'duplicate-error');
-            const allInputs = document.querySelectorAll('.player-input input, .topic-control input');
-            allInputs.forEach(input => {
-                if (input !== e.target) {
-                    input.classList.remove('duplicate-error');
-                }
-            });
-        }
-    });
-
-    function toggleRandomTopic(checkbox) {
-        const topicControl = checkbox.closest('.topic-control');
-        const topicInput = topicControl.querySelector('.topic-input');
-        if (checkbox.checked) {
-            topicInput.disabled = true;
-            topicInput.value = '';
-            topicInput.placeholder = 'Random Topic';
-            topicInput.classList.remove('error', 'shake');
-            // Fehleranzeige auch verstecken
-            const errorDiv = topicControl.parentElement.querySelector('.topic-error');
-            if (errorDiv) errorDiv.style.display = 'none';
-        } else {
-            topicInput.disabled = false;
-            topicInput.placeholder = 'Präsentationsthema eingeben';
-        }
-        updateStartButton();
-    }
 </script>
 </body>
 </html>

@@ -23,35 +23,12 @@
         </a>
         <div class="header-nav">
             <% if (it.user) { %>
-            <!-- === GEÄNDERTER BEREICH START === -->
-            <a href="/user" class="user-profile-link">
-                <div class="user-profile">
-                    <div class="profile-avatar">
-                        <%= it.user.email.charAt(0).toUpperCase() %>
-                    </div>
-                    <span class="profile-email"><%= it.user.email %></span>
-                </div>
-            </a>
-            <!-- === GEÄNDERTER BEREICH ENDE === -->
-            <button class="cta cta--logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST' }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout error:', error); } })(event)">
-                <span>Logout</span>
-                <svg width="15px" height="10px" viewBox="0 0 13 10">
-                    <path d="M1,5 L11,5"></path>
-                    <polyline points="8 1 12 5 8 9"></polyline>
-                </svg>
-            </button>
+            <a href="/user" class="user-profile-link"><div class="user-profile"><div class="profile-avatar"><%= it.user.email.charAt(0).toUpperCase() %></div><span class="profile-email"><%= it.user.email %></span></div></a>
+            <button class="cta cta--logout" onclick="(async function(e) { e.preventDefault(); try { await fetch('/api/auth/logout', { method: 'POST' }); window.location.reload(); } catch (error) { console.error('Logout error:', error); } })(event)"><span>Logout</span><svg width="15px" height="10px" viewBox="0 0 13 10"><polyline points="8 1 12 5 8 9"></polyline></svg></button>
             <% } else { %>
-            <button class="cta cta--login" onclick="openAuthModal('login'); return false;">
-                <span>Login</span>
-                <svg width="15px" height="10px" viewBox="0 0 13 10">
-                    <path d="M1,5 L11,5"></path>
-                    <polyline points="8 1 12 5 8 9"></polyline>
-                </svg>
-            </button>
+            <button class="cta cta--login" onclick="openAuthModal('login'); return false;"><span>Login</span><svg width="15px" height="10px" viewBox="0 0 13 10"><polyline points="8 1 12 5 8 9"></polyline></svg></button>
             <% } %>
-            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme">
-                <i class="fa-solid fa-moon"></i>
-            </div>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></div>
         </div>
     </div>
 </header>

@@ -1,145 +1,121 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generierung – FreestAIle</title>
-    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
-    <script src="darkmode-init.js"></script>
+    <title>Multiplayer – FreestAIle</title>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/landing-page.css"> <!-- Wiederverwendung der Haupt-Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* === ÜBERNOMMENE STYLES VON DER LOBBY-SEITE === */
-        .profile-container { display: flex; align-items: center; gap: 1rem; margin-right: 1rem; }
-        .profile-circle {
-            width: 45px; height: 45px; border-radius: 50%; background: #b1dae7; display: flex;
-            align-items: center; justify-content: center; font-family: "Ubuntu", sans-serif;
-            font-size: 20px; font-weight: 700; color: #234567; transition: all 0.3s ease; flex-shrink: 0;
-        }
-        html.darkmode .profile-circle { background: #3d3d3d; color: #ffffff; }
-        .profile-email { font-family: "Ubuntu", sans-serif; font-size: 16px; color: #234567; white-space: nowrap; }
-        html.darkmode .profile-email { color: #ffffff; }
-
-        /* === SEITENSPEZIFISCHE STYLES IM DESIGN DER LOBBY === */
-
-        .generation-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-            width: 100%;
+        /* --- CSS Variables --- */
+        :root, [data-theme="light"] {
+            --bg-color: #F4F7FC;
+            --text-color: #1a1a2e;
+            --text-color-light: #6c757d;
+            --card-bg: #FFFFFF;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
-        .generation-card {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        body.darkmode .generation-card {
-            background: #2d2d2d;
-        }
-
-        .generation-card h3 {
-            font-family: "Ubuntu", sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: #234567;
-            margin: 0 0 1rem 0;
-        }
-        body.darkmode .generation-card h3 {
-            color: #ffffff;
+        [data-theme="dark"] {
+            --bg-color: #2A2D3A;
+            --text-color: #f0f0f0;
+            --text-color-light: #a0aec0;
+            --card-bg: #353849;
+            --header-bg: rgba(42, 45, 58, 0.7);
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
         }
 
-        .status-icon {
-            width: 12em;
-            height: 12em;
-            margin: 1rem auto;
-            position: relative;
-            font-size: 10px; /* Skaliert die Hamster-Größe */
+        /* --- Global Reset & Body --- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
         }
+
+        /* --- Animated Background --- */
+        #particles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; opacity: 0; animation: rise 15s infinite linear; }
+        @keyframes rise { 0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; } 50% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
+
+        /* --- Main-Layout --- */
+        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrap { flex: 1; }
+
+        /* --- Header --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 2rem; z-index: 1000; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.3s ease; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .header-logo b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-nav { display: flex; align-items: center; gap: 1rem; }
+        .dark-mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--text-color); opacity: 0.8; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { opacity: 1; transform: scale(1.1) rotate(15deg); }
+        .user-profile-link { text-decoration: none; color: inherit; border-radius: 50px; padding: 4px; transition: background-color 0.3s ease; margin-right: 0.5rem; }
+        .user-profile-link:hover { background-color: rgba(255, 255, 255, 0.08); }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .profile-avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #F5A623; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+        .profile-email { opacity: 0.8; font-weight: 500; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- Page-Specific Styles --- */
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-header h1 b { background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header p { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
+
+        .generation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .generation-card { background: var(--card-bg); border-radius: 15px; padding: 2rem 1.5rem; box-shadow: 0 4px 6px var(--shadow-color); text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+        .generation-card h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+
+        .status-icon { width: 12em; height: 12em; margin: 0.5rem auto 1.5rem; position: relative; font-size: 10px; }
 
         .view-button {
             display: inline-block;
-            padding: 12px 24px;
+            padding: 0.8rem 1.5rem;
             margin-top: 1rem;
-            background: #b1dae7;
-            color: #234567;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
             border: none;
-            border-radius: 5px;
-            font-family: "Ubuntu", sans-serif;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(10px) scale(0.9);
+            pointer-events: none; /* KORRIGIERT */
         }
         .view-button.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
+            pointer-events: auto; /* KORRIGIERT */
         }
         .view-button:hover {
-            background: #9bc8d7;
-        }
-        body.darkmode .view-button {
-            background: #b1dae7; /* Kann gleich bleiben für Kontrast */
-            color: #234567;
-        }
-        body.darkmode .view-button:hover {
-            background: #9bc8d7;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px var(--accent-glow);
         }
 
-        .checkmark-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .checkmark-container.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .checkmark-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #d4edda;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        body.darkmode .checkmark-circle {
-            background-color: #1c3c24;
-        }
-        .checkmark-circle::after {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 40px;
-            border: solid #155724;
-            border-width: 0 8px 8px 0;
-            transform: rotate(45deg);
-        }
-        body.darkmode .checkmark-circle::after {
-            border-color: #c3e6cb;
-        }
+        .checkmark-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; transform: scale(0.5); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); display: flex; align-items: center; justify-content: center; }
+        .checkmark-container.show { opacity: 1; transform: scale(1); }
+        .checkmark-icon { font-size: 5rem; color: var(--secondary-color); }
 
-
-        /* === HAMSTER-ANIMATION (unverändert übernommen) === */
+        /* --- Hamster Animation --- */
         .wheel-and-hamster { --dur: 1s; position: relative; width: 100%; height: 100%; }
         .wheel, .hamster, .hamster div, .spoke { position: absolute; }
         .wheel, .spoke { border-radius: 50%; top: 0; left: 0; width: 100%; height: 100%; }
@@ -158,69 +134,49 @@
         .hamster__limb--bl { animation: hamsterBLLimb var(--dur) linear infinite; background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%); transform: rotate(-25deg); }
         .hamster__tail { animation: hamsterTail var(--dur) linear infinite; background: hsl(0,90%,85%); border-radius: 0.25em 50% 50% 0.25em; box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset; top: 1.5em; right: -0.5em; width: 1em; height: 0.5em; transform: rotate(30deg) translateZ(-1px); transform-origin: 0.25em 0.25em; }
         .spoke { animation: spoke var(--dur) linear infinite; background: radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%), linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat; }
-        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,1.85em); } 50% { transform: rotate(0) translate(-0.8em,1.85em); } }
-        @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } }
-        @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } }
-        @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } }
-        @keyframes hamsterBody { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); } }
-        @keyframes hamsterFRLimb { from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); } }
-        @keyframes hamsterFLLimb { from, 25%, 50%, 75%, to { transform: rotate(-30deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); } }
-        @keyframes hamsterBRLimb { from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); } }
-        @keyframes hamsterBLLimb { from, 25%, 50%, 75%, to { transform: rotate(20deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); } }
-        @keyframes hamsterTail { from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); } }
-        @keyframes spoke { from { transform: rotate(0); } to { transform: rotate(-1turn); } }
+        @keyframes hamster { from, to { transform: rotate(4deg) translate(-0.8em,1.85em); } 50% { transform: rotate(0) translate(-0.8em,1.85em); } } @keyframes hamsterHead { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); } } @keyframes hamsterEye { from, 90%, to { transform: scaleY(1); } 95% { transform: scaleY(0); } } @keyframes hamsterEar { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); } } @keyframes hamsterBody { from, 25%, 50%, 75%, to { transform: rotate(0); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); } } @keyframes hamsterFRLimb { from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); } } @keyframes hamsterFLLimb { from, 25%, 50%, 75%, to { transform: rotate(-30deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); } } @keyframes hamsterBRLimb { from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); } } @keyframes hamsterBLLimb { from, 25%, 50%, 75%, to { transform: rotate(20deg); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); } } @keyframes hamsterTail { from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); } 12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); } } @keyframes spoke { from { transform: rotate(0); } to { transform: rotate(-1turn); } }
+
+        /* --- Footer --- */
+        .main-footer { text-align: center; padding: 3rem 2rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; opacity: 0.7; }
+        .main-footer a { color: var(--secondary-color); text-decoration: none; font-weight: 600; }
+        .main-footer a:hover { text-decoration: underline; }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) { .page-wrapper, .main-header { padding: 0 1rem; } .header-content { padding: 1rem 0; } .main-header { padding: 0.5rem 1rem; } .page-wrapper { padding-top: 6rem; } .profile-email { display: none; } }
     </style>
 </head>
 
 <body>
+
+<div id="particles-bg"></div>
+
 <header class="main-header">
     <div class="header-content">
-        <a href="/" style="text-decoration: none; color: inherit;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-        <div class="flex items-center space-x-4">
+        <a href="/" style="text-decoration: none;"><span class="header-logo">Freest<b>AI</b>le</span></a>
+        <div class="header-nav">
             <% if (it.user) { %>
-            <div class="profile-container">
-                <a href="/user" style="text-decoration: none;">
-                    <div class="profile-circle"><%= it.user.email.charAt(0).toUpperCase() %></div>
-                </a>
-                <div class="profile-email"><%= it.user.email %></div>
-            </div>
+            <a href="/user" class="user-profile-link"><div class="user-profile"><div class="profile-avatar"><%= it.user.email.charAt(0).toUpperCase() %></div><span class="profile-email"><%= it.user.email %></span></div></a>
             <% } %>
-            <label class="switch">
-                <input id="darkmode-toggle" type="checkbox">
-                <span class="slider">
-                    <span class="star star_1"></span>
-                    <span class="star star_2"></span>
-                    <span class="star star_3"></span>
-                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-                        <path
-                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                                fill="#fff"
-                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-                        ></path>
-                    </svg>
-                </span>
-            </label>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></div>
         </div>
     </div>
 </header>
 
-<div class="container-wrapper">
-    <div class="container">
-        <div class="header">
-            <h1 class="logo"><b>Präsentationen</b> werden generiert</h1>
-            <p class="tagline">Einen Moment Geduld, unser KI-Hamster läuft auf Hochtouren...</p>
+<div class="page-wrapper">
+    <div class="content-wrap">
+        <div class="page-header">
+            <h1><b>Presentations</b> are being generated</h1>
+            <p>One moment please, our AI hamster is running at full speed...</p>
         </div>
 
         <div class="generation-grid">
             <% it.presentationIDs.forEach(function(presentationID, index) { %>
             <div class="generation-card" data-presentation-id="<%= presentationID %>">
                 <h3>
-                    <%= it.players[index].player %><%= (it.players[index].player.toLowerCase().endsWith('s') || it.players[index].player.toLowerCase().endsWith('z') || it.players[index].player.toLowerCase().endsWith('x')) ? "'" : "'s" %> Präsentation
+                    <%= it.players[index].player %>'s Presentation
                 </h3>
                 <div class="status-icon">
-                    <div class="wheel-and-hamster loading-animation" role="img" aria-label="Hamster im Laufrad">
+                    <div class="wheel-and-hamster loading-animation" role="img" aria-label="Hamster running in a wheel">
                         <div class="wheel"></div>
                         <div class="hamster">
                             <div class="hamster__body">
@@ -233,88 +189,92 @@
                         <div class="spoke"></div>
                     </div>
                     <div class="checkmark-container">
-                        <div class="checkmark-circle"></div>
+                        <i class="fa-solid fa-circle-check checkmark-icon"></i>
                     </div>
                 </div>
-                <a href="/present2?presentationID=<%= presentationID %>" class="view-button" target="_blank" rel="noopener noreferrer">Zur Präsentation</a>
+                <a href="/present2?presentationID=<%= presentationID %>" class="view-button" target="_blank" rel="noopener noreferrer">View Presentation</a>
             </div>
             <% }); %>
         </div>
     </div>
+
+    <footer class="main-footer">
+        © 2025 FreestAIle | The ultimate tool for PowerPoint Karaoke | <a href="/imprint">Imprint</a> | Images by <a href="https://www.pixabay.com" target="_blank" rel="noopener">Pixabay</a>
+    </footer>
 </div>
 
 <script>
-    // Dark-Mode-Logik aus der Lobby-Seite übernommen
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('darkmode-toggle');
-        const isDark = document.documentElement.classList.contains('darkmode');
-        toggle.checked = !isDark;
-        document.body.classList.toggle('darkmode', isDark);
-        toggle.addEventListener('change', function() {
-            const dark = !toggle.checked;
-            document.documentElement.classList.toggle('darkmode', dark);
-            document.body.classList.toggle('darkmode', dark);
-            localStorage.setItem('darkmode', dark.toString());
-        });
-    });
-
-    // Original-Logik zur Statusüberprüfung (leicht angepasst für neue Klassennamen)
-    const presentationIDsRaw = '<%= it.presentationIDs %>';
-    const presentationIDs = presentationIDsRaw.split(',');
-    const completedPresentations = new Set();
-    let checkInterval;
-
-    async function checkGenerationStatus() {
-        if (completedPresentations.size === presentationIDs.length && checkInterval) {
-            clearInterval(checkInterval);
-            return;
+        // Dark Mode Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const themeToggleIcon = themeToggle.querySelector('i');
+            const htmlEl = document.documentElement;
+            const setTheme = (theme) => {
+                htmlEl.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            };
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            themeToggle.addEventListener('click', () => {
+                const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
         }
 
-        for (const presentationID of presentationIDs) {
-            if (completedPresentations.has(presentationID)) continue;
+        // Generation Status Check Logic
+        const presentationIDsRaw = '<%= it.presentationIDs %>';
+        const presentationIDs = presentationIDsRaw.split(',');
+        const completedPresentations = new Set();
+        let checkInterval;
 
-            try {
-                const response = await fetch(`/checkGenerationStatus`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ presentationID: presentationID })
-                });
-
-                if (!response.ok) {
-                    console.error(`Status check for ${presentationID} failed with status: ${response.status}`);
-                    continue;
-                }
-
-                const data = await response.json();
-                const presentationItem = document.querySelector(`[data-presentation-id="${presentationID}"]`);
-                if (!presentationItem) continue;
-
-                const loadingAnimation = presentationItem.querySelector('.loading-animation');
-                const checkmark = presentationItem.querySelector('.checkmark-container');
-                const viewButton = presentationItem.querySelector('.view-button');
-
-                if (data.status === 'completed') {
-                    completedPresentations.add(presentationID);
-                    if (loadingAnimation) loadingAnimation.style.display = 'none';
-                    if (checkmark) checkmark.classList.add('show');
-                    if (viewButton) viewButton.classList.add('show');
-
-                    if (completedPresentations.size === presentationIDs.length && checkInterval) {
-                        clearInterval(checkInterval);
-                    }
-                } else if (data.status === 'error' && checkInterval) {
-                    clearInterval(checkInterval);
-                    window.location.href = '/error-page?message=' + encodeURIComponent(data.message);
-                }
-            } catch (error) {
-                console.error('Fehler beim Überprüfen des Status:', error);
+        async function checkGenerationStatus() {
+            if (completedPresentations.size === presentationIDs.length) {
                 if (checkInterval) clearInterval(checkInterval);
+                return;
+            }
+
+            for (const presentationID of presentationIDs) {
+                if (completedPresentations.has(presentationID)) continue;
+
+                try {
+                    const response = await fetch(`/checkGenerationStatus`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ presentationID: presentationID })
+                    });
+
+                    if (!response.ok) {
+                        console.error(`Status check for ${presentationID} failed with status: ${response.status}`);
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    const presentationItem = document.querySelector(`[data-presentation-id="${presentationID}"]`);
+                    if (!presentationItem) continue;
+
+                    const loadingAnimation = presentationItem.querySelector('.loading-animation');
+                    const checkmark = presentationItem.querySelector('.checkmark-container');
+                    const viewButton = presentationItem.querySelector('.view-button');
+
+                    if (data.status === 'completed') {
+                        completedPresentations.add(presentationID);
+                        if (loadingAnimation) loadingAnimation.style.display = 'none';
+                        if (checkmark) checkmark.classList.add('show');
+                        if (viewButton) viewButton.classList.add('show');
+                    } else if (data.status === 'error') {
+                        if (checkInterval) clearInterval(checkInterval);
+                        window.location.href = '/error-page?message=' + encodeURIComponent(data.message);
+                        return; // Stop further checks on error
+                    }
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                    if (checkInterval) clearInterval(checkInterval);
+                }
             }
         }
-    }
 
-    // Initialer Check und regelmäßiges Polling starten
-    document.addEventListener('DOMContentLoaded', () => {
         checkGenerationStatus();
         checkInterval = setInterval(checkGenerationStatus, 2500);
     });

@@ -1,215 +1,268 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreestAIle - Multiplayer Mode</title>
-    <!-- Dark mode initialization script - must be at the top to prevent flicker -->
-    <script src="darkmode-init.js"></script>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/landing-page.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles/multiplayerModeChoice.css">
+
     <style>
+        /* --- CSS Variables --- */
+        :root, [data-theme="light"] {
+            --bg-color: #F4F7FC;
+            --text-color: #1a1a2e;
+            --text-color-light: #6c757d;
+            --card-bg: #FFFFFF;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #2A2D3A;
+            --text-color: #f0f0f0;
+            --text-color-light: #a0aec0;
+            --card-bg: #353849;
+            --header-bg: rgba(42, 45, 58, 0.7);
+            --primary-color: #5E60E7;
+            --secondary-color: #43E69E;
+            --accent-glow: rgba(67, 230, 158, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Global Reset & Body --- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* --- Animated Background --- */
+        #particles-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; opacity: 0; animation: rise 15s infinite linear; }
+        @keyframes rise {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* --- Main-Layout --- */
+        .page-wrapper { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrap { flex: 1; }
+
+        /* --- Header --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 2rem; z-index: 1000; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: background 0.3s ease; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { font-size: 1.5rem; font-weight: 700; color: var(--text-color); text-decoration: none; }
+        .header-logo b {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-nav { display: flex; align-items: center; gap: 1rem; }
+        .dark-mode-toggle { cursor: pointer; font-size: 1.5rem; color: var(--text-color); opacity: 0.8; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { opacity: 1; transform: scale(1.1) rotate(15deg); }
+        .user-profile-link { text-decoration: none; color: inherit; border-radius: 50px; padding: 4px; transition: background-color 0.3s ease; margin-right: 0.5rem; }
+        .user-profile-link:hover { background-color: rgba(255, 255, 255, 0.08); }
+        .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+        .profile-avatar { width: 34px; height: 34px; border-radius: 50%; background-color: #F5A623; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+        .profile-email { opacity: 0.8; font-weight: 500; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cta { position: relative; margin: auto; padding: 12px 18px; transition: all 0.2s ease; border: none; background: none; cursor: pointer; }
+        .cta:before { content: ""; position: absolute; top: 0; left: 0; display: block; border-radius: 50px; width: 45px; height: 45px; transition: all 0.3s ease; }
+        .cta span { position: relative; font-family: "Poppins", sans-serif; font-size: 16px; font-weight: 600; letter-spacing: 0.05em; }
+        .cta svg { position: relative; top: 0; margin-left: 10px; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; transform: translateX(-5px); transition: all 0.3s ease; }
+        .cta:hover:before { width: 100%; }
+        .cta:hover svg { transform: translateX(0); }
+        .cta:active { transform: scale(0.95); }
+        .cta--login:before { background: rgba(34, 197, 94, 0.3); } .cta--login span { color: #22c55e; } .cta--login svg { stroke: #22c55e; } .cta--login:hover:before { background: #22c55e; } .cta--login:hover span, .cta--login:hover svg { color: #fff; stroke: #fff; }
+        .cta--logout:before { background: rgba(239, 68, 68, 0.3); } .cta--logout span { color: #ef4444; } .cta--logout svg { stroke: #ef4444; } .cta--logout:hover:before { background: #ef4444; } .cta--logout:hover span, .cta--logout:hover svg { color: #fff; stroke: #fff; }
+
+        /* --- Multiplayer Page Styles --- */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .page-header h1 b {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .mode-container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            margin-top: 2rem;
         }
 
         .mode-box {
-            flex: 1;
-            min-width: 300px;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
             text-align: center;
-            background: #ffffff;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .mode-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+
+        .mode-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .mode-box h2 {
-            font-family: 'Ubuntu', sans-serif;
-            color: #234567;
+            font-size: 1.75rem;
+            font-weight: 600;
             margin-bottom: 1rem;
-            transition: color 0.3s;
         }
 
         .mode-box p {
-            margin: 1rem 0 1.5rem;
-            font-family: 'Inter', sans-serif;
-            color: #666;
-            line-height: 1.6;
-            transition: color 0.3s;
-        }
-
-        body.darkmode .auth-button span,
-        body.darkmode .auth-button svg {
-            color: #ffffff;
-            stroke: #ffffff;
-        }
-
-        /* KORREKTUR: Button-Stil auf rechteckig mit abgerundeten Ecken geändert */
-        .mode-button {
-            width: 100%;
-            padding: 14px 24px;
-            border: none;
-            border-radius: 8px; /* Abgerundete Ecken statt Pille */
-            background: #b1dae7; /* Solider Blauton */
-            color: #ffffff; /* Weißer Text */
             font-size: 1rem;
+            opacity: 0.8;
+            flex-grow: 1; /* Pushes button to the bottom */
+            margin-bottom: 2rem;
+        }
+
+        .mode-button {
+            font-size: 1.1rem;
             font-weight: 600;
-            font-family: 'Ubuntu', sans-serif;
+            color: #fff;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            border: none;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            /* text-transform und letter-spacing entfernt für Standard-Look */
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px var(--accent-glow);
+            width: 100%;
         }
-
         .mode-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px var(--accent-glow);
         }
 
-        .mode-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+        /* --- Footer --- */
+        .main-footer { text-align: center; padding: 3rem 2rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; opacity: 0.7; }
+        .main-footer a { color: var(--secondary-color); text-decoration: none; font-weight: 600; }
+        .main-footer a:hover { text-decoration: underline; }
 
-        /* Dark Mode Styles */
-        body.darkmode .mode-box {
-            background: #2d2d2d;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        body.darkmode .mode-box h2 {
-            color: #ffffff;
-        }
-
-        body.darkmode .mode-box p {
-            color: #a0aec0;
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .mode-container { grid-template-columns: 1fr; }
+            .page-wrapper, .main-header { padding: 0 1rem; }
+            .header-content { padding: 1rem 0; }
+            .main-header { padding: 0.5rem 1rem; }
+            .page-wrapper { padding-top: 6rem; }
+            .profile-email { display: none; }
         }
     </style>
 </head>
 
 <body>
 
+<div id="particles-bg"></div>
+
 <header class="main-header">
     <div class="header-content">
-        <a href="/" style="text-decoration: none; color: inherit;">
-            <span class="header-logo">Freest<b>AI</b>le</span>
-        </a>
-        <div class="flex items-center space-x-4">
+        <a href="/" style="text-decoration: none;"><span class="header-logo">Freest<b>AI</b>le</span></a>
+        <div class="header-nav">
             <% if (it.user) { %>
-            <!-- Eingeloggter Benutzer -->
-            <div class="profile-container">
-                <a href="/user" style="text-decoration: none;">
-                    <div class="profile-circle">
-                        <%= it.user.email.charAt(0).toUpperCase() %>
-                    </div>
-                </a>
-                <div class="profile-email"><%= it.user.email %></div>
-                <a href="#" class="auth-button auth-button-logout" onclick="(async function(e) { e.preventDefault(); try { const response = await fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' } }); if (response.ok) window.location.reload(); } catch (error) { console.error('Logout-Fehler:', error); } })(event)">
-                    <span>Abmelden</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-            </div>
+            <a href="/user" class="user-profile-link"><div class="user-profile"><div class="profile-avatar"><%= it.user.email.charAt(0).toUpperCase() %></div><span class="profile-email"><%= it.user.email %></span></div></a>
+            <button class="cta cta--logout" onclick="(async function(e) { e.preventDefault(); try { await fetch('/api/auth/logout', { method: 'POST' }); window.location.reload(); } catch (error) { console.error('Logout error:', error); } })(event)"><span>Logout</span><svg width="15px" height="10px" viewBox="0 0 13 10"><polyline points="8 1 12 5 8 9"></polyline></svg></button>
             <% } else { %>
-            <!-- Nicht eingeloggter Benutzer -->
-            <div class="auth-buttons">
-                <a href="#" class="auth-button auth-button-login" onclick="openAuthModal('login'); return false;">
-                    <span>Anmelden</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-                <a href="#" class="auth-button auth-button-register" onclick="openAuthModal('register'); return false;">
-                    <span>Registrieren</span>
-                    <svg width="15px" height="10px" viewBox="0 0 13 10">
-                        <path d="M1,5 L11,5"></path>
-                        <polyline points="8 1 12 5 8 9"></polyline>
-                    </svg>
-                </a>
-            </div>
+            <button class="cta cta--login" onclick="openAuthModal('login'); return false;"><span>Login</span><svg width="15px" height="10px" viewBox="0 0 13 10"><polyline points="8 1 12 5 8 9"></polyline></svg></button>
             <% } %>
-            <label class="switch">
-                <input id="darkmode-toggle" type="checkbox">
-                <span class="slider">
-                    <span class="star star_1"></span>
-                    <span class="star star_2"></span>
-                    <span class="star star_3"></span>
-                    <svg viewBox="0 0 16 16" class="cloud_1 cloud">
-                        <path
-                                transform="matrix(.77976 0 0 .78395-299.99-418.63)"
-                                fill="#fff"
-                                d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
-                        ></path>
-                    </svg>
-                </span>
-            </label>
+            <div class="dark-mode-toggle" id="theme-toggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></div>
         </div>
     </div>
 </header>
 
-<div class="container-wrapper">
-    <div class="container">
-        <div class="header">
-            <h1 class="logo"><b>MULTI</b>player-Mode</h1>
+<div class="page-wrapper">
+    <div class="content-wrap">
+        <div class="page-header">
+            <h1><b>MULTI</b>player Mode</h1>
         </div>
 
         <div class="mode-container">
             <div class="mode-box">
                 <div>
+                    <i class="fa-solid fa-display mode-icon"></i>
                     <h2>1 Device Mode</h2>
-                    <p>Spielt gemeinsam an einem einzigen Bildschirm. Alle sehen die Präsentation auf dem Hauptgerät – perfekt für spontane Runden auf dem Sofa oder am Beamer.</p>
+                    <p>Play together on a single screen. Everyone sees the presentation on the main device – perfect for spontaneous rounds on the couch or with a projector.</p>
                 </div>
-                <form class="main-form" action="/1-device-mode" method="get">
-                    <div class="input-group">
-                        <button type="submit" class="mode-button">1 Device Mode starten</button>
-                    </div>
+                <form action="/1-device-mode" method="get">
+                    <button type="submit" class="mode-button">Start 1 Device Mode</button>
                 </form>
             </div>
 
             <div class="mode-box">
                 <div>
+                    <i class="fa-solid fa-mobile-screen-button mode-icon"></i>
                     <h2>Multi Device Mode</h2>
-                    <p>Jeder Spieler nutzt sein eigenes Smartphone oder Laptop. Zusätzlich zum Hauptbildschirm könnt ihr chatten und live Reaktionen auf die Folien senden.</p>
+                    <p>Each player uses their own smartphone or laptop. In addition to the main screen, you can chat and send live reactions to the slides.</p>
                 </div>
-                <form class="main-form" action="/multi-device-mode" method="get">
-                    <div class="input-group">
-                        <button type="submit" class="mode-button">Multi Device Mode starten</button>
-                    </div>
+                <form action="/multi-device-mode" method="get">
+                    <button type="submit" class="mode-button">Start Multi Device Mode</button>
                 </form>
             </div>
         </div>
     </div>
+
+    <footer class="main-footer">
+        © 2025 FreestAIle | The ultimate tool for PowerPoint Karaoke | <a href="/imprint">Imprint</a> | Images by <a href="https://www.pixabay.com" target="_blank" rel="noopener">Pixabay</a>
+    </footer>
 </div>
+
+<!-- Modal würde hier bei Bedarf eingefügt werden -->
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.getElementById('darkmode-toggle');
-
-        const isDark = document.documentElement.classList.contains('darkmode');
-
-        toggle.checked = !isDark;
-
-        document.body.classList.toggle('darkmode', isDark);
-
-        toggle.addEventListener('change', function() {
-            const dark = !toggle.checked;
-            document.documentElement.classList.toggle('darkmode', dark);
-            document.body.classList.toggle('darkmode', dark);
-            localStorage.setItem('darkmode', dark.toString());
-        });
+        // Dark Mode Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            const themeToggleIcon = themeToggle.querySelector('i');
+            const htmlEl = document.documentElement;
+            const setTheme = (theme) => {
+                htmlEl.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            };
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            themeToggle.addEventListener('click', () => {
+                const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+        }
     });
 </script>
 </body>
