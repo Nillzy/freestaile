@@ -233,14 +233,14 @@
 
         <div class="game-controls">
             <select class="language-selector" id="languageChooser">
-                <option value="en">🇬🇧 English</option>
-                <optgroup label="🇩🇪 German"><option value="Deutsch">Standard German</option><option value="Bayerisch">🥨 Bavarian</option><option value="Schwaebisch">🏰 Swabian</option><option value="Koelsch">🍺 Kölsch</option></optgroup>
-                <option value="Franzoesisch">🇫🇷 French</option>
-                <option value="Spanisch">🇪🇸 Spanish</option>
-                <option value="Italienisch">🇮🇹 Italian</option>
-                <option value="Portugiesisch">🇵🇹 Portuguese</option>
-                <option value="Russisch">🇷🇺 Russian</option>
-                <option value="Chinesisch">🇨🇳 Chinese</option>
+                <option value="English">🇬🇧 English</option>
+                <optgroup label="🇩🇪 German"><option value="German">Standard German</option><option value="Bavarian/Bayerisch">🥨 Bavarian</option><option value="Schwäbisch/Swabian">🏰 Swabian</option><option value="Koelsch/Cologne">🍺 Kölsch</option></optgroup>
+                <option value="French">🇫🇷 French</option>
+                <option value="Spanish">🇪🇸 Spanish</option>
+                <option value="Italian">🇮🇹 Italian</option>
+                <option value="Portuguese">🇵🇹 Portuguese</option>
+                <option value="Russian">🇷🇺 Russian</option>
+                <option value="Chinese">🇨🇳 Chinese</option>
             </select>
             <button id="startGameButton" class="start-game-button" disabled>Start Game</button>
         </div>
