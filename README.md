@@ -129,7 +129,7 @@ Die Multiplayer-Funktionen basieren auf einer Kombination aus serverseitiger Log
 4. **Spiel starten**  
    Sobald alle Präsentationen bereit sind, startet der Host das Spiel. Alle Spieler wechseln synchron in den Präsentationsmodus, wobei ihre individuellen Inhalte angezeigt werden.
 
-   <img src="generation" alt="FreestAIle Banner" width="100%" style="max-width: 800px; border-radius: 8px;"/>
+   <img src="generation.png" alt="FreestAIle Banner" width="100%" style="max-width: 800px; border-radius: 8px;"/>
 
 ---
 
