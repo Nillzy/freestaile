@@ -166,6 +166,6 @@ Wir haben versucht, auf ein möglichst einheitliches und modernes UI zu setzen. 
 ---
 
 <div align="center">
-  <p>Made with 💡 by the FreestAIle Team</p>
+  <p>Made with 💡 in Karlsruhe by the FreestAIle Team</p>
   <p><a href="#top">⬆️ Zurück nach oben</a></p>
 </div>
