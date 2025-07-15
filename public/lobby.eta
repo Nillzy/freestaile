@@ -263,7 +263,7 @@
 <script>
     // ... (vorheriger JavaScript-Code bleibt unverändert) ...
     let lobbyPollingInterval = null;
-    const POLLING_INTERVAL_MS = 7000;
+    const POLLING_INTERVAL_MS = 2000;
     const MIN_PLAYERS_TO_START = 1;
     const LOBBY_ID = '<%= it.lobbyId || "" %>';
     const USER_ID = '<%= it.userId || "" %>';
