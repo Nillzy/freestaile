@@ -155,6 +155,20 @@ Im Mehrspieler-Modus hingegen muss nun entschieden werden, ob zusammen auf einem
 
 Mit einem einzigen Gerät werden dann für jeden Spieler einzelne Präsentationen generiert, auf welche gesammelt zugegriffen werden kann je nachdem, welcher Spieler gerade präsentiert. Bei mehreren Geräten wird ein QR-Code bereitgestellt, welcher dann die weiteren Geräte (vorzugsweise die Smartphones der Mitspieler) auf eine Oberfläche weiterleitet, auf der dann auf den Session-exklusiven Chat (Websocket) und weitere Reaktions-Funktionen zugegriffen werden kann.
 
+```
+FreestAIle Application Routes
+│
+├── / (Landing-Page)
+├── /main (Dashboard)
+├── /present (Präsentationsansicht für QUICKmode)
+├── /multi (Multiplayer – Modusauswahl)
+├── /1-device-mode (Multiplayer – 1-Device-Mode)
+├── /multi-device-mode (Multiplayer – Multi-Device-Mode)
+├── /lobby (Multiplayer – Lobby)
+├── /user (Accountansicht)
+└── /imprint (Impressum)
+```
+
 ---
 
 ## 🎨 Design
