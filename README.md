@@ -8,8 +8,8 @@
   <p align="center">
     <a href="#-about">About</a>
     <a href="#-tech-stack">Tech Stack</a>
-    <a href="#implementation">Implementation</a>
-    <a href="#struktur-der-website">Webstruktur</a>
+    <a href="#-implementation">Implementation</a>
+    <a href="#-structure">Webstruktur</a>
     <a href="#-design">Design</a>
   </p>
 </div>
