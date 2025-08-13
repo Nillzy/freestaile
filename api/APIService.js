@@ -225,7 +225,7 @@ async function fetchImage(motif) {
         }
 
         const json = await response.json();
-        let link = json.hits?.[0]?.webformatURL;
+        let link = json.hits?.[0]?.largeImageURL;
 
         if (!link) {
             throw new Error(`Could not fetch image ${motif}, link is undefined.`);
